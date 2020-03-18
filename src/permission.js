@@ -1,10 +1,10 @@
 import router from './router'
-import store from './store'
+import store from './web/store'
 import { Message } from 'element-ui'
 import NProgress from 'nprogress' // progress bar
 import 'nprogress/nprogress.css' // progress bar style
-import { getToken } from '@/utils/auth' // get token from cookie
-import getPageTitle from '@/utils/get-page-title'
+import { getToken } from '@/web/utils/auth' // get token from cookie
+import getPageTitle from '@/web/utils/get-page-title'
 
 NProgress.configure({ showSpinner: false }) // NProgress Configuration
 
