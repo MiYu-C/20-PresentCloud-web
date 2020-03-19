@@ -49,9 +49,9 @@ export const constantRoutes = [
     redirect: '/dashboard',
     children: [{
       path: 'dashboard',
-      name: 'Dashboard',
+      name: '首页',
       component: () => import('@/web/routes/dashboard/index'),
-      meta: { title: 'Dashboard', icon: 'dashboard' }
+      meta: { title: '首页', icon: 'dashboard' }
     }]
   },
 
@@ -59,38 +59,30 @@ export const constantRoutes = [
     path: '/example',
     component: Layout,
     redirect: '/example/table',
-    name: 'Example',
-    meta: { title: 'Example', icon: 'example' },
+    name: '标准界面',
+    meta: { title: '标准界面', icon: 'example' },
     children: [
       {
         path: 'table',
-        name: 'Table',
+        name: '列表',
         component: () => import('@/web/routes/table/index'),
-        meta: { title: 'Table', icon: 'table' }
+        meta: { title: '列表', icon: 'table' }
       },
-      {
+      /* {
         path: 'tree',
         name: 'Tree',
         component: () => import('@/web/routes/tree/index'),
         meta: { title: 'Tree', icon: 'tree' }
-      }
-    ]
-  },
-
-  {
-    path: '/form',
-    component: Layout,
-    children: [
+      }, */
       {
-        path: 'index',
-        name: 'Form',
+        path: 'form',
+        name: '编辑',
         component: () => import('@/web/routes/form/index'),
-        meta: { title: 'Form', icon: 'form' }
+        meta: { title: '编辑', icon: 'form' }
       }
     ]
   },
-
-  {
+  /*   {
     path: '/nested',
     component: Layout,
     redirect: '/nested/menu1',
@@ -146,9 +138,9 @@ export const constantRoutes = [
         meta: { title: 'menu2' }
       }
     ]
-  },
+  }, */
 
-  {
+  /* {
     path: 'external-link',
     component: Layout,
     children: [
@@ -157,7 +149,7 @@ export const constantRoutes = [
         meta: { title: 'External Link', icon: 'link' }
       }
     ]
-  },
+  }, */
 
   // 404 page must be placed at the end !!!
   { path: '*', redirect: '/404', hidden: true }
