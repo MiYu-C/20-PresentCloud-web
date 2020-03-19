@@ -12,10 +12,5 @@ module.exports = {
    * @type {boolean} true | false
    * @description Whether show the logo in sidebar
    */
-  sidebarLogo: true,
-
-  /**
-   * @description 是否显示 tagsView
-   */
-  tagsView: true
+  sidebarLogo: true
 }
