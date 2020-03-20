@@ -1,8 +1,11 @@
 <template>
   <el-card class="box-card">
+    <div slot="header" class="clearfix">
+      <span>标准列表</span>
+    </div>
     <div>
       <el-table
-        :data="tableData1"
+        :data="tableData"
         style="width: 100%"
         row-key="id"
         border
@@ -28,6 +31,19 @@
           prop="address"
           label="地址"
         />
+        <el-table-column label="操作" width="150">
+          <template slot-scope="scope">
+            <el-button
+              size="mini"
+              @click="handleEdit(scope.$index, scope.row)"
+            >编辑</el-button>
+            <el-button
+              size="mini"
+              type="danger"
+              @click="handleDelete(scope.$index, scope.row)"
+            >删除</el-button>
+          </template>
+        </el-table-column>
       </el-table>
     </div>
   </el-card>
@@ -36,15 +52,15 @@
 export default {
   data() {
     return {
-      tableData1: [{
+      tableData: [{
         id: 1,
         date: '2016-05-02',
-        name: '王小虎',
+        name: '王小猫',
         address: '上海市普陀区金沙江路 1518 弄'
       }, {
         id: 2,
         date: '2016-05-04',
-        name: '王小虎',
+        name: '王小牛',
         address: '上海市普陀区金沙江路 1517 弄'
       }, {
         id: 3,
@@ -55,13 +71,20 @@ export default {
       }, {
         id: 4,
         date: '2016-05-03',
-        name: '王小虎',
+        name: '王小龙',
         address: '上海市普陀区金沙江路 1516 弄'
       }]
     }
   },
   methods: {
+    handleEdit(index, row) {
+      console.log(index, row)
+    },
+    handleDelete(index, row) {
+      console.log(index, row)
+    },
     load(tree, treeNode, resolve) {
+      console.log('参数', tree.id)
       setTimeout(() => {
         resolve([
           {
