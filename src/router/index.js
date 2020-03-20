@@ -64,9 +64,15 @@ export const constantRoutes = [
     children: [
       {
         path: 'table',
-        name: '列表',
+        name: '表格',
         component: () => import('@/web/routes/table/index'),
-        meta: { title: '列表', icon: 'table' }
+        meta: { title: '表格', icon: 'table' }
+      },
+      {
+        path: 'list',
+        name: '列表',
+        component: () => import('@/web/routes/list/index'),
+        meta: { title: '列表', icon: 'list' }
       },
       /* {
         path: 'tree',
