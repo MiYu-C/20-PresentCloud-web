@@ -62,12 +62,12 @@ export const constantRoutes = [
     name: '标准界面',
     meta: { title: '标准界面', icon: 'example' },
     children: [
-      {
-        path: 'table',
-        name: '表格',
-        component: () => import('@/web/routes/table/index'),
-        meta: { title: '表格', icon: 'table' }
-      },
+      // {
+      //   path: 'table',
+      //   name: '表格',
+      //   component: () => import('@/web/routes/table/index'),
+      //   meta: { title: '表格', icon: 'table' }
+      // },
       {
         path: 'list',
         name: '列表',
