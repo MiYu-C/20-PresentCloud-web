@@ -13,7 +13,7 @@
           <a style="color:#20a0ff" href="https://www.baidu.com" target="_blank">去百度搜索</a>
         </div>
         <div class="bullshit__headline">{{ message }}</div>
-        <div class="bullshit__info">请确认您的URL是否正确或点击下方按钮返回.</div>
+        <div class="bullshit__info">请确认IWAM账号密码.</div>
         <a href="" class="bullshit__return-home">返回首页</a>
       </div>
     </div>
@@ -26,7 +26,7 @@ export default {
   name: 'Page500',
   computed: {
     message() {
-      return 'Sorry, 页面找不到了'
+      return '服务器内部错误！'
     }
   }
 }
@@ -50,7 +50,7 @@ export default {
     width: 600px;
     overflow: hidden;
     &__parent {
-      width: 80%;
+      width: 70%;
     }
     &__child {
       position: absolute;
