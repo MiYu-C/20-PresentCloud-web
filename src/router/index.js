@@ -38,6 +38,12 @@ export const constantRoutes = [
   },
 
   {
+    path: '/findPwd',
+    component: () => import('@/web/routes/login/findPwd/index'),
+    hidden: true
+  },
+
+  {
     path: '/404',
     component: () => import('@/web/routes/404'),
     hidden: true
@@ -58,7 +64,7 @@ export const constantRoutes = [
   {
     path: '/example',
     component: Layout,
-    redirect: '/example/table',
+    redirect: '/example/list',
     name: '标准界面',
     meta: { title: '标准界面', icon: 'example' },
     children: [
