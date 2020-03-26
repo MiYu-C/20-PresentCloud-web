@@ -4,7 +4,7 @@
       <span>编辑信息</span>
     </div>
     <div>
-      <el-col :span="22" offset="1">
+      <el-col :span="22" :offset="1">
         <div style="margin: 20px 0;" />
         <el-form ref="form" :model="form" label-width="auto" label-position="left">
           <el-form-item label="邮箱">
