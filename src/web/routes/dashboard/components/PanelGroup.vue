@@ -26,7 +26,7 @@
         </div>
       </div>
     </el-col>
-    <el-col span="12">
+    <el-col :span="12">
       <el-card shadow="never">
         <div slot="header" class="text">
           <span>系统通知</span>
