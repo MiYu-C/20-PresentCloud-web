@@ -1,11 +1,11 @@
 <template>
-  <div class="wscn-http404-container">
-    <div class="wscn-http404">
-      <div class="pic-404">
-        <img class="pic-404__parent" src="@/assets/404_images/404.png" alt="404">
-        <img class="pic-404__child left" src="@/assets/404_images/404_cloud.png" alt="404">
-        <img class="pic-404__child mid" src="@/assets/404_images/404_cloud.png" alt="404">
-        <img class="pic-404__child right" src="@/assets/404_images/404_cloud.png" alt="404">
+  <div class="wscn-http403-container">
+    <div class="wscn-http403">
+      <div class="pic-403">
+        <img class="pic-403__parent" src="@/assets/403_images/403.jpg" alt="403">
+        <img class="pic-403__child left" src="@/assets/403_images/403_cloud.png" alt="403">
+        <img class="pic-403__child mid" src="@/assets/403_images/403_cloud.png" alt="403">
+        <img class="pic-403__child right" src="@/assets/403_images/403_cloud.png" alt="403">
       </div>
       <div class="bullshit">
         <div class="bullshit__oops">OOPS!</div>
@@ -23,7 +23,7 @@
 <script>
 
 export default {
-  name: 'Page404',
+  name: 'Page403',
   computed: {
     message() {
       return 'Sorry, 页面找不到了'
@@ -33,18 +33,18 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.wscn-http404-container{
+.wscn-http403-container{
   transform: translate(-50%,-50%);
   position: absolute;
   top: 40%;
   left: 50%;
 }
-.wscn-http404 {
+.wscn-http403 {
   position: relative;
   width: 1200px;
   padding: 0 50px;
   overflow: hidden;
-  .pic-404 {
+  .pic-403 {
     position: relative;
     float: left;
     width: 600px;
@@ -165,7 +165,7 @@ export default {
       font-size: 32px;
       font-weight: bold;
       line-height: 40px;
-      color: #1482f0;
+      color: #909399;
       opacity: 0;
       margin-bottom: 20px;
       animation-name: slideUp;

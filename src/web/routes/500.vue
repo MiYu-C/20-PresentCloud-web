@@ -1,11 +1,11 @@
 <template>
-  <div class="wscn-http404-container">
-    <div class="wscn-http404">
-      <div class="pic-404">
-        <img class="pic-404__parent" src="@/assets/404_images/404.png" alt="404">
-        <img class="pic-404__child left" src="@/assets/404_images/404_cloud.png" alt="404">
-        <img class="pic-404__child mid" src="@/assets/404_images/404_cloud.png" alt="404">
-        <img class="pic-404__child right" src="@/assets/404_images/404_cloud.png" alt="404">
+  <div class="wscn-http500-container">
+    <div class="wscn-http500">
+      <div class="pic-500">
+        <img class="pic-500__parent" src="@/assets/500_images/500.png" alt="500">
+        <img class="pic-500__child left" src="@/assets/500_images/500_cloud.png" alt="500">
+        <img class="pic-500__child mid" src="@/assets/500_images/500_cloud.png" alt="500">
+        <img class="pic-500__child right" src="@/assets/500_images/500_cloud.png" alt="500">
       </div>
       <div class="bullshit">
         <div class="bullshit__oops">OOPS!</div>
@@ -23,7 +23,7 @@
 <script>
 
 export default {
-  name: 'Page404',
+  name: 'Page500',
   computed: {
     message() {
       return 'Sorry, 页面找不到了'
@@ -33,24 +33,24 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.wscn-http404-container{
+.wscn-http500-container{
   transform: translate(-50%,-50%);
   position: absolute;
   top: 40%;
   left: 50%;
 }
-.wscn-http404 {
+.wscn-http500 {
   position: relative;
   width: 1200px;
   padding: 0 50px;
   overflow: hidden;
-  .pic-404 {
+  .pic-500 {
     position: relative;
     float: left;
     width: 600px;
     overflow: hidden;
     &__parent {
-      width: 100%;
+      width: 80%;
     }
     &__child {
       position: absolute;
@@ -165,7 +165,7 @@ export default {
       font-size: 32px;
       font-weight: bold;
       line-height: 40px;
-      color: #1482f0;
+      color:#409EFF;
       opacity: 0;
       margin-bottom: 20px;
       animation-name: slideUp;

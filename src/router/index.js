@@ -50,6 +50,24 @@ export const constantRoutes = [
   },
 
   {
+    path: '/403',
+    component: () => import('@/web/routes/403'),
+    hidden: true
+  },
+
+  {
+    path: '/500',
+    component: () => import('@/web/routes/500'),
+    hidden: true
+  },
+
+  {
+    path: '/def',
+    component: () => import('@/web/routes/def'),
+    hidden: true
+  },
+
+  {
     path: '/',
     component: Layout,
     redirect: '/dashboard',
