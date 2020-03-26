@@ -6,44 +6,48 @@
         <h3 class="title">到云签到</h3>
       </div>
 
-      <el-tabs v-model="activeName" @tab-click="handleClick">
+      <el-tabs v-model="activeName">
         <el-tab-pane label="手机号码登录" name="first">
           <el-form-item prop="phone">
-            <span class="svg-container">
+            <!-- <span class="svg-container">
               <svg-icon icon-class="user" />
-            </span>
+            </span> -->
             <el-input
               ref="phone"
               v-model="loginForm.phone"
-              placeholder="账户"
+              placeholder="手机号码"
               name="phone"
               type="text"
               tabindex="1"
               auto-complete="on"
+              prefix-icon="el-icon-mobile-phone"
             />
           </el-form-item>
           <el-form-item prop="code">
-            <span class="svg-container">
+            <!-- <span class="svg-container">
               <svg-icon icon-class="password" />
-            </span>
+            </span> -->
             <el-input
               ref="code"
               v-model="loginForm.code"
-              placeholder="密码"
+              placeholder="验证码"
               name="code"
               tabindex="2"
               auto-complete="on"
-            />
-            <span class="show-pwd" @click="sendCode">
-              <el-button type="primary">{{ codeStatus }}</el-button>
-            </span>
+              prefix-icon="el-icon-key"
+            >
+              <el-button slot="append" :disabled="resend" @click="sendCode">{{ codeStatus }}</el-button>
+            </el-input>
+            <!-- <span class="show-pwd">
+              <el-button type="primary" :disabled="resend" @click="sendCode">{{ codeStatus }}</el-button>
+            </span> -->
           </el-form-item>
         </el-tab-pane>
         <el-tab-pane label="帐号密码登录" name="second">
           <el-form-item prop="username">
-            <span class="svg-container">
+            <!-- <span class="svg-container">
               <svg-icon icon-class="user" />
-            </span>
+            </span> -->
             <el-input
               ref="username"
               v-model="loginForm.username"
@@ -52,13 +56,14 @@
               type="text"
               tabindex="1"
               auto-complete="on"
+              prefix-icon="el-icon-s-custom"
             />
           </el-form-item>
 
           <el-form-item prop="password">
-            <span class="svg-container">
+            <!-- <span class="svg-container">
               <svg-icon icon-class="password" />
-            </span>
+            </span> -->
             <el-input
               :key="passwordType"
               ref="password"
@@ -68,11 +73,14 @@
               name="password"
               tabindex="2"
               auto-complete="on"
+              prefix-icon="el-icon-unlock"
               @keyup.enter.native="handleLogin"
-            />
-            <span class="show-pwd" @click="showPwd">
+            >
+              <el-button slot="append" @click="showPwd">{{ passwordType === 'password' ? '显示密码' : '隐藏密码' }}</el-button>
+            </el-input>
+            <!-- <span class="show-pwd" @click="showPwd">
               <svg-icon :icon-class="passwordType === 'password' ? 'eye' : 'eye-open'" />
-            </span>
+            </span> -->
           </el-form-item>
         </el-tab-pane>
       </el-tabs>
@@ -80,7 +88,9 @@
       <div class="tips">
         <el-row type="flex" justify="end">
           <el-col :span="12"><el-checkbox v-model="checked">自动登录</el-checkbox></el-col>
-          <el-col :span="12" offset="16"><el-link type="primary" :underline="false" @click.native.prevent="findPwd">忘记密码</el-link></el-col>
+          <el-col :span="12" :offset="16">
+            <el-link type="primary" :underline="false" @click.native.prevent="findPwd">忘记密码</el-link>
+          </el-col>
         </el-row>
       </div>
 
@@ -92,6 +102,39 @@
       </div> -->
 
     </el-form>
+    <el-dialog
+      title="忘记密码"
+      :visible.sync="findPwdVisible"
+      width="50%"
+      :show-close="false"
+      :destroy-on-close="true"
+    >
+      <el-col :span="22">
+        <el-form ref="ruleForm" :model="ruleForm" :rules="rules" label-position="right">
+          <el-form-item label="帐号" :label-width="formLabelWidth" prop="user">
+            <el-input v-model="ruleForm.user" placeholder="请输入帐号" clearable />
+          </el-form-item>
+          <el-form-item label="手机号" :label-width="formLabelWidth" prop="user">
+            <el-input v-model="ruleForm.user" placeholder="请输入手机号" clearable />
+          </el-form-item>
+          <el-form-item label="验证码" :label-width="formLabelWidth" prop="user">
+            <el-input v-model="ruleForm.user" placeholder="请输入验证码" clearable>
+              <el-button slot="append" :disabled="resend" @click="sendCode">{{ codeStatus }}</el-button>
+            </el-input>
+          </el-form-item>
+          <el-form-item label="新密码" :label-width="formLabelWidth" prop="user">
+            <el-input v-model="ruleForm.user" placeholder="请输入新密码" clearable />
+          </el-form-item>
+          <el-form-item label="确认密码" :label-width="formLabelWidth" prop="user">
+            <el-input v-model="ruleForm.user" placeholder="请再次输入密码" clearable />
+          </el-form-item>
+        </el-form>
+      </el-col>
+      <span slot="footer" class="dialog-footer">
+        <el-button type="primary" @click="closeForm">确 定</el-button>
+        <el-button @click="closeForm">取 消</el-button>
+      </span>
+    </el-dialog>
   </div>
 </template>
 
@@ -126,12 +169,23 @@ export default {
         username: [{ required: true, trigger: 'blur', validator: validateUsername }],
         password: [{ required: true, trigger: 'blur', validator: validatePassword }]
       },
+      ruleForm: {
+        user: ''
+      },
+      rules: {
+        user: [
+          { required: true, message: '请输入', trigger: 'blur' }
+        ]
+      },
       loading: false,
       passwordType: 'password',
       redirect: undefined,
       activeName: 'second',
       codeStatus: '获取验证码',
-      checked: true
+      findPwdVisible: false,
+      resend: false,
+      checked: true,
+      formLabelWidth: '100px'
     }
   },
   watch: {
@@ -153,11 +207,17 @@ export default {
         this.$refs.password.focus()
       })
     },
+    closeForm() {
+      this.findPwdVisible = false
+    },
     findPwd() {
-      this.$router.push('/findPwd')
+      // this.$router.push('/findPwd')
+      this.findPwdVisible = true
     },
     sendCode() {
-      this.codeStatus = '重新发送 60s'
+      this.resend = !this.resend
+      this.codeStatus = '60s'
+      console.log(this.resend)
     },
     handleLogin() {
       if (this.activeName === 'second') {
@@ -200,18 +260,18 @@ $cursor: #fff;
 /* reset element-ui css */
 .login-container {
   .el-input {
-    display: inline-block;
-    height: 47px;
-    width: 85%;
+    // display: inline-block;
+    // height: 47px;
+    // width: 85%;
 
     input {
-      background: transparent;
-      border: 0px;
-      -webkit-appearance: none;
-      border-radius: 0px;
-      padding: 12px 5px 12px 15px;
+      // background: transparent;
+      // border: 0px;
+      // -webkit-appearance: none;
+      // border-radius: 0px;
+      // padding: 12px 5px 12px 15px;
       color: #111;
-      height: 47px;
+      // height: 47px;
       caret-color: $cursor;
 
       &:-webkit-autofill {
@@ -223,7 +283,7 @@ $cursor: #fff;
 
   .el-form-item {
     border: 1px solid rgba(255, 255, 255, 0.1);
-    background: rgb(255, 255, 255);
+    // background: rgb(255, 255, 255);
     border-radius: 5px;
     color: #454545;
   }
