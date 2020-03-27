@@ -76,7 +76,10 @@
               prefix-icon="el-icon-unlock"
               @keyup.enter.native="handleLogin"
             >
-              <el-button slot="append" @click="showPwd">{{ passwordType === 'password' ? '显示密码' : '隐藏密码' }}</el-button>
+              <el-button slot="append" @click="showPwd">
+                <!-- {{ passwordType === 'password' ? '显示密码' : '隐藏密码' }} -->
+                <svg-icon :icon-class="passwordType === 'password' ? 'eye' : 'eye-open'" />
+              </el-button>
             </el-input>
             <!-- <span class="show-pwd" @click="showPwd">
               <svg-icon :icon-class="passwordType === 'password' ? 'eye' : 'eye-open'" />
@@ -88,7 +91,7 @@
       <div class="tips">
         <el-row type="flex" justify="end">
           <el-col :span="12"><el-checkbox v-model="checked">自动登录</el-checkbox></el-col>
-          <el-col :span="12" :offset="16">
+          <el-col :span="12" :offset="15">
             <el-link type="primary" :underline="false" @click.native.prevent="findPwd">忘记密码</el-link>
           </el-col>
         </el-row>
@@ -304,7 +307,7 @@ $light_gray:#eee;
 
   .login-form {
     position: relative;
-    width: 520px;
+    width: 470px;
     max-width: 100%;
     padding: 160px 35px 0;
     margin: 0 auto;
