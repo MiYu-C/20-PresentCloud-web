@@ -117,7 +117,7 @@ export const constantRoutes = [
     component: Layout,
     redirect: '/user/student',
     name: '用户管理',
-    meta: { title: '用户管理', icon: 'example' },
+    meta: { title: '用户管理', icon: 'user' },
     children: [
       {
         path: 'student',
@@ -136,6 +136,63 @@ export const constantRoutes = [
         name: '管理员',
         component: () => import('@/web/routes/list/index'),
         meta: { title: '管理员', icon: 'form' }
+      }
+    ]
+  },
+  {
+    path: '/role',
+    component: Layout,
+    redirect: '/role/role',
+    name: '角色管理',
+    meta: { title: '角色管理', icon: 'role' },
+    children: [
+      {
+        path: 'role',
+        name: '角色管理',
+        component: () => import('@/web/routes/404'),
+        meta: { title: '角色管理', icon: 'role' }
+      }
+    ]
+  },
+  {
+    path: '/system',
+    component: Layout,
+    redirect: '/system/dictionary',
+    name: '系统管理',
+    meta: { title: '系统管理', icon: 'monitor' },
+    children: [
+      {
+        path: 'dictionary',
+        name: '数据字典',
+        component: () => import('@/web/routes/404'),
+        meta: { title: '数据字典', icon: 'table' }
+      },
+      {
+        path: 'menu',
+        name: '菜单管理',
+        component: () => import('@/web/routes/404'),
+        meta: { title: '菜单管理', icon: 'table' }
+      }
+    ]
+  },
+  {
+    path: '/school',
+    component: Layout,
+    redirect: '/school/school',
+    name: '学校管理',
+    meta: { title: '学校管理', icon: 'education' },
+    children: [
+      {
+        path: 'school',
+        name: '院校管理',
+        component: () => import('@/web/routes/404'),
+        meta: { title: '院校管理', icon: 'table' }
+      },
+      {
+        path: 'study',
+        name: '学习行为管理',
+        component: () => import('@/web/routes/404'),
+        meta: { title: '学习行为管理', icon: 'table' }
       }
     ]
   },
