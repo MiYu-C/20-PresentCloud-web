@@ -112,6 +112,33 @@ export const constantRoutes = [
       }
     ]
   },
+  {
+    path: '/user',
+    component: Layout,
+    redirect: '/user/student',
+    name: '用户管理',
+    meta: { title: '用户管理', icon: 'example' },
+    children: [
+      {
+        path: 'student',
+        name: '学生管理',
+        component: () => import('@/web/routes/list/index'),
+        meta: { title: '学生管理', icon: 'table' }
+      },
+      {
+        path: 'teacher',
+        name: '教师管理',
+        component: () => import('@/web/routes/list/index'),
+        meta: { title: '教师管理', icon: 'list' }
+      },
+      {
+        path: 'manager',
+        name: '管理员',
+        component: () => import('@/web/routes/list/index'),
+        meta: { title: '管理员', icon: 'form' }
+      }
+    ]
+  },
   /*   {
     path: '/nested',
     component: Layout,
