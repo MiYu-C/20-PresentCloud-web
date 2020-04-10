@@ -122,19 +122,19 @@ export const constantRoutes = [
       {
         path: 'student',
         name: '学生管理',
-        component: () => import('@/web/routes/list/index'),
+        component: () => import('@/web/routes/user/student/index'),
         meta: { title: '学生管理', icon: 'table' }
       },
       {
         path: 'teacher',
         name: '教师管理',
-        component: () => import('@/web/routes/list/index'),
+        component: () => import('@/web/routes/user/teacher/index'),
         meta: { title: '教师管理', icon: 'list' }
       },
       {
         path: 'manager',
         name: '管理员',
-        component: () => import('@/web/routes/list/index'),
+        component: () => import('@/web/routes/user/manager/index'),
         meta: { title: '管理员', icon: 'form' }
       }
     ]
@@ -149,7 +149,7 @@ export const constantRoutes = [
       {
         path: 'role',
         name: '角色管理',
-        component: () => import('@/web/routes/404'),
+        component: () => import('@/web/routes/role/index'),
         meta: { title: '角色管理', icon: 'role' }
       }
     ]
@@ -164,13 +164,13 @@ export const constantRoutes = [
       {
         path: 'dictionary',
         name: '数据字典',
-        component: () => import('@/web/routes/404'),
+        component: () => import('@/web/routes/system/dictionary/index'),
         meta: { title: '数据字典', icon: 'table' }
       },
       {
         path: 'menu',
         name: '菜单管理',
-        component: () => import('@/web/routes/404'),
+        component: () => import('@/web/routes/system/menu/index'),
         meta: { title: '菜单管理', icon: 'table' }
       }
     ]
@@ -185,13 +185,13 @@ export const constantRoutes = [
       {
         path: 'school',
         name: '院校管理',
-        component: () => import('@/web/routes/404'),
+        component: () => import('@/web/routes/school/school/index'),
         meta: { title: '院校管理', icon: 'table' }
       },
       {
         path: 'study',
         name: '学习行为管理',
-        component: () => import('@/web/routes/404'),
+        component: () => import('@/web/routes/school/study/index'),
         meta: { title: '学习行为管理', icon: 'table' }
       }
     ]
