@@ -123,13 +123,13 @@ export const constantRoutes = [
         path: 'student',
         name: '学生管理',
         component: () => import('@/web/routes/user/student/index'),
-        meta: { title: '学生管理', icon: 'table' }
+        meta: { title: '学生管理', icon: 'peoples' }
       },
       {
         path: 'teacher',
         name: '教师管理',
         component: () => import('@/web/routes/user/teacher/index'),
-        meta: { title: '教师管理', icon: 'list' }
+        meta: { title: '教师管理', icon: 'peoples' }
       },
       {
         path: 'manager',
@@ -165,7 +165,7 @@ export const constantRoutes = [
         path: 'dictionary',
         name: '数据字典',
         component: () => import('@/web/routes/system/dictionary/index'),
-        meta: { title: '数据字典', icon: 'table' }
+        meta: { title: '数据字典', icon: 'documentation' }
       },
       {
         path: 'menu',
@@ -186,13 +186,13 @@ export const constantRoutes = [
         path: 'school',
         name: '院校管理',
         component: () => import('@/web/routes/school/school/index'),
-        meta: { title: '院校管理', icon: 'table' }
+        meta: { title: '院校管理', icon: 'school1' }
       },
       {
         path: 'study',
         name: '学习行为管理',
         component: () => import('@/web/routes/school/study/index'),
-        meta: { title: '学习行为管理', icon: 'table' }
+        meta: { title: '学习行为管理', icon: 'behavior' }
       }
     ]
   },
