@@ -7,6 +7,7 @@
         <img class="pic-403__child mid" src="@/assets/403_images/403_cloud.png" alt="403">
         <img class="pic-403__child right" src="@/assets/403_images/403_cloud.png" alt="403">
       </div>
+
       <div class="bullshit">
         <div class="bullshit__oops">OOPS!</div>
         <div class="bullshit__info">All rights reserved
@@ -26,7 +27,7 @@ export default {
   name: 'Page403',
   computed: {
     message() {
-      return '资源拒绝方法！'
+      return '资源拒绝访问！'
     }
   }
 }

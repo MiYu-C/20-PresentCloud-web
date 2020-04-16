@@ -196,6 +196,40 @@ export const constantRoutes = [
       }
     ]
   },
+  {
+    path: '/routes',
+    component: Layout,
+    redirect: 'noRedirect',
+    name: '异常管理',
+    meta: { title: '异常管理', icon: 'error' },
+    children: [
+      {
+        path: '404',
+        name: '404异常',
+        component: () => import('@/web/routes/404'),
+        meta: { title: '404', icon: '404' }
+      },
+      {
+        path: '403',
+        name: '403异常',
+        component: () => import('@/web/routes/403'),
+        meta: { title: '403', icon: '403' }
+      },
+      {
+        path: '500',
+        name: '500异常',
+        component: () => import('@/web/routes/500'),
+        meta: { title: '500', icon: '500' }
+      },
+      {
+        path: 'def1',
+        name: '自定义',
+        component: () => import('@/web/routes/def'),
+        meta: { title: '自定义异常', icon: 'bug' }
+      }
+    ]
+  },
+
   /*   {
     path: '/nested',
     component: Layout,
