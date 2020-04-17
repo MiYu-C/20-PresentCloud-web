@@ -5,7 +5,7 @@
     </div>
     <div>
       <el-table
-        :data="tableData"
+        :data="tableData.slice((currentPage-1)*pagesize,currentPage*pagesize)"
         style="width: 100%"
         row-key="id"
         border
@@ -45,13 +45,18 @@
           </template>
         </el-table-column>
       </el-table>
+      <Pagination :message="tableData.length" @func="getMsg" />
     </div>
   </el-card>
 </template>
 <script>
+import Pagination from '@/components/Pagination'
 export default {
+  components: { Pagination },
   data() {
     return {
+      pagesize: 5,
+      currentPage: 1,
       tableData: [{
         id: 1,
         date: '2016-05-02',
@@ -70,6 +75,16 @@ export default {
         hasChildren: true
       }, {
         id: 4,
+        date: '2016-05-03',
+        name: '王小龙',
+        address: '上海市普陀区金沙江路 1516 弄'
+      }, {
+        id: 5,
+        date: '2016-05-03',
+        name: '王小龙',
+        address: '上海市普陀区金沙江路 1516 弄'
+      }, {
+        id: 6,
         date: '2016-05-03',
         name: '王小龙',
         address: '上海市普陀区金沙江路 1516 弄'
@@ -100,6 +115,10 @@ export default {
           }
         ])
       }, 1000)
+    },
+    getMsg(data) {
+      this.pagesize = data[0]
+      this.currentPage = data[1]
     }
   }
 }
