@@ -107,6 +107,12 @@ export default {
     }
   },
   methods: {
+    handleChange(value) {
+      console.log(value)
+    },
+    handleClose(value) {
+      console.log(value)
+    },
     onSubmit() {
       console.log('submit!')
       this.dialogVisible = true
