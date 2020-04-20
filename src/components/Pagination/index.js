@@ -1,4 +1,4 @@
-import PaginationComponent from './index.vue'
+import PaginationComponent from './Pagination.vue'
 
 const Pagination = {
   install: function(Vue) {

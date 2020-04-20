@@ -45,16 +45,17 @@
           </template>
         </el-table-column>
       </el-table>
-      <Pagination :message="tableData.length" @func="getMsg" />
+      <Pagination :message="tableData.length" :type="type" @func="getMsg" />
     </div>
   </el-card>
 </template>
 <script>
-import Pagination from '@/components/Pagination'
+import Pagination from '@/components/Pagination/Pagination'
 export default {
   components: { Pagination },
   data() {
     return {
+      type: 0,
       pagesize: 5,
       currentPage: 1,
       tableData: [{
@@ -88,15 +89,54 @@ export default {
         date: '2016-05-03',
         name: '王小龙',
         address: '上海市普陀区金沙江路 1516 弄'
+      }, {
+        id: 7,
+        date: '2016-05-03',
+        name: '王小龙',
+        address: '上海市普陀区金沙江路 1516 弄'
+      }, {
+        id: 8,
+        date: '2016-05-03',
+        name: '王小龙',
+        address: '上海市普陀区金沙江路 1516 弄'
+      }, {
+        id: 9,
+        date: '2016-05-03',
+        name: '王小龙',
+        address: '上海市普陀区金沙江路 1516 弄'
+      }, {
+        id: 10,
+        date: '2016-05-03',
+        name: '王小龙',
+        address: '上海市普陀区金沙江路 1516 弄'
+      }, {
+        id: 11,
+        date: '2016-05-03',
+        name: '王小龙',
+        address: '上海市普陀区金沙江路 1516 弄'
+      }, {
+        id: 12,
+        date: '2016-05-03',
+        name: '王小龙',
+        address: '上海市普陀区金沙江路 1516 弄'
+      }, {
+        id: 13,
+        date: '2016-05-03',
+        name: '王小龙',
+        address: '上海市普陀区金沙江路 1516 弄'
       }]
     }
   },
   methods: {
     handleEdit(index, row) {
       console.log(index, row)
+      row.name = '王二'
+      this.tableData[index] = row
     },
     handleDelete(index, row) {
       console.log(index, row)
+      this.tableData.splice(index, 1)
+      console.log(this.tableData.length)
     },
     load(tree, treeNode, resolve) {
       console.log('参数', tree.id)
