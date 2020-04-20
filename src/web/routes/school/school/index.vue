@@ -1,6 +1,6 @@
 <template>
   <el-row>
-    <el-col :span="12">
+    <el-col :span="14">
       <el-card class="box-card">
         <div>
           <el-row>
@@ -56,7 +56,7 @@
               </template>
             </el-table-column>
           </el-table>
-          <el-row>
+          <!-- <el-row>
             <el-pagination
               background
               :current-page="currentPage"
@@ -67,11 +67,12 @@
               @size-change="handleSizeChange"
               @current-change="handleCurrentChange"
             />
-          </el-row>
+          </el-row> -->
+          <Pagination :message="tableData.length" :type="type" @func="getMsg" />
         </div>
       </el-card>
     </el-col>
-    <el-col :span="12">
+    <el-col :span="10">
       <el-card class="box-card">
         <div slot="header" class="clearfix">
           <el-col :span="12"><span>字典详情</span></el-col>
@@ -115,9 +116,12 @@
   </el-row>
 </template>
 <script>
+import Pagination from '@/components/Pagination/Pagination'
 export default {
+  components: { Pagination },
   data() {
     return {
+      type: 1,
       name: '',
       pagesizes: [5, 10, 15, 20],
       pagesize: 5,
@@ -168,20 +172,24 @@ export default {
     }
   },
   methods: {
-    handleSizeChange(val) {
-      console.log(`每页 ${val} 条`)
-      console.log(this.pagesize)
-      this.pagesize = val
+    getMsg(data) {
+      this.pagesize = data[0]
+      this.currentPage = data[1]
     },
+    // handleSizeChange(val) {
+    //   console.log(`每页 ${val} 条`)
+    //   console.log(this.pagesize)
+    //   this.pagesize = val
+    // },
     tableCurrentChange(val) {
       console.log(`第 ${val.id} 条`)
       this.row = val.id
     },
-    handleCurrentChange(val) {
-      console.log(`当前页: ${val}`)
-      console.log(this.currentPage)
-      this.currentPage = val
-    },
+    // handleCurrentChange(val) {
+    //   console.log(`当前页: ${val}`)
+    //   console.log(this.currentPage)
+    //   this.currentPage = val
+    // },
     handleEdit(index, row) {
       console.log(index, row)
     },
