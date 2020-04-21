@@ -33,6 +33,11 @@ export default {
   watch: {
     message(n, o) {
       this.total = n
+      while ((this.currentPage - 1) * this.pagesize >= this.total) {
+        this.currentPage -= 1
+      }
+      console.log('页码', this.currentPage)
+      this.$emit('func', [this.pagesize, this.currentPage])
     }
   },
   methods: {
@@ -40,6 +45,7 @@ export default {
       console.log(`每页 ${val} 条`)
       console.log(this.pagesize, this.total)
       this.pagesize = val
+      this.currentPage = 1
       this.$emit('func', [this.pagesize, this.currentPage])
     },
     handleCurrentChange(val) {
