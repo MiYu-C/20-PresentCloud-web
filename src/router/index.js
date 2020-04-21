@@ -44,12 +44,6 @@ export const constantRoutes = [
   },
 
   {
-    path: '/404',
-    component: () => import('@/web/routes/404'),
-    hidden: true
-  },
-
-  {
     path: '/403',
     component: () => import('@/web/routes/403'),
     hidden: true
@@ -73,7 +67,7 @@ export const constantRoutes = [
     redirect: '/dashboard',
     children: [{
       path: 'dashboard',
-      name: 'DashboardAdmin',
+      name: 'Dashboard',
       component: () => import('@/web/routes/dashboard/index'),
       meta: { title: '首页', icon: 'dashboard' }
     }]

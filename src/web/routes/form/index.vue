@@ -72,7 +72,7 @@
 
 export default {
   // eslint-disable-next-line vue/name-property-casing
-  name: '首页',
+  name: 'Form',
   data() {
     return {
       value: 10,
