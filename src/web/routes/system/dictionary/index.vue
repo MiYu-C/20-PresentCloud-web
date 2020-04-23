@@ -77,7 +77,7 @@
             <el-col :span="12"><span>字典详情</span></el-col>
           </div>
           <div>
-            <el-button type="primary" size="mini" icon="el-icon-plus" style="margin-bottom: 10px" @click="addDict">添加</el-button>
+            <el-button type="primary" size="mini" icon="el-icon-plus" style="margin-bottom: 10px" :disabled="choose" @click="addDict">添加</el-button>
             <el-table
               ref="singleTable"
               :data="dicts"
@@ -217,9 +217,11 @@ export default {
       }
     }
     return {
+      addid: 20,
       labelPosition: 'right',
       visible1: false,
       visible2: false,
+      choose: true,
       name: '',
       inputSearch: '',
       search: '',
@@ -227,6 +229,7 @@ export default {
       pagesize: 5,
       currentPage: 1,
       isdefault: false,
+      hasdelete: false,
       form: {
         id: '',
         name: '',
@@ -344,7 +347,12 @@ export default {
         order: 3,
         isdefault: false
       }],
-      row: 'null',
+      row: {
+        id: '',
+        name: 'null',
+        description: '',
+        default: 0
+      },
       default: 0
     }
   },
@@ -395,6 +403,16 @@ export default {
       })
     }
   },
+  watch: {
+    row(n, o) {
+      console.log(n, 'www')
+      if (this.tables.findIndex(item => item.id === n.id) < 0) {
+        this.choose = true
+      } else {
+        this.choose = false
+      }
+    }
+  },
   methods: {
     closeForm() {
       this.visible1 = false
@@ -411,13 +429,24 @@ export default {
               this.form.description = '无'
             }
             delete this.form.index
-            console.log(this.form.index)
             this.dictData.forEach(item => {
-              if (item.name === this.tableData[this.index].name) {
+              console.log(this.index)
+              if (this.index > this.tableData.length && item.name === this.tableData[this.index].name) {
+                console.log(this.index)
                 this.$set(item, 'name', this.form.name)
+                console.log(this.index)
               }
             })
+            if (this.currentPage <= 0) {
+              this.currentPage = 1
+            }
             this.$set(this.tableData, this.index, this.form)
+            this.form = {
+              id: '',
+              name: '',
+              description: '',
+              default: 0
+            }
           }
           if (visible === 2) {
             console.log('isdefault', this.isdefault)
@@ -443,6 +472,14 @@ export default {
                 }
               })
               this.setCurrentRow('')
+            }
+            this.dictForm = {
+              id: '',
+              name: '',
+              label: '',
+              value: '',
+              order: 0,
+              isdefault: ''
             }
           }
           this.visible1 = false
@@ -511,19 +548,33 @@ export default {
     },
     add() {
       this.visible1 = true
+      console.log(this.addid)
+      this.form.id = this.addid + 1
+      this.addid += 2
       this.$set(this.form, 'index', this.tableData.length)
     },
     addDict() {
       this.visible2 = true
-      console.log(this.row)
-      this.dictForm.name = this.row
+      console.log(this.addid)
+      this.dictForm.id = this.addid + 1
+      this.addid += 2
+      this.dictForm.name = this.row.name
       this.$set(this.dictForm, 'index', this.dictData.length)
     },
     handleDelete(index, row, visible) {
       console.log('123', index, row)
       if (visible === 1) {
-        this.tableData.splice(index, 1)
+        this.tableData.splice(index + this.pagesize * (this.currentPage - 1), 1)
         this.dictData = this.dictData.filter(t => t.name !== row.name)
+        if ((this.currentPage - 1) * this.pagesize >= this.tables.length && this.currentPage > 0) {
+          this.currentPage -= 1
+        }
+        this.row = {
+          id: '',
+          name: 'null',
+          description: '',
+          default: 0
+        }
       }
       if (visible === 2) {
         this.dicts.splice(index, 1)
