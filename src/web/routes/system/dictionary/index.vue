@@ -428,6 +428,24 @@ export default {
     closeForm() {
       this.visible1 = false
       this.visible2 = false
+      this.reset()
+    },
+    reset() {
+      this.form = {
+        id: '',
+        name: '',
+        description: '',
+        default: 0
+      }
+      this.dictForm = {
+        id: '',
+        name: '',
+        label: '',
+        value: '',
+        order: 0,
+        isdefault: false
+      }
+      this.isdefault = false
     },
     update(visible, formName) {
       this.$refs[formName].validate((valid) => {
@@ -452,12 +470,7 @@ export default {
               this.currentPage = 1
             }
             this.$set(this.tableData, this.index, this.form)
-            this.form = {
-              id: '',
-              name: '',
-              description: '',
-              default: 0
-            }
+            this.reset()
           }
           if (visible === 2) {
             console.log('isdefault', this.isdefault)
@@ -484,15 +497,7 @@ export default {
               })
               this.setCurrentRow('')
             }
-            this.dictForm = {
-              id: '',
-              name: '',
-              label: '',
-              value: '',
-              order: 0,
-              isdefault: false
-            }
-            this.isdefault = false
+            this.reset()
           }
           this.visible1 = false
           this.visible2 = false
