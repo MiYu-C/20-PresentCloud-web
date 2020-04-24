@@ -439,7 +439,7 @@ export default {
       }
       this.dictForm = {
         id: '',
-        name: '',
+        name: 'null',
         label: '',
         value: '',
         order: 0,
