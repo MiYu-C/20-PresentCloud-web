@@ -85,6 +85,7 @@
               row-key="id"
               border
               lazy
+              :default-sort="{prop: 'order', order: 'ascending'}"
               highlight-current-row
               @current-change="setCurrentRow"
             >
@@ -103,6 +104,7 @@
               <el-table-column
                 prop="order"
                 label="排序"
+                sortable
               />
               <el-table-column label="操作" width="150">
                 <template slot-scope="scope">
