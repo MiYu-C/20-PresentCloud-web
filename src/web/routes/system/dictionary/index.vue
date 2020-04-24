@@ -191,7 +191,7 @@ export default {
       if (table.findIndex(item => item.label === value) <= -1) {
         callback()
       } else {
-        callback('标签名已存在')
+        callback('标签名' + value + '已存在')
       }
     }
     const labelValuevalidate = (rule, value, callback) => {
@@ -199,7 +199,7 @@ export default {
       if (table.findIndex(item => item.value === value) <= -1) {
         callback()
       } else {
-        callback('标签值已存在')
+        callback('标签值' + value + '已存在')
       }
     }
     const labelOrdervalidate = (rule, value, callback) => {
@@ -215,7 +215,15 @@ export default {
       if (table.findIndex(item => item.name === value) <= -1) {
         callback()
       } else {
-        callback('字典名已存在')
+        callback('字典名' + value + '已存在')
+      }
+    }
+    const isNum = (rule, value, callback) => {
+      const num = /^[0-9]*$/
+      if (!num.test(value)) {
+        callback('标签值应为数字')
+      } else {
+        callback()
       }
     }
     return {
@@ -249,7 +257,8 @@ export default {
         ],
         value: [
           { required: true, message: '标签值不能为空', trigger: 'blur' },
-          { validator: labelValuevalidate, trigger: 'blur' }
+          { validator: labelValuevalidate, trigger: 'blur' },
+          { validator: isNum, trigger: 'blur' }
         ],
         order: [
           { validator: labelOrdervalidate, trigger: 'blur' }
@@ -481,8 +490,9 @@ export default {
               label: '',
               value: '',
               order: 0,
-              isdefault: ''
+              isdefault: false
             }
+            this.isdefault = false
           }
           this.visible1 = false
           this.visible2 = false
