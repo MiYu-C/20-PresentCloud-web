@@ -460,7 +460,7 @@ export default {
             delete this.form.index
             this.dictData.forEach(item => {
               console.log(this.index)
-              if (this.index > this.tableData.length && item.name === this.tableData[this.index].name) {
+              if (this.index < this.tableData.length && item.name === this.tableData[this.index].name) {
                 console.log(this.index)
                 this.$set(item, 'name', this.form.name)
                 console.log(this.index)
