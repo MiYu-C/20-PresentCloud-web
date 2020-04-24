@@ -11,8 +11,11 @@
           row-key="id"
           border
           lazy
+          highlight-current-row
+          :default-sort="{prop: 'date', order: 'ascending'}"
           :load="load"
           :tree-props="{children: 'children', hasChildren: 'hasChildren'}"
+          @current-change="handleCurrentChange"
         >
           <el-table-column
             type="selection"
@@ -22,6 +25,7 @@
             prop="date"
             label="日期"
             width="180"
+            sortable
           />
           <el-table-column
             prop="name"
@@ -86,6 +90,7 @@ export default {
       type: 0,
       pagesize: 5,
       currentPage: 1,
+      currentRow: null,
       form: {
         id: '',
         date: '',
@@ -112,8 +117,7 @@ export default {
         id: 3,
         date: '2016-05-01',
         name: '王小虎',
-        address: '上海市普陀区金沙江路 1519 弄',
-        hasChildren: true
+        address: '上海市普陀区金沙江路 1519 弄'
       }, {
         id: 4,
         date: '2016-05-03',
@@ -181,12 +185,14 @@ export default {
     },
     handleEdit(index, row) {
       this.visible = true
-      console.log(index, row)
+      console.log(index)
+      index = this.tableData.findIndex(item => item.id === row.id)
+      console.log(index)
       this.form = JSON.parse(JSON.stringify(row))
       this.$set(this.form, 'index', index)
       console.log('A', this.tableData[index].name)
-      this.tableData[index] = row
-      console.log('B', this.tableData[index].name)
+      // this.tableData[index] = row
+      // console.log('B', this.tableData[index].name)
     },
     handleDelete(index, row) {
       console.log(index, row)
@@ -214,6 +220,11 @@ export default {
     getMsg(data) {
       this.pagesize = data[0]
       this.currentPage = data[1]
+    },
+    handleCurrentChange(val) {
+      console.log(this.tableData[0].name)
+      console.log(this.tableData[1].name)
+      this.currentRow = val
     }
   }
 }
