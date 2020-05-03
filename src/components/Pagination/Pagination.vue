@@ -33,7 +33,7 @@ export default {
   watch: {
     message(n, o) {
       this.total = n
-      while ((this.currentPage - 1) * this.pagesize >= this.total) {
+      if ((this.currentPage - 1) * this.pagesize >= this.total && this.currentPage > 1) {
         this.currentPage -= 1
       }
       console.log('页码', this.currentPage)
