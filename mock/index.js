@@ -3,12 +3,15 @@ import { param2Obj } from '../src/web/utils'
 
 import user from './user'
 import table from './table'
+import dictionary from './dictionary'
+import list from './list'
 
 const mocks = [
   ...user,
-  ...table
+  ...table,
+  ...dictionary,
+  ...list
 ]
-
 // for front mock
 // please use it cautiously, it will redefine XMLHttpRequest,
 // which will cause many of your third-party libraries to be invalidated(like progress event).

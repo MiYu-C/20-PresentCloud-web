@@ -1,13 +1,29 @@
 import Mock from 'mockjs'
 
 const data = Mock.mock({
-  'items|30': [{
-    id: '@id',
-    title: '@sentence(10, 20)',
-    'status|1': ['published', 'draft', 'deleted'],
+  // 'items|30': [{
+  //   id: '@id',
+  //   title: '@sentence(10, 20)',
+  //   'status|1': ['published', 'draft', 'deleted'],
+  //   author: 'name',
+  //   display_time: '@datetime',
+  //   pageviews: '@integer(300, 1000)'
+  // }
+  'items': [{
+    id: '1',
+    title: '333',
+    'status': 'published',
     author: 'name',
     display_time: '@datetime',
-    pageviews: '@integer(300, 5000)'
+    pageviews: '333'
+  },
+  {
+    id: '2',
+    title: '123',
+    'status': 'deleted',
+    author: 'name',
+    display_time: '@datetime',
+    pageviews: '444'
   }]
 })
 
