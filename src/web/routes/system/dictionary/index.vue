@@ -583,7 +583,7 @@ export default {
       if (visible === 1) {
         this.tableData.splice(index + this.pagesize * (this.currentPage - 1), 1)
         this.dictData = this.dictData.filter(t => t.name !== row.name)
-        if ((this.currentPage - 1) * this.pagesize >= this.tables.length && this.currentPage > 0) {
+        if ((this.currentPage - 1) * this.pagesize >= this.tables.length && this.currentPage > 1) {
           this.currentPage -= 1
         }
         this.row = {
