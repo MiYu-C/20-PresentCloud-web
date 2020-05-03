@@ -3,19 +3,26 @@
     <el-card class="box-card">
       <div slot="header" class="clearfix">
         <span>标准列表</span>
+        <el-input
+          v-model="name"
+          placeholder="请输入"
+          style="width: 150px;"
+          @keyup.enter.native="search"
+        />
+        <el-button type="primary" style="margin-left: 10px" @click="search">查询</el-button>
       </div>
       <div>
         <el-table
-          :data="tableData.slice((currentPage-1)*pagesize,currentPage*pagesize)"
+          v-loading="listLoading"
+          :data="tableData"
           style="width: 100%"
           row-key="id"
           border
-          lazy
           highlight-current-row
           :default-sort="{prop: 'date', order: 'ascending'}"
-          :load="load"
           :tree-props="{children: 'children', hasChildren: 'hasChildren'}"
           @current-change="handleCurrentChange"
+          @sort-change="sortChange"
         >
           <el-table-column
             type="selection"
@@ -25,7 +32,7 @@
             prop="date"
             label="日期"
             width="180"
-            sortable
+            sortable="custom"
           />
           <el-table-column
             prop="name"
@@ -50,7 +57,7 @@
             </template>
           </el-table-column>
         </el-table>
-        <Pagination :message="tableData.length" :type="type" @func="getMsg" />
+        <Pagination :message="total" :type="type" @func="getMsg" />
       </div>
     </el-card>
     <el-dialog
@@ -61,7 +68,7 @@
       :destroy-on-close="true"
     >
       <el-col :span="22">
-        <el-form ref="form" :model="form" :rules="rules" label-position="right">
+        <el-form ref="form" :model="form" :rules="rules" label-position="right" label-width="80px">
           <el-form-item label="日期" prop="date">
             <el-input v-model="form.date" placeholder="请输入日期" clearable />
           </el-form-item>
@@ -82,6 +89,7 @@
 </template>
 <script>
 import Pagination from '@/components/Pagination/Pagination'
+import { getList, updateList, addItem, deleteItem } from '@/web/api/list'
 export default {
   components: { Pagination },
   data() {
@@ -104,127 +112,81 @@ export default {
         ]
       },
       tableData: [{
-        id: 1,
-        date: '2016-05-02',
-        name: '王小猫',
-        address: '上海市普陀区金沙江路 1518 弄'
-      }, {
-        id: 2,
-        date: '2016-05-04',
-        name: '王小牛',
-        address: '上海市普陀区金沙江路 1517 弄'
-      }, {
-        id: 3,
-        date: '2016-05-01',
-        name: '王小虎',
-        address: '上海市普陀区金沙江路 1519 弄'
-      }, {
-        id: 4,
-        date: '2016-05-03',
-        name: '王小龙',
-        address: '上海市普陀区金沙江路 1516 弄'
-      }, {
-        id: 5,
-        date: '2016-05-03',
-        name: '王小龙',
-        address: '上海市普陀区金沙江路 1516 弄'
-      }, {
-        id: 6,
-        date: '2016-05-03',
-        name: '王小龙',
-        address: '上海市普陀区金沙江路 1516 弄'
-      }, {
-        id: 7,
-        date: '2016-05-03',
-        name: '王小龙',
-        address: '上海市普陀区金沙江路 1516 弄'
-      }, {
-        id: 8,
-        date: '2016-05-03',
-        name: '王小龙',
-        address: '上海市普陀区金沙江路 1516 弄'
-      }, {
-        id: 9,
-        date: '2016-05-03',
-        name: '王小龙',
-        address: '上海市普陀区金沙江路 1516 弄'
-      }, {
-        id: 10,
-        date: '2016-05-03',
-        name: '王小龙',
-        address: '上海市普陀区金沙江路 1516 弄'
-      }, {
-        id: 11,
-        date: '2016-05-03',
-        name: '王小龙',
-        address: '上海市普陀区金沙江路 1516 弄'
-      }, {
-        id: 12,
-        date: '2016-05-03',
-        name: '王小龙',
-        address: '上海市普陀区金沙江路 1516 弄'
-      }, {
-        id: 13,
-        date: '2016-05-03',
-        name: '王小龙',
-        address: '上海市普陀区金沙江路 1516 弄'
-      }]
+        id: '',
+        date: '',
+        name: '',
+        address: ''
+      }],
+      name: '',
+      total: 0,
+      order: 'ascending',
+      listLoading: true
     }
   },
+  created() {
+    this.fetchData()
+  },
   methods: {
+    fetchData() {
+      this.listLoading = true
+      getList(this.currentPage, this.pagesize, this.order, this.name).then(response => {
+        this.tableData = response.data.items
+        this.total = response.data.total
+        this.listLoading = false
+      })
+    },
+    search() {
+      console.log('search', this.name.length, this.currentPage)
+      this.fetchData()
+    },
     closeForm() {
       this.visible = false
     },
     update() {
-      console.log(this.form.index)
-      this.index = this.form.index
-      delete this.form.index
-      console.log(this.form.index)
-      this.$set(this.tableData, this.index, this.form)
-      this.visible = false
+      console.log('form', this.form)
+      this.listLoading = true
+      updateList(this.form).then(response => {
+        console.log('update', response.data)
+      })
+      this.form.id = this.total + 1
+      addItem(this.form).then(response => {
+        console.log('add', response.data)
+      })
+      // this.index = this.form.index
+      // delete this.form.index
+      // console.log(this.form.index)
+      // this.$set(this.tableData, this.index, this.form)
+      this.closeForm()
+      this.fetchData()
     },
     handleEdit(index, row) {
       this.visible = true
-      console.log(index)
-      index = this.tableData.findIndex(item => item.id === row.id)
-      console.log(index)
+      // index = this.tableData.findIndex(item => item.id === row.id)
       this.form = JSON.parse(JSON.stringify(row))
-      this.$set(this.form, 'index', index)
-      console.log('A', this.tableData[index].name)
-      // this.tableData[index] = row
-      // console.log('B', this.tableData[index].name)
+      // this.$set(this.form, 'index', index)
+      // console.log('A', this.tableData[index].name)
     },
     handleDelete(index, row) {
       console.log(index, row)
-      this.tableData.splice(index, 1)
-      console.log(this.tableData.length)
-    },
-    load(tree, treeNode, resolve) {
-      console.log('参数', tree.id)
-      setTimeout(() => {
-        resolve([
-          {
-            id: 31,
-            date: '2016-05-01',
-            name: '王小虎',
-            address: '上海市普陀区金沙江路 1519 弄'
-          }, {
-            id: 32,
-            date: '2016-05-01',
-            name: '王小虎',
-            address: '上海市普陀区金沙江路 1519 弄'
-          }
-        ])
-      }, 1000)
+      row = JSON.parse(JSON.stringify(row))
+      deleteItem(row).then(response => {
+        console.log('delete', response.data)
+      })
+      console.log('delete', row.id, this.currentPage)
+      this.fetchData()
     },
     getMsg(data) {
       this.pagesize = data[0]
       this.currentPage = data[1]
+      this.fetchData()
     },
     handleCurrentChange(val) {
-      console.log(this.tableData[0].name)
-      console.log(this.tableData[1].name)
       this.currentRow = val
+    },
+    sortChange(column) {
+      console.log(column)
+      this.order = column.order
+      this.fetchData()
     }
   }
 }
