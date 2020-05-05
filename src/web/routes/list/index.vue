@@ -132,6 +132,7 @@ export default {
       getList(this.currentPage, this.pagesize, this.order, this.name).then(response => {
         this.tableData = response.data.items
         this.total = response.data.total
+        console.log('search', this.tableData, this.total)
         this.listLoading = false
       })
     },

@@ -4,7 +4,7 @@
       <el-row>
         <span>学号：</span>
         <el-input
-          v-model="studentID"
+          v-model="userID"
           placeholder="请输入学号"
           style="width: 200px;"
         />
@@ -14,8 +14,8 @@
           placeholder="请输入姓名"
           style="width: 200px;"
         />
-        <el-button type="primary" style="margin-left: 10px">查询</el-button>
-        <el-button>重置</el-button>
+        <el-button type="primary" style="margin-left: 10px" @click="search">查询</el-button>
+        <el-button @click="resetData">重置</el-button>
       </el-row>
       <el-row>
         <el-button type="primary" size="small" icon="el-icon-plus">添加</el-button>
@@ -24,12 +24,11 @@
     </div>
     <div>
       <el-table
-        :data="tableData.slice((currentPage-1)*pagesize,currentPage*pagesize)"
+        v-loading="listLoading"
+        :data="tableData"
         style="width: 100%"
         row-key="id"
         border
-        lazy
-        :load="load"
         :tree-props="{children: 'children', hasChildren: 'hasChildren'}"
       >
         <el-table-column
@@ -41,7 +40,7 @@
           label="姓名"
         />
         <el-table-column
-          prop="studentID"
+          prop="userID"
           label="学号"
         />
         <el-table-column
@@ -85,7 +84,7 @@
           :page-sizes="pagesizes"
           :page-size="pagesize"
           layout="total, sizes, prev, pager, next, jumper"
-          :total="tableData.length"
+          :total="total"
           @size-change="handleSizeChange"
           @current-change="handleCurrentChange"
         />
@@ -94,141 +93,65 @@
   </el-card>
 </template>
 <script>
+// eslint-disable-next-line no-unused-vars
+import { getList, updateList, addItem, deleteItem } from '@/web/api/userinfo'
 export default {
   data() {
     return {
-      studentID: '',
+      userID: '',
+      type: 1,
+      total: 0,
       name: '',
       pagesizes: [5, 10, 15, 20],
       pagesize: 5,
       currentPage: 1,
-      tableData: [{
-        id: 1,
-        name: '王小猫',
-        studentID: '12323123',
-        roles: ['用户'],
-        gender: '男',
-        school: '123',
-        department: '321',
-        phone: '13122223333'
-      }, {
-        id: 2,
-        name: '王小猫',
-        studentID: '12323123',
-        roles: ['用户'],
-        gender: '女',
-        school: '123',
-        department: '321',
-        phone: '13122223333'
-      }, {
-        id: 3,
-        name: '王小猫',
-        studentID: '12323123',
-        roles: ['用户'],
-        gender: '男',
-        school: '123',
-        department: '321',
-        phone: '13122223333'
-      }, {
-        id: 4,
-        name: '王小猫',
-        studentID: '12323123',
-        roles: ['用户'],
-        gender: '男',
-        school: '123',
-        department: '321',
-        phone: '13122223333'
-      }, {
-        id: 5,
-        name: '王小猫',
-        studentID: '12323123',
-        roles: ['用户'],
-        gender: '男',
-        school: '123',
-        department: '321',
-        phone: '13122223333'
-      }, {
-        id: 6,
-        name: '王小猫',
-        studentID: '12323123',
-        roles: ['用户'],
-        gender: '女',
-        school: '123',
-        department: '321',
-        phone: '13122223333'
-      }, {
-        id: 7,
-        name: '王小猫',
-        studentID: '12323123',
-        roles: ['用户'],
-        gender: '男',
-        school: '123',
-        department: '321',
-        phone: '13122223333'
-      }, {
-        id: 8,
-        name: '王小猫',
-        studentID: '12323123',
-        roles: ['用户'],
-        gender: '男',
-        school: '123',
-        department: '321',
-        phone: '13122223333'
-      }, {
-        id: 9,
-        name: '王小猫',
-        studentID: '12323123',
-        roles: ['用户'],
-        gender: '男',
-        school: '123',
-        department: '321',
-        phone: '13122223333'
-      }, {
-        id: 10,
-        name: '王小猫',
-        studentID: '12323123',
-        roles: ['用户'],
-        gender: '男',
-        school: '123',
-        department: '321',
-        phone: '13122223333'
-      }]
+      listLoading: true,
+      tableData: []
     }
   },
+  created() {
+    this.fetchData()
+  },
   methods: {
+    fetchData() {
+      this.listLoading = true
+      getList(this.currentPage, this.pagesize, this.type, this.name, this.userID).then(response => {
+        this.tableData = response.data.items
+        this.total = response.data.total
+        console.log('search', this.tableData, this.total)
+        this.listLoading = false
+      })
+    },
+    search() {
+      this.listLoading = true
+      this.currentPage = 1
+      console.log('search', this.name.length, this.currentPage)
+      this.fetchData()
+    },
+    resetData() {
+      this.listLoading = true
+      this.currentPage = 1
+      this.name = ''
+      this.userID = ''
+      this.fetchData()
+    },
     handleSizeChange(val) {
       console.log(`每页 ${val} 条`)
       console.log(this.pagesize)
       this.pagesize = val
+      this.fetchData()
     },
     handleCurrentChange(val) {
       console.log(`当前页: ${val}`)
       console.log(this.currentPage)
       this.currentPage = val
+      this.fetchData()
     },
     handleEdit(index, row) {
       console.log(index, row)
     },
     handleDelete(index, row) {
       console.log(index, row)
-    },
-    load(tree, treeNode, resolve) {
-      console.log('参数', tree.id)
-      setTimeout(() => {
-        resolve([
-          {
-            id: 31,
-            date: '2016-05-01',
-            name: '王小虎',
-            address: '上海市普陀区金沙江路 1519 弄'
-          }, {
-            id: 32,
-            date: '2016-05-01',
-            name: '王小虎',
-            address: '上海市普陀区金沙江路 1519 弄'
-          }
-        ])
-      }, 1000)
     }
   }
 }

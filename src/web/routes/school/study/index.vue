@@ -29,7 +29,7 @@
           >
             <el-table-column
               prop="behaviorname"
-              label="所属学校"
+              label="学习行为"
             />
             <el-table-column
               prop="score"

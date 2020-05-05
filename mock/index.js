@@ -5,12 +5,16 @@ import user from './user'
 import table from './table'
 import dictionary from './dictionary'
 import list from './list'
+import userinfo from './userinfo'
+import school from './school'
 
 const mocks = [
   ...user,
   ...table,
   ...dictionary,
-  ...list
+  ...list,
+  ...userinfo,
+  ...school
 ]
 // for front mock
 // please use it cautiously, it will redefine XMLHttpRequest,
