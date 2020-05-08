@@ -7,6 +7,7 @@ import dictionary from './dictionary'
 import list from './list'
 import userinfo from './userinfo'
 import school from './school'
+import area from './area'
 
 const mocks = [
   ...user,
@@ -14,7 +15,8 @@ const mocks = [
   ...dictionary,
   ...list,
   ...userinfo,
-  ...school
+  ...school,
+  ...area
 ]
 // for front mock
 // please use it cautiously, it will redefine XMLHttpRequest,
