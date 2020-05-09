@@ -92,8 +92,28 @@
           <el-form-item label="级别" prop="name">
             <el-input v-model="form.level" placeholder="请输入级别" clearable />
           </el-form-item>
-          <el-form-item label="地址" prop="name">
+          <!-- <el-form-item label="地址" prop="name">
             <el-input v-model="form.address" placeholder="请输入地址" clearable />
+          </el-form-item> -->
+          <el-form-item label="省份" prop="name">
+            <el-select v-model="area[0]" placeholder="请选择">
+              <el-option
+                v-for="item in provinceList"
+                :key="item.id"
+                :label="item.name"
+                :value="item.name"
+              />
+            </el-select>
+          </el-form-item>
+          <el-form-item label="城市" prop="name">
+            <el-select v-model="area[1]" :disabled="city" placeholder="请选择">
+              <el-option
+                v-for="item in cityList"
+                :key="item.id"
+                :label="item.name"
+                :value="item.name"
+              />
+            </el-select>
           </el-form-item>
         </el-form>
       </el-col>
@@ -144,6 +164,8 @@
 <script>
 // eslint-disable-next-line no-unused-vars
 import { getList, updateList, addItem, deleteItem } from '@/web/api/school'
+// eslint-disable-next-line no-unused-vars
+import { getCity, getProvince, inProvince } from '@/web/api/area'
 export default {
   data() {
     return {
@@ -184,6 +206,31 @@ export default {
         childrenType: 1,
         fatherId: 0,
         address: ''
+      },
+      provinceList: [],
+      area: ['', ''],
+      city: true,
+      cityList: []
+    }
+  },
+  watch: {
+    area(n, o) {
+      console.log('area', n)
+      if (n[0] === '') {
+        this.city = true
+        console.log('city', this.city)
+        this.area[1] = ''
+      } else {
+        this.city = false
+        inProvince(n[0], n[1]).then(response => {
+          console.log('inProvince', response.data.result)
+          if (response.data.result === false) {
+            this.area[1] = ''
+          }
+        })
+        getCity(n[0]).then(response => {
+          this.cityList = response.data.items
+        })
       }
     }
   },
@@ -192,6 +239,14 @@ export default {
   },
   methods: {
     fetchData() {
+      getProvince().then(response => {
+        this.provinceList = response.data.items
+        console.log('provinceList', this.provinceList)
+      })
+      getCity('福建省').then(response => {
+        this.cityList = response.data.items
+        console.log('cityList', this.cityList)
+      })
       this.listLoading = true
       getList(this.currentPage, this.pagesize, 1, this.name, 0).then(response => {
         this.tableData = response.data.items
@@ -237,13 +292,16 @@ export default {
         fatherId: this.row.id,
         address: ''
       }
+      this.area = ['', '']
       console.log('type', this.row.type)
       if (this.row.type === 0) {
         this.visible1 = true
       } else {
-        if (this.row.type === 3) {
+        if (this.row.type >= 2) {
           this.form.childrenType = 3
-          this.form.fatherId = this.row.fatherId
+          if (this.row.type === 3) {
+            this.form.fatherId = this.row.fatherId
+          }
         }
         this.visible2 = true
       }
@@ -257,6 +315,8 @@ export default {
     handleEdit(index, row) {
       console.log(index, row.type)
       this.form = JSON.parse(JSON.stringify(row))
+      this.area = this.form.address.split(' ')
+      console.log('address', this.form.address)
       if (row.type === 1) {
         this.visible1 = true
       } else {
@@ -282,6 +342,7 @@ export default {
     },
     update() {
       console.log('form', this.form.id, this.form.type, this.form.fatherId)
+      this.form.address = this.area.join(' ')
       this.listLoading = true
       if (this.form.id === 0) {
         addItem(this.form).then(response => {
@@ -337,16 +398,6 @@ export default {
         hasChildren: false,
         type: 1,
         childrenType: 2,
-        fatherId: 0,
-        address: ''
-      }
-      this.row = {
-        id: 0,
-        name: '',
-        level: '',
-        hasChildren: false,
-        type: 0,
-        childrenType: 1,
         fatherId: 0,
         address: ''
       }
