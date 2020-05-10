@@ -31,3 +31,11 @@ export function addItem(form) {
     params: { form }
   })
 }
+
+export function getFather(fatherId) {
+  return request({
+    url: '/vue-admin-template/school/getFather',
+    method: 'get',
+    params: { fatherId }
+  })
+}

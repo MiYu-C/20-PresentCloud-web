@@ -2,13 +2,13 @@ import Mock from 'mockjs'
 const data = Mock.mock({
   'items': [{
     id: 1,
-    name: '@cword( 2, 3 )' + '大学',
+    name: '福州大学',
     level: '本科',
     hasChildren: true,
     type: 1,
     childrenType: 2,
     fatherId: 0,
-    address: '福建省 泉州市'
+    address: '福建省 福州市'
   }, {
     id: 2,
     name: '@cword( 2, 3 )' + '大学',
@@ -113,7 +113,7 @@ export default [
     response: config => {
       const { currentPage, pagesize, type, name, fatherId } = config.query
       let schools = data.items.filter(data => data.type === 1)
-      let items = data.items.filter(data => data.type.toString() === type)
+      let items = data.items.filter(data => data.type.toString() === type.toString())
       if (type === '1') {
         if (name.length > 0) {
           items = items.filter(data => {
@@ -131,9 +131,11 @@ export default [
           })
           schools = items
         }
-        items = items.slice((currentPage - 1) * pagesize, currentPage * pagesize)
+        if (currentPage > -1 && pagesize > -1) {
+          items = items.slice((currentPage - 1) * pagesize, currentPage * pagesize)
+        }
       } else {
-        items = items.filter(data => data.fatherId.toString() === fatherId)
+        items = items.filter(data => data.fatherId.toString() === fatherId.toString())
       }
       return {
         code: 20000,
@@ -172,7 +174,7 @@ export default [
         data.items[index].hasChildren = false
       }
       index = data.items.findIndex(item => item.fatherId === deleteform.id)
-      while (index > 0) {
+      while (index > -1) {
         data.items.splice(index, 1)
         index = data.items.findIndex(item => item.fatherId === deleteform.id)
       }
@@ -191,7 +193,7 @@ export default [
       const newform = JSON.parse(form)
       newform.id = Mock.Random.natural(23, 10000)
       let index = data.items.findIndex(item => item.id === newform.fatherId)
-      if (index > 0) {
+      if (index > -1) {
         data.items[index].hasChildren = true
       }
       data.items.push(newform)
@@ -200,6 +202,41 @@ export default [
       return {
         code: 20000,
         data: index
+      }
+    }
+  },
+  {
+    url: '/vue-admin-template/school/getFather',
+    type: 'get',
+    response: config => {
+      const { fatherId } = config.query
+      let index = data.items.findIndex(item => item.id.toString() === fatherId.toString())
+      // eslint-disable-next-line prefer-const
+      let father1 = { id: '', name: '' }
+      // eslint-disable-next-line prefer-const
+      let father2 = { id: '', name: '' }
+      // let school = false
+      // let college = false
+      if (index > -1) {
+        // school = true
+        father1.id = data.items[index].id
+        father1.name = data.items[index].name
+        index = data.items.findIndex(item => item.id.toString() === data.items[index].fatherId.toString())
+        if (index > -1) {
+          // college = true
+          father2.id = father1.id
+          father2.name = father1.name
+          father1.id = data.items[index].id
+          father1.name = data.items[index].name
+        }
+      }
+      const fathers = [father1, father2]
+      return {
+        code: 20000,
+        data: {
+          // hasFather: [school, college],
+          fathers: fathers
+        }
       }
     }
   }

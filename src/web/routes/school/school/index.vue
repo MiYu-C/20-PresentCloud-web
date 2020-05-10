@@ -68,7 +68,7 @@
               :current-page="currentPage"
               :page-sizes="pagesizes"
               :page-size="pagesize"
-              layout="total, sizes, prev, pager, next"
+              layout="total, sizes, prev, pager, next, jumper"
               :total="total"
               @size-change="handleSizeChange"
               @current-change="handleCurrentChange"
@@ -78,25 +78,65 @@
       </el-card>
     </el-col>
     <el-dialog
-      title="编辑信息"
+      :title="dialog"
       :visible.sync="visible1"
-      width="50%"
+      width="30%"
       :show-close="false"
       :destroy-on-close="true"
     >
       <el-col :span="22">
         <el-form ref="form" :model="form" :rules="rules" label-position="right" label-width="80px">
           <el-form-item label="名称" prop="name">
-            <el-input v-model="form.name" placeholder="请输入名称" clearable />
+            <el-input v-model="form.name" placeholder="请输入名称" />
           </el-form-item>
-          <el-form-item label="级别" prop="name">
-            <el-input v-model="form.level" placeholder="请输入级别" clearable />
+          <el-form-item v-show="form.type.toString() === '1'" label="级别" prop="level">
+            <el-select v-model="form.level" placeholder="请选择级别">
+              <el-option
+                v-for="item in schoolLevelList"
+                :key="item"
+                :label="item"
+                :value="item"
+              />
+            </el-select>
           </el-form-item>
-          <!-- <el-form-item label="地址" prop="name">
-            <el-input v-model="form.address" placeholder="请输入地址" clearable />
-          </el-form-item> -->
-          <el-form-item label="省份" prop="name">
-            <el-select v-model="area[0]" placeholder="请选择">
+          <el-form-item v-show="form.type.toString() === '2'" label="级别" prop="level">
+            <el-select v-model="form.level" placeholder="请选择级别">
+              <el-option
+                v-for="item in collegeLevelList"
+                :key="item"
+                :label="item"
+                :value="item"
+              />
+            </el-select>
+          </el-form-item>
+          <el-form-item v-show="form.type.toString() === '3'" label="级别" prop="level">
+            <el-select v-model="form.level" placeholder="请选择级别">
+              <el-option
+                v-for="item in majorLevelList"
+                :key="item"
+                :label="item"
+                :value="item"
+              />
+            </el-select>
+          </el-form-item>
+          <el-form-item v-show="form.type.toString() === '3' || form.type.toString() === '2'" label="所属学校">
+            <span>{{ fathers[0].name }}</span>
+          </el-form-item>
+          <el-form-item v-show="form.type.toString() === '3'" label="所属学院">
+            <!-- <span>{{ fathers[1].name }}</span> -->
+            <template>
+              <el-select v-model="college" placeholder="请输入关键词">
+                <el-option
+                  v-for="item in collegeList"
+                  :key="item.id"
+                  :label="item.name"
+                  :value="item.id"
+                />
+              </el-select>
+            </template>
+          </el-form-item>
+          <el-form-item v-show="form.type.toString() === '1'" label="省份" prop="name">
+            <el-select v-model="area[0]" placeholder="请选择省份">
               <el-option
                 v-for="item in provinceList"
                 :key="item.id"
@@ -105,8 +145,8 @@
               />
             </el-select>
           </el-form-item>
-          <el-form-item label="城市" prop="name">
-            <el-select v-model="area[1]" :disabled="city" placeholder="请选择">
+          <el-form-item v-show="form.type.toString() === '1'" label="城市" prop="name">
+            <el-select v-model="area[1]" :disabled="city" placeholder="请选择城市">
               <el-option
                 v-for="item in cityList"
                 :key="item.id"
@@ -122,7 +162,7 @@
         <el-button @click="closeForm">取 消</el-button>
       </span>
     </el-dialog>
-    <el-dialog
+    <!-- <el-dialog
       title="编辑信息"
       :visible.sync="visible2"
       width="50%"
@@ -134,8 +174,15 @@
           <el-form-item label="名称" prop="name">
             <el-input v-model="form.name" placeholder="请输入名称" clearable />
           </el-form-item>
-          <el-form-item label="级别" prop="name">
-            <el-input v-model="form.level" :disabled="true" placeholder="请输入级别" clearable />
+          <el-form-item label="级别" prop="level">
+            <el-select v-model="form.level" placeholder="请选择级别">
+              <el-option
+                v-for="item in levelList2"
+                :key="item"
+                :label="item"
+                :value="item"
+              />
+            </el-select>
           </el-form-item>
         </el-form>
       </el-col>
@@ -143,7 +190,7 @@
         <el-button type="primary" @click="update">确 定</el-button>
         <el-button @click="closeForm">取 消</el-button>
       </span>
-    </el-dialog>
+    </el-dialog> -->
     <el-dialog
       title="确认删除"
       :visible.sync="visible3"
@@ -163,7 +210,7 @@
 </template>
 <script>
 // eslint-disable-next-line no-unused-vars
-import { getList, updateList, addItem, deleteItem } from '@/web/api/school'
+import { getList, updateList, addItem, deleteItem, getFather } from '@/web/api/school'
 // eslint-disable-next-line no-unused-vars
 import { getCity, getProvince, inProvince } from '@/web/api/area'
 export default {
@@ -172,16 +219,18 @@ export default {
       visible1: false,
       visible2: false,
       visible3: false,
+      dialog: '',
       newItem: 0,
       name: '',
       pagesizes: [5, 10, 15, 20],
       pagesize: 5,
       currentPage: 1,
       listLoading: true,
+      collegeLoading: false,
       tableData: [],
       childrenData: [],
       total: 0,
-      levle: ['', '本科', '学院', '专业'],
+      level: ['', '本科', '学院', '专业'],
       form: {
         id: 0,
         name: '',
@@ -195,6 +244,9 @@ export default {
       rules: {
         name: [
           { required: true, message: '请输入', trigger: 'blur' }
+        ],
+        level: [
+          { required: true, message: '请输入', trigger: 'blur' }
         ]
       },
       row: {
@@ -207,10 +259,17 @@ export default {
         fatherId: 0,
         address: ''
       },
+      schoolLevelList: ['本科', '专科'],
+      collegeLevelList: ['学院', '系'],
+      majorLevelList: ['专业', '系'],
+      schoolList: [],
+      collegeList: [],
+      college: '',
       provinceList: [],
       area: ['', ''],
       city: true,
-      cityList: []
+      cityList: [],
+      fathers: ['', '']
     }
   },
   watch: {
@@ -232,10 +291,25 @@ export default {
           this.cityList = response.data.items
         })
       }
+    },
+    form(n, o) {
+      console.log('fatherId', n.fatherId)
+      getFather(n.fatherId).then(response => {
+        this.fathers = response.data.fathers
+        console.log('fathers', this.fathers)
+        this.college = this.fathers[1].id
+        if (n.type === 3) {
+          getList(-1, -1, 2, '', this.fathers[0].id).then(response => {
+            console.log('collegeList', response.data.items)
+            this.collegeList = response.data.items
+          })
+        }
+      })
     }
   },
   created() {
     this.fetchData()
+    this.levelList1 = this.schoolLevelList
   },
   methods: {
     fetchData() {
@@ -285,26 +359,32 @@ export default {
       this.form = {
         id: 0,
         name: '',
-        level: this.levle[this.row.childrenType],
+        level: '',
         hasChildren: false,
-        type: this.row.childrenType,
-        childrenType: this.row.childrenType + 1,
+        type: this.row.type + 1,
+        childrenType: '',
         fatherId: this.row.id,
         address: ''
       }
       this.area = ['', '']
       console.log('type', this.row.type)
       if (this.row.type === 0) {
-        this.visible1 = true
+        this.dialog = '添加学校'
       } else {
-        if (this.row.type >= 2) {
-          this.form.childrenType = 3
-          if (this.row.type === 3) {
-            this.form.fatherId = this.row.fatherId
-          }
+        if (this.row.type === 3) {
+          this.form.type = 3
+          this.form.fatherId = this.row.fatherId
+          // this.levelList2 = this.majorLevelList
         }
-        this.visible2 = true
+        if (this.form.type === 3) {
+          this.levelList2 = this.majorLevelList
+        } else {
+          this.levelList2 = this.collegeLevelList
+        }
+        this.dialog = '添加' + this.level[this.form.type].toString()
       }
+      this.form.level = this.level[this.form.type]
+      this.visible1 = true
     },
     handlesearch() {
       this.listLoading = true
@@ -318,22 +398,28 @@ export default {
       this.area = this.form.address.split(' ')
       console.log('address', this.form.address)
       if (row.type === 1) {
-        this.visible1 = true
+        this.dialog = '编辑学校'
       } else {
-        this.visible2 = true
+        if (this.form.type === 3) {
+          this.levelList2 = this.majorLevelList
+        } else {
+          this.levelList2 = this.collegeLevelList
+        }
+        this.dialog = '编辑' + this.level[this.form.type].toString()
       }
+      this.visible1 = true
     },
     handleDelete(index, row) {
       console.log(index, row)
       this.form = JSON.parse(JSON.stringify(row))
       this.visible3 = true
     },
-    grtChildren(type, ID) {
-      getList(this.currentPage, this.pagesize, type, '', ID).then(response => {
-        console.log('grtChildren', response.data.items)
-        this.childrenData = response.data.items
-      })
-    },
+    // grtChildren(type, ID) {
+    //   getList(-1, -1, type, '', ID).then(response => {
+    //     console.log('grtChildren', response.data.items)
+    //     this.childrenData = response.data.items
+    //   })
+    // },
     refreshRow(type, ID) {
       getList(this.currentPage, this.pagesize, type, '', ID).then(response => {
         console.log('refreshRow', type, ID, response.data.items)
@@ -342,7 +428,11 @@ export default {
     },
     update() {
       console.log('form', this.form.id, this.form.type, this.form.fatherId)
+      const id = this.form.fatherId
       this.form.address = this.area.join(' ')
+      if (this.form.type === 3) {
+        this.form.fatherId = this.college
+      }
       this.listLoading = true
       if (this.form.id === 0) {
         addItem(this.form).then(response => {
@@ -357,6 +447,7 @@ export default {
       }
       if (this.form.type !== 1) {
         console.log('form', this.form.type, this.form.fatherId)
+        this.refreshRow(this.form.type, id)
         this.refreshRow(this.form.type, this.form.fatherId)
       }
       this.closeForm()
@@ -370,6 +461,16 @@ export default {
       if (this.form.type !== '1') {
         console.log('form', this.form.type, this.form.fatherId)
         this.refreshRow(this.form.type, this.form.fatherId)
+      }
+      this.row = {
+        id: 0,
+        name: '',
+        level: '',
+        hasChildren: false,
+        type: 0,
+        childrenType: 1,
+        fatherId: 0,
+        address: ''
       }
       this.closeForm()
       this.fetchData()
@@ -410,11 +511,16 @@ export default {
     },
     load(tree, treeNode, resolve) {
       console.log('参数', tree.childrenType, tree.id)
-      this.grtChildren(tree.childrenType, tree.id)
-      setTimeout(() => {
-        console.log('childrenData', this.childrenData)
+      // this.grtChildren(tree.childrenType, tree.id)
+      getList(-1, -1, tree.childrenType, '', tree.id).then(response => {
+        console.log('grtChildren', response.data.items)
+        this.childrenData = response.data.items
         resolve(this.childrenData)
-      }, 1000)
+      })
+      // setTimeout(() => {
+      //   console.log('childrenData', this.childrenData)
+      //   resolve(this.childrenData)
+      // }, 1000)
       this.childrenData = []
     }
   }
