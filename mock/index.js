@@ -9,6 +9,7 @@ import userinfo from './userinfo'
 import school from './school'
 import study from './study'
 import area from './area'
+import present from './present'
 
 const mocks = [
   ...user,
@@ -18,7 +19,8 @@ const mocks = [
   ...userinfo,
   ...school,
   ...study,
-  ...area
+  ...area,
+  ...present
 ]
 // for front mock
 // please use it cautiously, it will redefine XMLHttpRequest,

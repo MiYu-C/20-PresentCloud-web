@@ -38,12 +38,12 @@
                 <template slot-scope="scope">
                   <el-button
                     size="mini"
-                    @click="handleEdit(scope.$index, scope.row)"
+                    @click="handleEdit(scope.$index, scope.row,1)"
                   >编辑</el-button>
                   <el-button
                     size="mini"
                     type="danger"
-                    @click="handleDelete(scope.$index, scope.row)"
+                    @click="handleDelete(scope.$index, scope.row,1)"
                   >删除</el-button>
                 </template>
               </el-table-column>
@@ -71,38 +71,39 @@
           <div>
             <el-row>
               <el-input
-                v-model="name"
+                v-model="name1"
                 placeholder="请输入"
                 style="width: 250px;"
                 size="small"
               />
-              <el-button type="primary" size="small" style="margin-left: 10px">查询</el-button>
-              <el-button type="primary" size="small" icon="el-icon-plus">添加</el-button>
+              <el-button type="primary" size="small" style="margin-left: 10px" @click="handlesearch1">查询</el-button>
+              <el-button type="primary" size="small" icon="el-icon-plus" @click="handleadd1">添加</el-button>
             </el-row>
             <el-table
-              :data="dictData"
+              :data="preData"
               style="width: 100%"
               row-key="id"
               border
+              @current-change="tableCurrentChange1"
             >
               <el-table-column
-                prop="attenrate"
-                label="出勤率"
+                prop="name"
+                label="缺课数"
               />
               <el-table-column
-                prop="attenlevel"
+                prop="level"
                 label="出勤等级"
               />
               <el-table-column label="操作" width="150">
                 <template slot-scope="scope">
                   <el-button
                     size="mini"
-                    @click="handleEdit(scope.$index, scope.row)"
+                    @click="handleEdit(scope.$index, scope.row,2)"
                   >编辑</el-button>
                   <el-button
                     size="mini"
                     type="danger"
-                    @click="handleDelete(scope.$index, scope.row)"
+                    @click="handleDelete(scope.$index, scope.row,2)"
                   >删除</el-button>
                 </template>
               </el-table-column>
@@ -129,7 +130,29 @@
         </el-form>
       </el-col>
       <span slot="footer" class="dialog-footer">
-        <el-button type="primary" @click="update">确 定</el-button>
+        <el-button type="primary" @click="update(1)">确 定</el-button>
+        <el-button @click="closeForm">取 消</el-button>
+      </span>
+    </el-dialog>
+    <el-dialog
+      titel="编辑出勤设置"
+      :visible.sync="visible2"
+      width="30%"
+      :show-close="false"
+      :destroy-on-close="true"
+    >
+      <el-col>
+        <el-form ref="preform" :model="preform" :rules="rules" label-position="right" label-width="100px">
+          <el-form-item label="缺课数" prop="name">
+            <el-input v-model="preform.name" placeholder="请输入缺课数" clearable />
+          </el-form-item>
+          <el-form-item label="出勤等级" prop="level">
+            <el-input v-model="preform.level" placeholder="请输入出勤等级" clearable />
+          </el-form-item>
+        </el-form>
+      </el-col>
+      <span slot="footer" class="dialog-footer">
+        <el-button type="primary" @click="update(2)">确 定</el-button>
         <el-button @click="closeForm">取 消</el-button>
       </span>
     </el-dialog>
@@ -137,11 +160,14 @@
 </template>
 <script>
 import { getList, updateList, addItem, deleteItem } from '@/web/api/study'
+import { getList1, updateList1, addItem1, deleteItem1 } from '@/web/api/present'
 export default {
   data() {
     return {
       visible1: false,
+      visible2: false,
       name: '',
+      name1: '',
       pagesizes: [5, 10, 15, 20],
       pagesize: 5,
       currentPage: 1,
@@ -152,30 +178,26 @@ export default {
         name: '',
         score: ''
       }],
-      dictData: [{
-        id: 1,
-        attenrate: '75~100%',
-        attenlevel: '1'
-      }, {
-        id: 2,
-        attenrate: '50~75%',
-        attenlevel: '2'
-      }, {
-        id: 3,
-        attenrate: '25~50%',
-        attenlevel: '3'
-      }, {
-        id: 4,
-        attenrate: '0~25%',
-        attenlevel: '4'
+      preData: [{
+        id: '',
+        name: '',
+        level: ''
       }],
       form: {
         id: '',
         name: '',
         score: ''
       },
+      preform: {
+        id: '',
+        name: '',
+        level: ''
+      },
       rules: {
         name: [
+          { required: true, message: '请输入', trigger: 'blur' }
+        ],
+        name1: [
           { required: true, message: '请输入', trigger: 'blur' }
         ]
       }
@@ -203,16 +225,27 @@ export default {
         console.log('search', this.tableData, this.total)
         this.listLoading = false
       })
+      getList1(this.name1).then(response => {
+        this.preData = response.data.items
+      })
     },
     handlesearch() {
       console.log('search', this.name.length, this.currentPage)
       this.fetchData()
     },
+    handlesearch1() {
+      console.log('search', this.name1.length)
+      this.fetchData()
+    },
     handleadd() {
       this.visible1 = true
     },
+    handleadd1() {
+      this.visible2 = true
+    },
     closeForm() {
       this.visible1 = false
+      this.visible2 = false
     },
     handleSizeChange(val) {
       console.log(`每页 ${val} 条`)
@@ -224,44 +257,83 @@ export default {
       console.log(`第 ${val.id} 条`)
       this.row = val.id
     },
+    tableCurrentChange1(val) {
+      console.log(`第 ${val.id} 条`)
+      this.row = val.id
+    },
     handleCurrentChange(val) {
       console.log(`当前页: ${val}`)
       console.log(this.currentPage)
       this.currentPage = val
       this.fetchData()
     },
-    handleEdit(index, row) {
-      this.visible1 = true
-      this.form = JSON.parse(JSON.stringify(row))
+    handleEdit(index, row, visible) {
+      if (visible === 1) {
+        this.visible1 = true
+        this.form = JSON.parse(JSON.stringify(row))
+      }
+      if (visible === 2) {
+        this.visible2 = true
+        this.preform = JSON.parse(JSON.stringify(row))
+      }
     },
-    handleDelete(index, row) {
-      console.log(index, row)
-      row = JSON.parse(JSON.stringify(row))
-      deleteItem(row).then(response => {
-        console.log('delete', response.data, (this.currentPage - 1) * this.pagesize)
-        this.total = response.data
-      })
-      console.log('delete', row.id, this.currentPage)
-      this.fetchData()
+    handleDelete(index, row, visible) {
+      if (visible === 1) {
+        console.log(index, row)
+        row = JSON.parse(JSON.stringify(row))
+        deleteItem(row).then(response => {
+          console.log('delete', response.data, (this.currentPage - 1) * this.pagesize)
+          this.total = response.data
+        })
+        console.log('delete', row.id, this.currentPage)
+        this.fetchData()
+      }
+      if (visible === 2) {
+        row = JSON.parse(JSON.stringify(row))
+        deleteItem1(row).then(response => {
+          console.log('delete', response.data)
+          this.fetchData()
+        })
+      }
     },
-    update() {
-      console.log('form', this.form)
-      this.listLoading = true
-      updateList(this.form).then(response => {
-        console.log('update', response.data)
-      })
-      this.form.id = this.total + 1
-      addItem(this.form).then(response => {
-        console.log('add', response.data)
-        this.newItem = response.data
-        console.log('newItem1', response.data)
-      })
-      // this.index = this.form.index
-      // delete this.form.index
-      // console.log(this.form.index)
-      // this.$set(this.tableData, this.index, this.form)
-      this.closeForm()
-      this.fetchData()
+    update(visible) {
+      if (visible === 1) {
+        console.log('form', this.form)
+        this.listLoading = true
+        updateList(this.form).then(response => {
+          console.log('update', response.data)
+        })
+        this.form.id = this.total + 1
+        addItem(this.form).then(response => {
+          console.log('add', response.data)
+          this.newItem = response.data
+          console.log('newItem1', response.data)
+        })
+        // this.index = this.form.index
+        // delete this.form.index
+        // console.log(this.form.index)
+        // this.$set(this.tableData, this.index, this.form)
+        this.closeForm()
+        this.fetchData()
+      }
+      if (visible === 2) {
+        console.log('preform', this.preform)
+        updateList1(this.preform).then(response => {
+          console.log('update', response.data)
+        })
+        // this.form.id = this.total + 1
+        addItem1(this.preform).then(response => {
+          console.log('add', response.data)
+          this.newItem = response.data
+          console.log('newItem1', response.data)
+        })
+        // this.index = this.form.index
+        // delete this.form.index
+        // console.log(this.form.index)
+        // this.$set(this.tableData, this.index, this.form)
+        this.closeForm()
+        this.fetchData()
+      }
     }
   //   load(tree, treeNode, resolve) {
   //     console.log('参数', tree.id)
