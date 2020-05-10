@@ -39,3 +39,11 @@ export function getFather(fatherId) {
     params: { fatherId }
   })
 }
+
+export function isExist(id, name, fatherId) {
+  return request({
+    url: '/vue-admin-template/school/exist',
+    method: 'get',
+    params: { id, name, fatherId }
+  })
+}

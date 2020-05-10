@@ -239,5 +239,23 @@ export default [
         }
       }
     }
+  },
+  {
+    url: '/vue-admin-template/school/exist',
+    type: 'get',
+    response: config => {
+      const { id, name, fatherId } = config.query
+      let table = data.items.filter(item => item.fatherId.toString() === fatherId.toString())
+      table = table.filter(item => item.id.toString() !== id.toString())
+      const index = table.findIndex(item => item.name.toString() === name.toString())
+      let exist = false
+      if (index > -1) {
+        exist = true
+      }
+      return {
+        code: 20000,
+        data: exist
+      }
+    }
   }
 ]

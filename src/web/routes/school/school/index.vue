@@ -135,7 +135,7 @@
               </el-select>
             </template>
           </el-form-item>
-          <el-form-item v-show="form.type.toString() === '1'" label="省份" prop="name">
+          <el-form-item v-show="form.type.toString() === '1'" label="省份">
             <el-select v-model="area[0]" placeholder="请选择省份">
               <el-option
                 v-for="item in provinceList"
@@ -145,7 +145,7 @@
               />
             </el-select>
           </el-form-item>
-          <el-form-item v-show="form.type.toString() === '1'" label="城市" prop="name">
+          <el-form-item v-show="form.type.toString() === '1'" label="城市">
             <el-select v-model="area[1]" :disabled="city" placeholder="请选择城市">
               <el-option
                 v-for="item in cityList"
@@ -210,11 +210,23 @@
 </template>
 <script>
 // eslint-disable-next-line no-unused-vars
-import { getList, updateList, addItem, deleteItem, getFather } from '@/web/api/school'
+import { getList, updateList, addItem, deleteItem, getFather, isExist } from '@/web/api/school'
 // eslint-disable-next-line no-unused-vars
 import { getCity, getProvince, inProvince } from '@/web/api/area'
 export default {
   data() {
+    const nameValidate = (rule, value, callback) => {
+      console.log('isExist', this.form.id, this.form.name, this.form.fatherId)
+      isExist(this.form.id, this.form.name, this.form.fatherId).then(response => {
+        const exist = response.data
+        console.log('exist', exist)
+        if (exist) {
+          callback(value + '已存在')
+        } else {
+          callback()
+        }
+      })
+    }
     return {
       visible1: false,
       visible2: false,
@@ -243,7 +255,8 @@ export default {
       },
       rules: {
         name: [
-          { required: true, message: '请输入', trigger: 'blur' }
+          { type: 'string', required: true, message: '请输入', trigger: 'blur' },
+          { validator: nameValidate, trigger: 'blur' }
         ],
         level: [
           { required: true, message: '请输入', trigger: 'blur' }
@@ -427,31 +440,36 @@ export default {
       })
     },
     update() {
-      console.log('form', this.form.id, this.form.type, this.form.fatherId)
-      const id = this.form.fatherId
-      this.form.address = this.area.join(' ')
-      if (this.form.type === 3) {
-        this.form.fatherId = this.college
-      }
-      this.listLoading = true
-      if (this.form.id === 0) {
-        addItem(this.form).then(response => {
-          console.log('add', response.data)
-          this.newItem = response.data
-          console.log('newItem1', response.data)
-        })
-      } else {
-        updateList(this.form).then(response => {
-          console.log('update', response.data)
-        })
-      }
-      if (this.form.type !== 1) {
-        console.log('form', this.form.type, this.form.fatherId)
-        this.refreshRow(this.form.type, id)
-        this.refreshRow(this.form.type, this.form.fatherId)
-      }
-      this.closeForm()
-      this.fetchData()
+      this.$refs['form'].validate((valid) => {
+        if (valid) {
+          console.log('编辑成功!')
+          console.log('form', this.form.id, this.form.type, this.form.fatherId)
+          const id = this.form.fatherId
+          this.form.address = this.area.join(' ')
+          if (this.form.type === 3) {
+            this.form.fatherId = this.college
+          }
+          this.listLoading = true
+          if (this.form.id === 0) {
+            addItem(this.form).then(response => {
+              console.log('add', response.data)
+              this.newItem = response.data
+              console.log('newItem1', response.data)
+            })
+          } else {
+            updateList(this.form).then(response => {
+              console.log('update', response.data)
+            })
+          }
+          if (this.form.type !== 1) {
+            console.log('form', this.form.type, this.form.fatherId)
+            this.refreshRow(this.form.type, id)
+            this.refreshRow(this.form.type, this.form.fatherId)
+          }
+          this.closeForm()
+          this.fetchData()
+        }
+      })
     },
     delete1() {
       deleteItem(this.form).then(response => {
