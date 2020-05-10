@@ -142,8 +142,8 @@
       :destroy-on-close="true"
     >
       <el-col>
-        <el-form ref="preform" :model="preform" :rules="rules" label-position="right" label-width="100px">
-          <el-form-item label="缺课数" prop="name">
+        <el-form ref="preform" :model="preform" :rules="pre_rules" label-position="right" label-width="100px">
+          <el-form-item label="出勤率" prop="name">
             <el-input v-model="preform.name" placeholder="请输入缺课数" clearable />
           </el-form-item>
           <el-form-item label="出勤等级" prop="level">
@@ -159,10 +159,34 @@
   </div>
 </template>
 <script>
-import { getList, updateList, addItem, deleteItem } from '@/web/api/study'
-import { getList1, updateList1, addItem1, deleteItem1 } from '@/web/api/present'
+import { getList, updateList, addItem, deleteItem, isExist } from '@/web/api/study'
+import { getList1, updateList1, addItem1, deleteItem1, isExist1 } from '@/web/api/present'
 export default {
   data() {
+    const preValidate = (rule, value, callback) => {
+      console.log('isExist', this.preform.id, this.preform.name)
+      isExist1(this.preform.id, this.preform.name).then(response => {
+        const exist = response.data
+        console.log('exist', exist)
+        if (exist) {
+          callback('出勤率重复')
+        } else {
+          callback()
+        }
+      })
+    }
+    const nameValidate = (rule, value, callback) => {
+      console.log('isExist', this.form.id, this.form.name)
+      isExist1(this.form.id, this.form.name).then(response => {
+        const exist = response.data
+        console.log('exist', exist)
+        if (exist) {
+          callback('行为' + value + '重复')
+        } else {
+          callback()
+        }
+      })
+    }
     return {
       visible1: false,
       visible2: false,
@@ -194,11 +218,18 @@ export default {
         level: ''
       },
       rules: {
+        // name: [
+        //   { required: true, message: '请输入', trigger: 'blur' }
+        // ]
         name: [
-          { required: true, message: '请输入', trigger: 'blur' }
-        ],
-        name1: [
-          { required: true, message: '请输入', trigger: 'blur' }
+          { required: true, message: '请输入', trigger: 'blur' },
+          { validate: nameValidate, trigger: 'blur' }
+        ]
+      },
+      pre_rules: {
+        name: [
+          { required: true, message: '请输入', trigger: 'blur' },
+          { validate: preValidate, trigger: 'blur' }
         ]
       }
     }
@@ -246,6 +277,11 @@ export default {
       this.visible1 = true
     },
     handleadd1() {
+      this.preform = {
+        id: 0,
+        name: '',
+        level: ''
+      }
       this.visible2 = true
     },
     closeForm() {
@@ -303,46 +339,57 @@ export default {
     },
     update(visible) {
       if (visible === 1) {
-        console.log('form', this.form)
-        this.listLoading = true
-        if (this.form.id === 0) {
-          addItem(this.form).then(response => {
-            console.log('add', response.data)
-            this.newItem = response.data
-            console.log('newItem1', response.data)
-          })
-        } else {
-          updateList(this.form).then(response => {
-            console.log('update', response.data)
-          })
-          // this.form.id = this.total + 1
-        }
-        // this.index = this.form.index
-        // delete this.form.index
-        // console.log(this.form.index)
-        // this.$set(this.tableData, this.index, this.form)
-        this.closeForm()
-        this.fetchData()
+        this.$refs['form'].validate((valid) => {
+          if (valid) {
+            console.log('form', this.form)
+            if (this.form.id === 0) {
+              addItem(this.form).then(response => {
+                console.log('add', response.data)
+                this.newItem = response.data
+                console.log('newItem1', response.data)
+              })
+            } else {
+              updateList(this.form).then(response => {
+                console.log('update', response.data)
+              })
+            }
+            // this.form.id = this.total + 1
+            // this.index = this.form.index
+            // delete this.form.index
+            // console.log(this.form.index)
+            // this.$set(this.tableData, this.index, this.form)
+            this.closeForm()
+            this.fetchData()
+          }
+        })
       }
       if (visible === 2) {
-        console.log('preform', this.preform)
-        updateList1(this.preform).then(response => {
-          console.log('update', response.data)
+        this.$refs['preform'].validate((valid) => {
+          if (valid) {
+            console.log('preform', this.preform)
+            if (this.preform.id === 0) {
+              addItem1(this.preform).then(response => {
+                console.log('add', response.data)
+                this.newItem = response.data
+                console.log('newItem1', response.data)
+              })
+            } else {
+              updateList1(this.preform).then(response => {
+                console.log('update', response.data)
+              })
+            }
+            // this.form.id = this.total + 1
+            // this.index = this.form.index
+            // delete this.form.index
+            // console.log(this.form.index)
+            // this.$set(this.tableData, this.index, this.form)
+            this.closeForm()
+            this.fetchData()
+          }
         })
-        // this.form.id = this.total + 1
-        addItem1(this.preform).then(response => {
-          console.log('add', response.data)
-          this.newItem = response.data
-          console.log('newItem1', response.data)
-        })
-        // this.index = this.form.index
-        // delete this.form.index
-        // console.log(this.form.index)
-        // this.$set(this.tableData, this.index, this.form)
-        this.closeForm()
-        this.fetchData()
       }
     }
+  
   //   load(tree, treeNode, resolve) {
   //     console.log('参数', tree.id)
   //     setTimeout(() => {

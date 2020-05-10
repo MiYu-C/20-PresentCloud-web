@@ -2,21 +2,26 @@ import Mock from 'mockjs'
 const data = Mock.mock({
   'items': [{
     id: 1,
-    name: '75~100%',
+    name: '100%',
     level: '1'
   }, {
     id: 2,
-    name: '50~75%',
+    name: '>75%',
     level: '2'
   }, {
     id: 3,
-    name: '25~50%',
+    name: '>50%',
     level: '3'
   }, {
     id: 4,
-    name: '0~25%',
+    name: '>25%',
     level: '4'
-  }]
+  }, {
+    id: 5,
+    name: '0',
+    level: 5
+  }
+  ]
 })
 
 export default [
@@ -86,10 +91,28 @@ export default [
     response: config => {
       const { form } = config.query
       const newform = JSON.parse(form)
+      newform.id = Mock.Random.natural(23, 10000)
       data.items.push(newform)
       return {
         code: 20000,
         data: newform
+      }
+    }
+  },
+  {
+    url: '/vue-admin-template/present/exist',
+    type: 'get',
+    response: config => {
+      const { id, name } = config.query
+      const table = data.items.filter(item => item.id.toString() !== id.toString())
+      const index = table.findIndex(item => item.name.toString() === name.toString())
+      let exist = false
+      if (index > -1) {
+        exist = true
+      }
+      return {
+        code: 20000,
+        data: exist
       }
     }
   }

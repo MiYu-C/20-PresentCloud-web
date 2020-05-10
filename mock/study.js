@@ -2,32 +2,32 @@ import Mock from 'mockjs'
 const data = Mock.mock({
   'items': [{
     id: 1,
-    name: '行为',
+    name: '签到',
     score: '2'
   }, {
     id: 2,
-    name: '行为',
+    name: '作业提交',
     score: '2'
   }, {
     id: 3,
-    name: '行为',
-    score: '2'
+    name: '课堂回答',
+    score: '1'
   }, {
     id: 4,
-    name: '行为',
-    score: '2'
+    name: '作业迟交',
+    score: '-2'
   }, {
     id: 5,
-    name: '行为',
-    score: '2'
+    name: '上课吃饭，挂机',
+    score: '-2'
   }, {
     id: 6,
-    name: '行为',
-    score: '2'
+    name: '老师心情好加分',
+    score: '1'
   }, {
     id: 7,
-    name: '行为',
-    score: '2'
+    name: '作业质量差',
+    score: '-2'
   }]
 })
 
@@ -104,6 +104,23 @@ export default [
       return {
         code: 20000,
         data: newform
+      }
+    }
+  },
+  {
+    url: '/vue-admin-template/study/exist',
+    type: 'get',
+    response: config => {
+      const { id, name } = config.query
+      const table = data.items.filter(item => item.id.toString() !== id.toString())
+      const index = table.findIndex(item => item.name.toString() === name.toString())
+      let exist = false
+      if (index > -1) {
+        exist = true
+      }
+      return {
+        code: 20000,
+        data: exist
       }
     }
   }

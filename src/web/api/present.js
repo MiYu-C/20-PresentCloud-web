@@ -39,3 +39,11 @@ export function addItem1(form) {
     params: { form }
   })
 }
+
+export function isExist1(id, name) {
+  return request({
+    url: '/vue-admin-template/present/exist',
+    method: 'get',
+    params: { id, name }
+  })
+}
