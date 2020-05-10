@@ -303,7 +303,7 @@ export default {
     },
     update(visible) {
       if (visible === 1) {
-        console.log('form', this.form.id)
+        console.log('form', this.form)
         this.listLoading = true
         if (this.form.id === 0) {
           addItem(this.form).then(response => {
@@ -315,7 +315,7 @@ export default {
           updateList(this.form).then(response => {
             console.log('update', response.data)
           })
-          this.form.id = this.total + 1
+          // this.form.id = this.total + 1
         }
         // this.index = this.form.index
         // delete this.form.index
