@@ -88,7 +88,7 @@
             >
               <el-table-column
                 prop="name"
-                label="缺课数"
+                label="出勤率"
               />
               <el-table-column
                 prop="level"
@@ -238,6 +238,11 @@ export default {
       this.fetchData()
     },
     handleadd() {
+      this.form = {
+        id: 0,
+        name: '',
+        score: ''
+      }
       this.visible1 = true
     },
     handleadd1() {
@@ -269,8 +274,8 @@ export default {
     },
     handleEdit(index, row, visible) {
       if (visible === 1) {
-        this.visible1 = true
         this.form = JSON.parse(JSON.stringify(row))
+        this.visible1 = true
       }
       if (visible === 2) {
         this.visible2 = true
@@ -298,17 +303,20 @@ export default {
     },
     update(visible) {
       if (visible === 1) {
-        console.log('form', this.form)
+        console.log('form', this.form.id)
         this.listLoading = true
-        updateList(this.form).then(response => {
-          console.log('update', response.data)
-        })
-        this.form.id = this.total + 1
-        addItem(this.form).then(response => {
-          console.log('add', response.data)
-          this.newItem = response.data
-          console.log('newItem1', response.data)
-        })
+        if (this.form.id === 0) {
+          addItem(this.form).then(response => {
+            console.log('add', response.data)
+            this.newItem = response.data
+            console.log('newItem1', response.data)
+          })
+        } else {
+          updateList(this.form).then(response => {
+            console.log('update', response.data)
+          })
+          this.form.id = this.total + 1
+        }
         // this.index = this.form.index
         // delete this.form.index
         // console.log(this.form.index)

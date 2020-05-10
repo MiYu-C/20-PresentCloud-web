@@ -99,6 +99,7 @@ export default [
     response: config => {
       const { form } = config.query
       const newform = JSON.parse(form)
+      newform.id = Mock.Random.natural(23, 10000)
       data.items.push(newform)
       return {
         code: 20000,
