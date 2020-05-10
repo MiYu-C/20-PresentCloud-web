@@ -17,7 +17,7 @@ const mocks = [
   ...list,
   ...userinfo,
   ...school,
-  ...study
+  ...study,
   ...area
 ]
 // for front mock
