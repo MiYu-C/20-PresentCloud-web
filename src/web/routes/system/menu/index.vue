@@ -67,8 +67,8 @@
         />
         <el-table-column prop="isView" label="是否可见" align="center">
           <template slot-scope="scope">
-            <span v-if="scope.row.isView">否</span>
-            <span v-else>是</span>
+            <span v-if="scope.row.isView">是</span>
+            <span v-else>否</span>
           </template>
         </el-table-column>
         <el-table-column
@@ -123,13 +123,13 @@
                   </el-row>
                   <el-button slot="reference">选择</el-button>
                 </el-popover> -->
-                <el-button slot="append" @click="visible3 = true">选择</el-button>
+                <el-button slot="append" @click="iconVisible = true">选择</el-button>
               </el-input>
             </el-form-item>
             <el-form-item label="菜单可见">
               <el-radio-group v-model="form.isView" size="mini">
-                <el-radio-button label="true">是</el-radio-button>
-                <el-radio-button label="false">否</el-radio-button>
+                <el-radio-button :label="true">是</el-radio-button>
+                <el-radio-button :label="false">否</el-radio-button>
               </el-radio-group>
             </el-form-item>
             <el-form-item label="排序" prop="order" size="mini">
@@ -169,7 +169,7 @@
       </el-dialog>
       <el-dialog
         title="确认删除"
-        :visible.sync="visible2"
+        :visible.sync="deleteVisible"
         width="30%"
         :show-close="false"
         :destroy-on-close="true"
@@ -184,7 +184,7 @@
       </el-dialog>
       <el-dialog
         title="选择图标"
-        :visible.sync="visible3"
+        :visible.sync="iconVisible"
         width="50%"
         :show-close="false"
         :destroy-on-close="true"
@@ -281,8 +281,8 @@ export default {
       icons: [],
       time: '',
       visible1: false,
-      visible2: false,
-      visible3: false,
+      deleteVisible: false,
+      iconVisible: false,
       dialog: '',
       newItem: 0,
       name: '',
@@ -337,8 +337,8 @@ export default {
     fetchData() {
       this.listLoading = true
       getList(this.name, '-1').then(response => {
-        // this.tableData = response.data.items
-        // this.tableData = this.setTreeData(this.tableData, 1)
+        this.tableData = response.data.items
+        this.tableData = this.setTreeData(this.tableData, 1)
         console.log('tableData', this.tableData)
         this.listLoading = false
       })
@@ -346,7 +346,7 @@ export default {
         this.data = response.data.items
         console.log('Data', this.data)
         this.treeData = this.setTreeData(this.data, 0)
-        this.tableData = this.treeData[0].children
+        // this.tableData = this.treeData[0].children
         console.log('treeData', this.treeData)
         this.listLoading = false
       })
@@ -361,13 +361,13 @@ export default {
       this.visible1 = true
     },
     handleadd() {
-      this.form = this.defaultForm
+      this.form = JSON.parse(JSON.stringify(this.defaultForm))
       this.visible1 = true
     },
     handleDelete(index, row) {
       console.log(index, row)
       this.form = JSON.parse(JSON.stringify(row))
-      this.visible2 = true
+      this.deleteVisible = true
     },
     refreshRow(ID) {
       getList('', ID).then(response => {
@@ -431,8 +431,8 @@ export default {
     },
     closeForm() {
       this.visible1 = false
-      this.visible2 = false
-      this.form = this.defaultForm
+      this.deleteVisible = false
+      this.form = JSON.parse(JSON.stringify(this.defaultForm))
     },
     handlesearch() {
       this.listLoading = true
@@ -493,7 +493,7 @@ export default {
     selectIcon(icon) {
       console.log('icon', this.icon)
       this.form.icon = icon
-      this.visible3 = false
+      this.iconVisible = false
     },
     // 替换树形选择器label
     normalizer(node) {
