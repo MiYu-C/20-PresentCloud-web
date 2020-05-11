@@ -9,10 +9,12 @@ import userinfo from './userinfo'
 import school from './school'
 import study from './study'
 import area from './area'
+import menu from './menu'
 import present from './present'
 
 const mocks = [
   ...user,
+  ...menu,
   ...table,
   ...dictionary,
   ...list,
