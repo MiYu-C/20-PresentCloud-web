@@ -11,10 +11,12 @@ import study from './study'
 import area from './area'
 import menu from './menu'
 import present from './present'
+import role from './role'
 
 const mocks = [
   ...user,
   ...menu,
+  ...role,
   ...table,
   ...dictionary,
   ...list,
