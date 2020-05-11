@@ -159,6 +159,7 @@
   </div>
 </template>
 <script>
+// eslint-disable-next-line no-unused-vars
 import { getList, updateList, addItem, deleteItem, isExist } from '@/web/api/study'
 import { getList1, updateList1, addItem1, deleteItem1, isExist1 } from '@/web/api/present'
 export default {
@@ -389,7 +390,6 @@ export default {
         })
       }
     }
-  
   //   load(tree, treeNode, resolve) {
   //     console.log('参数', tree.id)
   //     setTimeout(() => {
