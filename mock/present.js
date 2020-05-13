@@ -115,5 +115,22 @@ export default [
         data: exist
       }
     }
+  },
+  {
+    url: '/vue-admin-template/present/level_exist',
+    type: 'get',
+    response: config => {
+      const { id, level } = config.query
+      const table = data.items.filter(item => item.id.toString() !== id.toString())
+      const index = table.findIndex(item => item.level.toString() === level.toString())
+      let exist = false
+      if (index > -1) {
+        exist = true
+      }
+      return {
+        code: 20000,
+        data: exist
+      }
+    }
   }
 ]

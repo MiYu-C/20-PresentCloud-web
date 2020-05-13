@@ -1,6 +1,6 @@
 <template>
   <el-row>
-    <el-col :span="14">
+    <el-col :span="16">
       <el-card class="box-card">
         <div>
           <el-row>
@@ -137,7 +137,7 @@
         </el-dialog>
       </el-card>
     </el-col>
-    <el-col :span="10">
+    <el-col :span="8">
       <el-card class="box-card">
         <div slot="header" class="clearfix">
           <el-tooltip class="item" effect="dark" content="选择指定角色分配菜单" placement="top">

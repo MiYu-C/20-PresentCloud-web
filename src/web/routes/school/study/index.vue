@@ -84,6 +84,7 @@
               style="width: 100%"
               row-key="id"
               border
+              :default-sort="{prop:'level', order:'ascending' }"
               @current-change="tableCurrentChange1"
             >
               <el-table-column
@@ -147,7 +148,7 @@
             <el-input v-model="preform.name" placeholder="请输入缺课数" clearable />
           </el-form-item>
           <el-form-item label="出勤等级" prop="level">
-            <el-input v-model="preform.level" placeholder="请输入出勤等级" clearable />
+            <el-input-number v-model="preform.level" :min="1" :max="999" clearable />
           </el-form-item>
         </el-form>
       </el-col>
@@ -159,9 +160,8 @@
   </div>
 </template>
 <script>
-// eslint-disable-next-line no-unused-vars
 import { getList, updateList, addItem, deleteItem, isExist } from '@/web/api/study'
-import { getList1, updateList1, addItem1, deleteItem1, isExist1 } from '@/web/api/present'
+import { getList1, updateList1, addItem1, deleteItem1, isExist1, level_isExist } from '@/web/api/present'
 export default {
   data() {
     const preValidate = (rule, value, callback) => {
@@ -176,13 +176,25 @@ export default {
         }
       })
     }
-    const nameValidate = (rule, value, callback) => {
-      console.log('isExist', this.form.id, this.form.name)
-      isExist1(this.form.id, this.form.name).then(response => {
+    const levelValidate = (rule, value, callback) => {
+      console.log('isExist', this.preform.id, this.preform.level)
+      level_isExist(this.preform.id, this.preform.level).then(response => {
         const exist = response.data
         console.log('exist', exist)
         if (exist) {
-          callback('行为' + value + '重复')
+          callback('该出勤等级已存在')
+        } else {
+          callback()
+        }
+      })
+    }
+    const nameValidate = (rule, value, callback) => {
+      console.log('isExist', this.form.id, this.form.name)
+      isExist(this.form.id, this.form.name).then(response => {
+        const exist = response.data
+        console.log('exist', exist)
+        if (exist) {
+          callback('学习行为' + value + '重复')
         } else {
           callback()
         }
@@ -224,13 +236,17 @@ export default {
         // ]
         name: [
           { required: true, message: '请输入', trigger: 'blur' },
-          { validate: nameValidate, trigger: 'blur' }
+          { validator: nameValidate, trigger: 'blur' }
         ]
       },
       pre_rules: {
         name: [
           { required: true, message: '请输入', trigger: 'blur' },
-          { validate: preValidate, trigger: 'blur' }
+          { validator: preValidate, trigger: 'blur' }
+        ],
+        level: [
+          { required: true, message: '请输入', trigger: 'blur' },
+          { validator: levelValidate, trigger: 'blur' }
         ]
       }
     }

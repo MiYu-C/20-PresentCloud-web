@@ -47,3 +47,12 @@ export function isExist1(id, name) {
     params: { id, name }
   })
 }
+
+export function level_isExist(id, level) {
+  return request({
+    url: '/vue-admin-template/present/level_exist',
+    method: 'get',
+    params: { id, level }
+  })
+}
+
