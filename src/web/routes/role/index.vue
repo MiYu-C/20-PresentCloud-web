@@ -14,7 +14,7 @@
             <el-button @click="resetData">重置</el-button>
           </el-row>
           <el-row>
-            <el-button type="primary" size="small" icon="el-icon-plus" @click="handleadd">添加</el-button>
+            <el-button type="primary" size="small" icon="el-icon-plus" @click="handleAdd">添加</el-button>
             <el-button size="small">批量操作</el-button>
           </el-row>
         </div>
@@ -268,7 +268,7 @@ export default {
       this.menus = val.menus
       this.setCheckedKeys(this.menus)
     },
-    handleadd() {
+    handleAdd() {
       console.log('defaultForm', this.defaultForm)
       this.form = JSON.parse(JSON.stringify(this.defaultForm))
       console.log('form', this.form)

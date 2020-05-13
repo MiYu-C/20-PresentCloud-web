@@ -14,7 +14,7 @@
             <el-button @click="resetData">重置</el-button>
           </el-row>
           <el-row>
-            <el-button type="primary" size="small" icon="el-icon-plus" @click="handleadd">添加</el-button>
+            <el-button type="primary" size="small" icon="el-icon-plus" @click="handleAdd">添加</el-button>
             <el-button @click="setCurrent()">取消选择</el-button>
           </el-row>
         </div>
@@ -368,7 +368,7 @@ export default {
       this.currentPage = val
       this.fetchData()
     },
-    handleadd() {
+    handleAdd() {
       this.form = {
         id: 0,
         name: '',
