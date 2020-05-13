@@ -19,7 +19,7 @@
         <el-button @click="resetData">重置</el-button>
       </el-row>
       <el-row>
-        <el-button type="primary" size="small" icon="el-icon-plus" @click="handleadd">添加</el-button>
+        <el-button type="primary" size="small" icon="el-icon-plus" @click="handleAdd">添加</el-button>
         <el-button size="small">批量操作</el-button>
       </el-row>
     </div>
@@ -228,8 +228,8 @@ export default {
       })
     }
     const orderValidate = (rule, value, callback) => {
-      console.log('isExist', this.form.id, this.form.order)
-      isExist(this.form.id, this.form.order, 'order').then(response => {
+      console.log('isExist', this.form.id, '0', this.form.order)
+      isExist(this.form.id, this.form.order, '0', 'order').then(response => {
         const exist = response.data
         console.log('exist', exist)
         if (exist) {
@@ -362,7 +362,7 @@ export default {
       this.form = JSON.parse(JSON.stringify(row))
       this.visible1 = true
     },
-    handleadd() {
+    handleAdd() {
       this.form = JSON.parse(JSON.stringify(this.defaultForm))
       this.visible1 = true
     },
