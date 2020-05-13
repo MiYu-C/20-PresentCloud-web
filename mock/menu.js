@@ -289,17 +289,16 @@ export default [
     url: '/vue-admin-template/menu/exist',
     type: 'get',
     response: config => {
-      const { id, value, type } = config.query
+      const { id, value, thisType, type } = config.query
       let index = data.items.findIndex(item => item.id.toString() === id.toString())
-      const thisType = data.items[index].type
       let table = data.items.filter(item => item.id > 1)
-      table = table.filter(item => item.id.toString() !== id)
+      table = table.filter(item => item.id.toString() !== id.toString())
       index = -1
-      if (type === 'name') {
+      if (type.toString() === 'name') {
         table = table.filter(item => item.type.toString() === thisType.toString())
         index = table.findIndex(item => item.name.toString() === value.toString())
       }
-      if (type === 'order') {
+      if (type.toString() === 'order') {
         index = table.findIndex(item => item.order.toString() === value.toString())
       }
       let exist = false

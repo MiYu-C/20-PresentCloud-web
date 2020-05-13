@@ -214,7 +214,10 @@ export default {
   data() {
     const nameValidate = (rule, value, callback) => {
       console.log('isExist', this.form.id, this.form.name)
-      isExist(this.form.id, this.form.name, 'name').then(response => {
+      if (this.form.name === '') {
+        callback('不能为空')
+      }
+      isExist(this.form.id, this.form.name, this.form.type, 'name').then(response => {
         const exist = response.data
         console.log('exist', exist)
         if (exist) {
@@ -310,7 +313,6 @@ export default {
       },
       rules: {
         name: [
-          { type: 'string', required: true, message: '不能为空', trigger: 'blur' },
           { validator: nameValidate, trigger: 'blur' }
         ],
         level: [

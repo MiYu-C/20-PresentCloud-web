@@ -40,10 +40,10 @@ export function getFather(fatherId) {
   })
 }
 
-export function isExist(id, value, type) {
+export function isExist(id, value, thisType, type) {
   return request({
     url: '/vue-admin-template/menu/exist',
     method: 'get',
-    params: { id, value, type }
+    params: { id, value, thisType, type }
   })
 }
