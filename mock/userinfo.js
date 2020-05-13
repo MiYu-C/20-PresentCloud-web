@@ -1,15 +1,16 @@
 import Mock from 'mockjs'
 const data = Mock.mock({
-  'items|30': [{
+  'items|15': [{
     id: '@id',
     name: '@cname',
     userID: '@string( "number", 8 )',
     account: '-',
     roles: ['用户'],
-    gender: '男',
-    datapermission: '全部',
-    school: '@cword( 2, 3 )' + '大学',
-    department: '@cword( 2, 3 )',
+    'gender|1': ['男', '女'],
+    datapermission: '自定义',
+    'school|1': ['福州大学', '福建师范大学', '@cword( 2, 3 )' + '大学'],
+    department: '数计学院',
+    'major|1': ['计算机技术', '数学', '软件工程'],
     phone: '131' + '@string( "number", 8 )',
     type: 1
   }, {
@@ -17,11 +18,10 @@ const data = Mock.mock({
     name: '@cname',
     userID: '@string( "number", 8 )',
     account: '-',
-    roles: ['修改者', '用户'],
+    roles: ['管理员', '用户'],
     gender: '男',
-    datapermission: '全部',
-    school: '@cword( 2, 3 )' + '大学',
-    department: '@cword( 2, 3 )',
+    'school|1': ['福州大学', '福州大学', '@cword( 2, 3 )' + '大学'],
+    'department|1': ['数计学院', '外语学院'],
     phone: '131' + '@string( "number", 8 )',
     type: 2
   }, {
@@ -29,11 +29,10 @@ const data = Mock.mock({
     name: '@cname',
     userID: '-',
     account: '@string( "number", 8 )',
-    roles: ['管理员', '修改者'],
+    roles: ['超级管理员'],
     gender: '',
-    datapermission: '全部',
-    school: '@cword( 2, 3 )',
-    department: '@cword( 2, 3 )',
+    'school|1': ['福州大学', '@cword( 2, 3 )'],
+    'department|1': ['数计学院', '外语学院', '物信学院'],
     phone: '131' + '@string( "number", 8 )',
     type: 3
   }]
@@ -119,11 +118,35 @@ export default [
     response: config => {
       const { form } = config.query
       const newform = JSON.parse(form)
-      newform.id = data.items[-1].id + 1
+      newform.id = Mock.Random.natural(23, 10000)
       data.items.push(newform)
       return {
         code: 20000,
         data: newform
+      }
+    }
+  },
+  {
+    url: '/vue-admin-template/userinfo/exist',
+    type: 'get',
+    response: config => {
+      const { id, value, type, kind } = config.query
+      let table = data.items.filter(data => data.type.toString() === type.toString())
+      table = table.filter(item => item.id.toString() !== id.toString())
+      let index = -1
+      if (kind === 'account') {
+        index = table.findIndex(item => item.account.toString() === value.toString())
+      }
+      if (kind === 'userID') {
+        index = table.findIndex(item => item.userID.toString() === value.toString())
+      }
+      let exist = false
+      if (index > -1) {
+        exist = true
+      }
+      return {
+        code: 20000,
+        data: exist
       }
     }
   }

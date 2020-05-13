@@ -31,3 +31,11 @@ export function addItem(form) {
     params: { form }
   })
 }
+
+export function isExist(id, value, type, kind) {
+  return request({
+    url: '/vue-admin-template/userinfo/exist',
+    method: 'get',
+    params: { id, value, type, kind }
+  })
+}
