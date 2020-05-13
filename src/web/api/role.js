@@ -32,10 +32,10 @@ export function addItem(form) {
   })
 }
 
-export function isExist(id, name, fatherId) {
+export function isExist(id, name) {
   return request({
     url: '/vue-admin-template/role/exist',
     method: 'get',
-    params: { id, name, fatherId }
+    params: { id, name }
   })
 }

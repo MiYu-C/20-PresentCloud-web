@@ -310,14 +310,14 @@ export default {
       },
       rules: {
         name: [
-          { type: 'string', required: true, message: '请输入', trigger: 'blur' },
+          { type: 'string', required: true, message: '不能为空', trigger: 'blur' },
           { validator: nameValidate, trigger: 'blur' }
         ],
         level: [
-          { required: true, message: '请输入', trigger: 'blur' }
+          { required: true, message: '不能为空', trigger: 'blur' }
         ],
         order: [
-          { required: true, message: '请输入', trigger: 'blur' },
+          { required: true, message: '不能为空', trigger: 'blur' },
           { validator: orderValidate, trigger: 'blur' }
         ],
         father: [

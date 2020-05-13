@@ -117,8 +117,8 @@ export default [
     url: '/vue-admin-template/role/exist',
     type: 'get',
     response: config => {
-      const { id, name, fatherId } = config.query
-      let table = data.items.filter(item => item.fatherId.toString() === fatherId.toString())
+      const { id, name } = config.query
+      let table = data.items
       table = table.filter(item => item.id.toString() !== id.toString())
       const index = table.findIndex(item => item.name.toString() === name.toString())
       let exist = false

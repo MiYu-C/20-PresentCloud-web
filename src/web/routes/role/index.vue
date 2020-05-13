@@ -27,10 +27,10 @@
             highlight-current-row
             @current-change="tableCurrentChange"
           >
-            <el-table-column
+            <!-- <el-table-column
               type="selection"
               width="55"
-            />
+            /> -->
             <el-table-column
               prop="id"
               label="编号"
@@ -137,7 +137,7 @@
         </el-dialog>
       </el-card>
     </el-col>
-    <el-col :span="8">
+    <el-col :span="7">
       <el-card class="box-card">
         <div slot="header" class="clearfix">
           <el-tooltip class="item" effect="dark" content="选择指定角色分配菜单" placement="top">
@@ -170,6 +170,18 @@ import { getList, updateList, addItem, deleteItem, isExist } from '@/web/api/rol
 import { getList as getMenus } from '@/web/api/menu'
 export default {
   data() {
+    const nameValidate = (rule, value, callback) => {
+      console.log('isExist', this.form.id, this.form.name)
+      isExist(this.form.id, this.form.name, 'name').then(response => {
+        const exist = response.data
+        console.log('exist', exist)
+        if (exist) {
+          callback(value + '已存在')
+        } else {
+          callback()
+        }
+      })
+    }
     return {
       name: '',
       visible: false,
@@ -188,7 +200,8 @@ export default {
       datapermissions: ['全部', '本级', '自定义'],
       rules: {
         name: [
-          { required: true, message: '请输入', trigger: 'blur' }
+          { type: 'string', required: true, message: '名称不能为空', trigger: 'blur' },
+          { validator: nameValidate, trigger: 'blur' }
         ]
       },
       defaultForm: {
