@@ -106,8 +106,8 @@
           <el-form-item label="姓名" prop="name">
             <el-input v-model="form.name" placeholder="请输入姓名" clearable />
           </el-form-item>
-          <el-form-item label="学号" prop="userID">
-            <el-input v-model="form.userID" placeholder="请输入学号" clearable />
+          <el-form-item label="工号" prop="userID">
+            <el-input v-model="form.userID" placeholder="请输入工号" clearable />
             <!-- <span>{{ form.account }}</span> -->
           </el-form-item>
           <el-form-item label="角色">
@@ -228,7 +228,7 @@ export default {
           { required: true, message: '请输入', trigger: 'blur' }
         ],
         userID: [
-          { required: true, message: '请输入学号', trigger: 'blur' },
+          { required: true, message: '请输入工号', trigger: 'blur' },
           { validator: accountValidate, trigger: 'blur' }
         ]
       },

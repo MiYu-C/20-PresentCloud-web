@@ -145,7 +145,7 @@
       <el-col>
         <el-form ref="preform" :model="preform" :rules="pre_rules" label-position="right" label-width="100px">
           <el-form-item label="出勤率" prop="name">
-            <el-input v-model="preform.name" placeholder="请输入缺课数" clearable />
+            <el-input v-model="preform.name" placeholder="请输入出勤率" clearable />
           </el-form-item>
           <el-form-item label="出勤等级" prop="level">
             <el-input-number v-model="preform.level" :min="1" :max="999" clearable />
