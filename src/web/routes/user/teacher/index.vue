@@ -219,7 +219,7 @@ export default {
         department: '',
         major: '',
         phone: '',
-        type: 1
+        type: 2
       },
       form: null,
       row: null,
