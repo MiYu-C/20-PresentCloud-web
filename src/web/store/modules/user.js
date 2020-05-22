@@ -28,14 +28,14 @@ const mutations = {
 }
 
 const actions = {
-  // user login
+  // 登录
   login({ commit }, userInfo) {
-    const { username, password } = userInfo
+    const { username, password, rememberMe } = userInfo
     return new Promise((resolve, reject) => {
       login({ username: username.trim(), password: password }).then(response => {
         const { data } = response
         commit('SET_TOKEN', data.token)
-        setToken(data.token)
+        setToken(data.token, rememberMe)
         resolve()
       }).catch(error => {
         reject(error)
@@ -43,7 +43,7 @@ const actions = {
     })
   },
 
-  // get user info
+  // 获取用户信息
   getInfo({ commit, state }) {
     return new Promise((resolve, reject) => {
       getInfo(state.token).then(response => {
@@ -64,11 +64,11 @@ const actions = {
     })
   },
 
-  // user logout
+  // 注销
   logout({ commit, state }) {
     return new Promise((resolve, reject) => {
       logout(state.token).then(() => {
-        removeToken() // must remove  token  first
+        removeToken() // 移除token
         resetRouter()
         commit('RESET_STATE')
         resolve()
@@ -78,10 +78,10 @@ const actions = {
     })
   },
 
-  // remove token
+  // 移除token
   resetToken({ commit }) {
     return new Promise(resolve => {
-      removeToken() // must remove  token  first
+      removeToken() // 移除token
       commit('RESET_STATE')
       resolve()
     })

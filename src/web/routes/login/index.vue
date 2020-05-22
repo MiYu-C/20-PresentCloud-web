@@ -7,11 +7,8 @@
       </div>
 
       <el-tabs v-model="activeName">
-        <el-tab-pane label="手机号码登录" name="first">
+        <el-tab-pane label="手机号码登录" name="phone">
           <el-form-item prop="phone">
-            <!-- <span class="svg-container">
-              <svg-icon icon-class="user" />
-            </span> -->
             <el-input
               ref="phone"
               v-model="loginForm.phone"
@@ -24,9 +21,6 @@
             />
           </el-form-item>
           <el-form-item prop="code">
-            <!-- <span class="svg-container">
-              <svg-icon icon-class="password" />
-            </span> -->
             <el-input
               ref="code"
               v-model="loginForm.code"
@@ -38,12 +32,9 @@
             >
               <el-button slot="append" :disabled="resend" @click="sendCode">{{ codeStatus }}</el-button>
             </el-input>
-            <!-- <span class="show-pwd">
-              <el-button type="primary" :disabled="resend" @click="sendCode">{{ codeStatus }}</el-button>
-            </span> -->
           </el-form-item>
         </el-tab-pane>
-        <el-tab-pane label="帐号密码登录" name="second">
+        <el-tab-pane label="帐号密码登录" name="username">
           <el-form-item prop="username">
             <!-- <span class="svg-container">
               <svg-icon icon-class="user" />
@@ -90,14 +81,14 @@
 
       <div class="tips">
         <el-row type="flex" justify="end">
-          <el-col :span="12"><el-checkbox v-model="checked">自动登录</el-checkbox></el-col>
+          <el-col :span="12"><el-checkbox v-model="loginForm.rememberMe">记住</el-checkbox></el-col>
           <el-col :span="12" :offset="15">
             <el-link type="primary" :underline="false" @click.native.prevent="findPwd">忘记密码</el-link>
           </el-col>
         </el-row>
       </div>
 
-      <el-button :loading="loading" type="primary" style="width:100%;margin-bottom:30px;" @click.native.prevent="handleLogin">登录</el-button>
+      <el-button :loading="loading" type="primary" style="width:100%;margin-bottom:30px;" @click.native.prevent="handleLogin(activeName)">登录</el-button>
 
       <!-- <div class="tips">
         <span style="margin-right:20px;">username: admin</span>
@@ -117,24 +108,24 @@
           <el-form-item label="帐号" :label-width="formLabelWidth" prop="user">
             <el-input v-model="ruleForm.user" placeholder="请输入帐号" clearable />
           </el-form-item>
-          <el-form-item label="手机号" :label-width="formLabelWidth" prop="user">
-            <el-input v-model="ruleForm.user" placeholder="请输入手机号" clearable />
+          <el-form-item label="手机号" :label-width="formLabelWidth">
+            <el-input v-model="ruleForm.phone" placeholder="请输入手机号" clearable />
           </el-form-item>
-          <el-form-item label="验证码" :label-width="formLabelWidth" prop="user">
-            <el-input v-model="ruleForm.user" placeholder="请输入验证码" clearable>
+          <el-form-item label="验证码" :label-width="formLabelWidth">
+            <el-input v-model="ruleForm.code" placeholder="请输入验证码" clearable>
               <el-button slot="append" :disabled="resend" @click="sendCode">{{ codeStatus }}</el-button>
             </el-input>
           </el-form-item>
-          <el-form-item label="新密码" :label-width="formLabelWidth" prop="user">
-            <el-input v-model="ruleForm.user" placeholder="请输入新密码" clearable />
+          <el-form-item label="新密码" :label-width="formLabelWidth">
+            <el-input v-model="ruleForm.password" placeholder="请输入新密码" clearable />
           </el-form-item>
-          <el-form-item label="确认密码" :label-width="formLabelWidth" prop="user">
-            <el-input v-model="ruleForm.user" placeholder="请再次输入密码" clearable />
+          <el-form-item label="确认密码" :label-width="formLabelWidth">
+            <el-input v-model="ruleForm.password_re" placeholder="请再次输入密码" clearable />
           </el-form-item>
         </el-form>
       </el-col>
       <span slot="footer" class="dialog-footer">
-        <el-button type="primary" @click="closeForm">确 定</el-button>
+        <el-button type="primary" @click="changePassword">确 定</el-button>
         <el-button @click="closeForm">取 消</el-button>
       </span>
     </el-dialog>
@@ -143,10 +134,16 @@
 
 <script>
 import { validUsername } from '@/web/utils/validate'
+import Cookies from 'js-cookie'
+import Config from '@/settings'
+import { encrypt, decrypt } from '@/web/utils/rsaEncrypt'
+import { getCode, changePassword } from '@/web/api/user'
+import { removeToken } from '@/web/utils/auth'
 
 export default {
   name: 'Login',
   data() {
+    // eslint-disable-next-line no-unused-vars
     const validateUsername = (rule, value, callback) => {
       if (!validUsername(value)) {
         callback(new Error('请输入正确的用户名'))
@@ -163,31 +160,39 @@ export default {
     }
     return {
       loginForm: {
-        username: 'admin',
-        phone: '13211111111',
-        code: '123456',
-        password: '111111'
+        username: '',
+        phone: '',
+        code: '',
+        password: '',
+        rememberMe: false
       },
       loginRules: {
-        username: [{ required: true, trigger: 'blur', validator: validateUsername }],
+        username: [
+          // { required: true, trigger: 'blur', validator: validateUsername }
+          { required: true, message: '请输入用户名', trigger: 'blur' }
+        ],
         password: [{ required: true, trigger: 'blur', validator: validatePassword }]
       },
       ruleForm: {
-        user: ''
+        user: '',
+        phone: '',
+        code: '',
+        password: '',
+        password_re: ''
       },
       rules: {
         user: [
-          { required: true, message: '请输入', trigger: 'blur' }
+          { required: true, message: '请输入帐号', trigger: 'blur' }
         ]
       },
+      cookiePass: '',
       loading: false,
       passwordType: 'password',
       redirect: undefined,
-      activeName: 'second',
+      activeName: 'username',
       codeStatus: '获取验证码',
       findPwdVisible: false,
       resend: false,
-      checked: true,
       formLabelWidth: '100px'
     }
   },
@@ -199,7 +204,23 @@ export default {
       immediate: true
     }
   },
+  created() {
+    this.getCookie()
+  },
   methods: {
+    getCookie() {
+      const username = Cookies.get('username')
+      let password = Cookies.get('password')
+      const rememberMe = Cookies.get('rememberMe')
+      // 保存cookie里面的加密后的密码
+      this.cookiePass = password === undefined ? '' : password
+      password = password === undefined ? this.loginForm.password : password
+      this.loginForm = {
+        username: username === undefined ? this.loginForm.username : username,
+        password: password,
+        rememberMe: rememberMe === undefined ? false : Boolean(rememberMe)
+      }
+    },
     showPwd() {
       if (this.passwordType === 'password') {
         this.passwordType = ''
@@ -214,20 +235,50 @@ export default {
       this.findPwdVisible = false
     },
     findPwd() {
-      // this.$router.push('/findPwd')
       this.findPwdVisible = true
     },
     sendCode() {
       this.resend = !this.resend
       this.codeStatus = '60s'
+      getCode().then(response => {
+        this.ruleForm.code = response.data
+        console.log('code', this.ruleForm.code)
+      })
       console.log(this.resend)
     },
-    handleLogin() {
-      if (this.activeName === 'second') {
+    changePassword() {
+      this.$refs.ruleForm.validate(valid => {
+        if (valid) {
+          changePassword(this.ruleForm).then(response => {
+            this.closeForm()
+            removeToken()
+            Cookies.remove('password')
+            this.getCookie()
+            console.log('status', response.data)
+          })
+        }
+      })
+    },
+    handleLogin(loginWays) {
+      if (loginWays === 'username') {
         this.$refs.loginForm.validate(valid => {
+          const user = {
+            username: this.loginForm.username,
+            password: this.loginForm.password,
+            rememberMe: this.loginForm.rememberMe
+          }
+          if (user.password !== this.cookiePass) {
+            user.password = encrypt(user.password)
+            console.log('password', user.password)
+          }
           if (valid) {
             this.loading = true
-            this.$store.dispatch('user/login', this.loginForm).then(() => {
+            Cookies.set('username', user.username, { expires: Config.passCookieExpires })
+            Cookies.set('password', user.password, { expires: Config.passCookieExpires })
+            Cookies.set('rememberMe', user.rememberMe, { expires: Config.passCookieExpires })
+            user.password = decrypt(user.password)
+            console.log('password', user.password)
+            this.$store.dispatch('user/login', user).then(() => {
               this.$router.push({ path: this.redirect || '/' })
               this.loading = false
             }).catch(() => {
@@ -238,8 +289,6 @@ export default {
             return false
           }
         })
-      } else {
-        this.$router.push('/findPwd')
       }
     }
   }

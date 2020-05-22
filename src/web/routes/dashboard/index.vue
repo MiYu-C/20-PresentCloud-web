@@ -2,7 +2,7 @@
   <div class="dashboard-editor-container">
     <el-card>
       <div slot="header" class="text">
-        <span>欢迎：管理员</span>
+        <span>欢迎：{{ username }}</span>
       </div>
       <!-- <panel-group @handleSetLineChartData="handleSetLineChartData" /> -->
       <panel-group />
@@ -70,6 +70,8 @@ import BarChart from './components/BarChart'
 //     actualData: [120, 82, 91, 154, 162, 140, 130]
 //   }
 // }
+import Cookies from 'js-cookie'
+
 export default {
   name: 'DashboardAdmin',
   components: {
@@ -85,13 +87,19 @@ export default {
   },
   data() {
     return {
-      // lineChartData: lineChartData.newVisitis
+      username: 'user'
     }
+  },
+  created() {
+    this.getCookie()
   },
   methods: {
     // handleSetLineChartData(type) {
     //   this.lineChartData = lineChartData[type]
     // }
+    getCookie() {
+      this.username = Cookies.get('username')
+    }
   }
 }
 </script>

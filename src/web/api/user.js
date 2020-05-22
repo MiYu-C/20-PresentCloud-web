@@ -2,7 +2,7 @@ import request from '@/web/utils/request'
 
 export function login(data) {
   return request({
-    url: '/vue-admin-template/user/login',
+    url: '/present-cloud/user/login',
     method: 'post',
     data
   })
@@ -10,7 +10,7 @@ export function login(data) {
 
 export function getInfo(token) {
   return request({
-    url: '/vue-admin-template/user/info',
+    url: '/present-cloud/user/info',
     method: 'get',
     params: { token }
   })
@@ -18,7 +18,22 @@ export function getInfo(token) {
 
 export function logout() {
   return request({
-    url: '/vue-admin-template/user/logout',
+    url: '/present-cloud/user/logout',
     method: 'post'
+  })
+}
+
+export function changePassword(form) {
+  return request({
+    url: '/present-cloud/user/changePassword',
+    method: 'post',
+    params: { form }
+  })
+}
+
+export function getCode() {
+  return request({
+    url: '/present-cloud/user/getCode',
+    method: 'get'
   })
 }
