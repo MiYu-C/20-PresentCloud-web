@@ -39,7 +39,7 @@ const data = ({
 
 export default [
   {
-    url: '/vue-admin-template/dictionary/data',
+    url: '/present-cloud/dictionary/data',
     type: 'get',
     response: config => {
       const { currentPage, pagesize } = config.body

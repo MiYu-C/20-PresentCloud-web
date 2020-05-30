@@ -26,7 +26,7 @@ const data = Mock.mock({
 
 export default [
   {
-    url: '/vue-admin-template/present/data',
+    url: '/present-cloud/present/data',
     type: 'get',
     response: config => {
       const { name } = config.query
@@ -57,7 +57,7 @@ export default [
     }
   },
   {
-    url: '/vue-admin-template/present/update',
+    url: '/present-cloud/present/update',
     type: 'put',
     response: config => {
       const { form } = config.query
@@ -72,7 +72,7 @@ export default [
     }
   },
   {
-    url: '/vue-admin-template/present/delete',
+    url: '/present-cloud/present/delete',
     type: 'delete',
     response: config => {
       const { form } = config.query
@@ -86,7 +86,7 @@ export default [
     }
   },
   {
-    url: '/vue-admin-template/present/add',
+    url: '/present-cloud/present/add',
     type: 'post',
     response: config => {
       const { form } = config.query
@@ -100,7 +100,7 @@ export default [
     }
   },
   {
-    url: '/vue-admin-template/present/exist',
+    url: '/present-cloud/present/exist',
     type: 'get',
     response: config => {
       const { id, name } = config.query
@@ -117,7 +117,7 @@ export default [
     }
   },
   {
-    url: '/vue-admin-template/present/level_exist',
+    url: '/present-cloud/present/level_exist',
     type: 'get',
     response: config => {
       const { id, level } = config.query

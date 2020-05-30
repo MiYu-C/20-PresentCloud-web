@@ -2,7 +2,7 @@ import request from '@/web/utils/request'
 
 export function getList(params) {
   return request({
-    url: '/vue-admin-template/table/list',
+    url: '/present-cloud/table/list',
     method: 'get',
     params
   })

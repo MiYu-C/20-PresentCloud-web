@@ -2,7 +2,7 @@ import request from '@/web/utils/request'
 
 export function getList(currentPage, pagesize, name) {
   return request({
-    url: '/vue-admin-template/role/data',
+    url: '/present-cloud/role/data',
     method: 'get',
     params: { currentPage, pagesize, name }
   })
@@ -10,7 +10,7 @@ export function getList(currentPage, pagesize, name) {
 
 export function updateList(form) {
   return request({
-    url: '/vue-admin-template/role/update',
+    url: '/present-cloud/role/update',
     method: 'put',
     params: { form }
   })
@@ -18,7 +18,7 @@ export function updateList(form) {
 
 export function deleteItem(form) {
   return request({
-    url: '/vue-admin-template/role/delete',
+    url: '/present-cloud/role/delete',
     method: 'delete',
     params: { form }
   })
@@ -26,7 +26,7 @@ export function deleteItem(form) {
 
 export function addItem(form) {
   return request({
-    url: '/vue-admin-template/role/add',
+    url: '/present-cloud/role/add',
     method: 'post',
     params: { form }
   })
@@ -34,7 +34,7 @@ export function addItem(form) {
 
 export function isExist(id, name) {
   return request({
-    url: '/vue-admin-template/role/exist',
+    url: '/present-cloud/role/exist',
     method: 'get',
     params: { id, name }
   })

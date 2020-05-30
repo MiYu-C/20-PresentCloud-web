@@ -41,7 +41,7 @@ const data = Mock.mock({
 })
 export default [
   {
-    url: '/vue-admin-template/area/province',
+    url: '/present-cloud/area/province',
     type: 'get',
     response: config => {
       const items = data.provinces
@@ -54,7 +54,7 @@ export default [
     }
   },
   {
-    url: '/vue-admin-template/area/city',
+    url: '/present-cloud/area/city',
     type: 'get',
     response: config => {
       const { province } = config.query
@@ -68,7 +68,7 @@ export default [
     }
   },
   {
-    url: '/vue-admin-template/area/inProvince',
+    url: '/present-cloud/area/inProvince',
     type: 'get',
     response: config => {
       const { province, city } = config.query

@@ -70,7 +70,7 @@ const data = Mock.mock({
 
 export default [
 //   {
-//     url: '/vue-admin-template/list/data',
+//     url: '/present-cloud/list/data',
 //     type: 'get',
 //     response: config => {
 //       const { currentPage, pagesize } = config.query
@@ -89,7 +89,7 @@ export default [
 //     }
 //   },
 //   {
-//     url: '/vue-admin-template/list/data',
+//     url: '/present-cloud/list/data',
 //     type: 'get',
 //     response: config => {
 //       const { currentPage, pagesize, order } = config.query
@@ -122,7 +122,7 @@ export default [
 //     }
 //   },
   {
-    url: '/vue-admin-template/list/data',
+    url: '/present-cloud/list/data',
     type: 'get',
     response: config => {
       const { currentPage, pagesize, order, name } = config.query
@@ -169,7 +169,7 @@ export default [
     }
   },
   {
-    url: '/vue-admin-template/list/update',
+    url: '/present-cloud/list/update',
     type: 'put',
     response: config => {
       const { form } = config.query
@@ -184,7 +184,7 @@ export default [
     }
   },
   {
-    url: '/vue-admin-template/list/delete',
+    url: '/present-cloud/list/delete',
     type: 'delete',
     response: config => {
       const { form } = config.query
@@ -198,7 +198,7 @@ export default [
     }
   },
   {
-    url: '/vue-admin-template/list/add',
+    url: '/present-cloud/list/add',
     type: 'post',
     response: config => {
       const { form } = config.query

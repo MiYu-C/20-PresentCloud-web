@@ -3,9 +3,10 @@ import { MessageBox, Message } from 'element-ui'
 import store from '@/web/store'
 import { getToken } from '@/web/utils/auth'
 
-// create an axios instance
+// 创建一个axios实例
 const service = axios.create({
   baseURL: process.env.VUE_APP_BASE_API, // url = base url + request url
+  // baseURL: '/api',
   // withCredentials: true, // send cookies when cross-domain requests
   timeout: 5000 // request timeout
 })
@@ -17,7 +18,7 @@ service.interceptors.request.use(
 
     if (store.getters.token) {
       // let each request carry token
-      // ['X-Token'] is a custom headers key
+      // ['Token'] is a custom headers key
       // please modify it according to the actual situation
       config.headers['Token'] = getToken()
     }
@@ -44,6 +45,7 @@ service.interceptors.response.use(
    */
   response => {
     const res = response.data
+    // console.log('baseURL', process.env.VUE_APP_BASE_API)
     // if the custom code is not 20000, it is judged as an error.
     if (res.code !== 20000) {
       console.log('res.message', res.message)

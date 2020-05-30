@@ -161,7 +161,7 @@ const data = Mock.mock({
 
 export default [
   {
-    url: '/vue-admin-template/menu/data',
+    url: '/present-cloud/menu/data',
     type: 'get',
     response: config => {
       const { name, fatherId } = config.query
@@ -200,7 +200,7 @@ export default [
     }
   },
   {
-    url: '/vue-admin-template/menu/update',
+    url: '/present-cloud/menu/update',
     type: 'put',
     response: config => {
       const { form } = config.query
@@ -220,7 +220,7 @@ export default [
     }
   },
   {
-    url: '/vue-admin-template/menu/delete',
+    url: '/present-cloud/menu/delete',
     type: 'delete',
     response: config => {
       const { form } = config.query
@@ -245,7 +245,7 @@ export default [
     }
   },
   {
-    url: '/vue-admin-template/menu/add',
+    url: '/present-cloud/menu/add',
     type: 'post',
     response: config => {
       const { form } = config.query
@@ -265,7 +265,7 @@ export default [
     }
   },
   {
-    url: '/vue-admin-template/menu/getFather',
+    url: '/present-cloud/menu/getFather',
     type: 'get',
     response: config => {
       const { fatherId } = config.query
@@ -286,7 +286,7 @@ export default [
     }
   },
   {
-    url: '/vue-admin-template/menu/exist',
+    url: '/present-cloud/menu/exist',
     type: 'get',
     response: config => {
       const { id, value, thisType, kind } = config.query

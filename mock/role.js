@@ -25,7 +25,7 @@ const data = Mock.mock({
 })
 export default [
   {
-    url: '/vue-admin-template/role/data',
+    url: '/present-cloud/role/data',
     type: 'get',
     response: config => {
       const { currentPage, pagesize, name } = config.query
@@ -60,7 +60,7 @@ export default [
     }
   },
   {
-    url: '/vue-admin-template/role/update',
+    url: '/present-cloud/role/update',
     type: 'put',
     response: config => {
       const { form } = config.query
@@ -74,7 +74,7 @@ export default [
     }
   },
   {
-    url: '/vue-admin-template/role/delete',
+    url: '/present-cloud/role/delete',
     type: 'delete',
     response: config => {
       const { form } = config.query
@@ -99,7 +99,7 @@ export default [
     }
   },
   {
-    url: '/vue-admin-template/role/add',
+    url: '/present-cloud/role/add',
     type: 'post',
     response: config => {
       const { form } = config.query
@@ -114,7 +114,7 @@ export default [
     }
   },
   {
-    url: '/vue-admin-template/role/exist',
+    url: '/present-cloud/role/exist',
     type: 'get',
     response: config => {
       const { id, name } = config.query
