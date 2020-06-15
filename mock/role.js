@@ -5,21 +5,21 @@ const data = Mock.mock({
     name: '超级管理员',
     datapermission: '全部',
     level: 1,
-    menus: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11],
+    menus: [2, 3, 4, 5, 6, 7, 8, 9, 10, 11],
     description: '213'
   }, {
     id: 2,
     name: '管理员',
     datapermission: '全部',
     level: 3,
-    menus: [1, 2, 3],
+    menus: [2, 3],
     description: '321'
   }, {
     id: 3,
     name: '用户',
     datapermission: '本级',
     level: 3,
-    menus: [1, 2],
+    menus: [2],
     description: '123'
   }]
 })
