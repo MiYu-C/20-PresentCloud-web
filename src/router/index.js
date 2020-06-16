@@ -193,6 +193,12 @@ export const constantRoutes = [
         name: '学习行为管理',
         component: () => import('@/web/routes/school/study/index'),
         meta: { title: '学习行为管理', icon: 'behavior' }
+      },
+      {
+        path: 'subject',
+        name: '课程管理',
+        component: () => import('@/web/routes/school/subject/index'),
+        meta: { title: '课程管理', icon: 'behavior' }
       }
     ]
   },

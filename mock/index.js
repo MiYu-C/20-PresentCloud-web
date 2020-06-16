@@ -12,6 +12,7 @@ import area from './area'
 import menu from './menu'
 import present from './present'
 import role from './role'
+import subject from './subject'
 
 const mocks = [
   ...user,
@@ -24,7 +25,8 @@ const mocks = [
   ...school,
   ...study,
   ...area,
-  ...present
+  ...present,
+  ...subject
 ]
 // for front mock
 // please use it cautiously, it will redefine XMLHttpRequest,
@@ -70,7 +72,8 @@ export function mockXHR() {
 // for mock server
 const responseFake = (url, type, respond) => {
   return {
-    url: new RegExp(`${process.env.VUE_APP_BASE_API}${url}`),
+    // url: new RegExp(`${process.env.VUE_APP_BASE_API}${url}`),
+    url: new RegExp(`/dev-api${url}`),
     type: type || 'get',
     response(req, res) {
       console.log('request invoke:' + req.path)
