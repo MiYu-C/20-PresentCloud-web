@@ -152,7 +152,6 @@ export default {
       visible: false,
       disabled: true,
       deleteVisible: false,
-      type: 2,
       total: 0,
       name: '',
       pagesizes: [5, 10, 15, 20],
