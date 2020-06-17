@@ -21,7 +21,8 @@
         <div>
           <el-table
             ref="table"
-            :data="tableData.slice((currentPage-1)*pagesize,currentPage*pagesize)"
+            v-loading="listLoading"
+            :data="tableData"
             style="width: 100%"
             row-key="id"
             highlight-current-row
@@ -39,6 +40,7 @@
             <el-table-column
               prop="name"
               label="角色名"
+              width="100"
             />
             <el-table-column
               prop="datapermission"
@@ -83,7 +85,7 @@
         <el-dialog
           title="编辑信息"
           :visible.sync="visible"
-          width="50%"
+          width="60%"
           :show-close="false"
           :destroy-on-close="true"
         >
@@ -94,6 +96,17 @@
               </el-form-item>
               <el-form-item label="角色级别" prop="level" size="mini">
                 <el-input-number v-model="form.level" :min="1" :max="999" clearable />
+              </el-form-item>
+              <el-form-item label="菜单权限">
+                <treeselect
+                  v-model="form.menus"
+                  :options="roleMenus"
+                  :multiple="true"
+                  :value-consists-of="valueConsistsOf"
+                  :normalizer="normalizer"
+                  :clearable="false"
+                  placeholder="选择菜单"
+                />
               </el-form-item>
               <el-form-item label="数据权限" prop="datapermission">
                 <el-select v-model="form.datapermission" placeholder="请选择">
@@ -141,25 +154,23 @@
       <el-card class="box-card">
         <div slot="header" class="clearfix">
           <el-tooltip class="item" effect="dark" content="选择指定角色分配菜单" placement="top">
-            <span class="role-span">菜单分配</span>
+            <span class="role-span">菜单权限</span>
           </el-tooltip>
-          <el-button
-            icon="el-icon-check"
-            size="mini"
-            style="float: right; padding: 6px 9px"
-            type="primary"
-            :disabled="!save"
-            @click="saveMenus"
-          >保存</el-button>
         </div>
         <el-tree
           ref="tree"
-          :data="treeData"
+          class="filter-tree"
+          :data="roleMenus"
           :props="props"
-          show-checkbox
+          :filter-node-method="filterNode"
           node-key="id"
-          @check-change="handleCheckChange"
         />
+        <!-- <el-tree
+          ref="tree"
+          :data="roleMenus"
+          :props="props"
+          node-key="id"
+        /> -->
       </el-card>
     </el-col>
   </el-row>
@@ -168,7 +179,14 @@
 // eslint-disable-next-line no-unused-vars
 import { getList, updateList, addItem, deleteItem, isExist } from '@/web/api/role'
 import { getList as getMenus } from '@/web/api/menu'
+import Treeselect from '@riophae/vue-treeselect'
+import '@riophae/vue-treeselect/dist/vue-treeselect.css'
+
 export default {
+  components: {
+    // eslint-disable-next-line vue/no-unused-components
+    Treeselect
+  },
   data() {
     const nameValidate = (rule, value, callback) => {
       console.log('isExist', this.form.id, this.form.name)
@@ -184,6 +202,7 @@ export default {
     }
     return {
       name: '',
+      valueConsistsOf: 'ALL',
       visible: false,
       deleteVisible: false,
       save: false,
@@ -192,6 +211,7 @@ export default {
       currentPage: 1,
       tableData: [],
       treeData: [],
+      roleMenus: [],
       props: {
         children: 'children',
         label: 'name'
@@ -217,6 +237,13 @@ export default {
       menus: []
     }
   },
+  watch: {
+    menus(n, o) {
+      console.log('menus', n)
+      this.roleMenus = this.treeData
+      this.$refs.tree.filter(this.menus)
+    }
+  },
   created() {
     this.form = JSON.parse(JSON.stringify(this.defaultForm))
     this.row = JSON.parse(JSON.stringify(this.defaultForm))
@@ -239,12 +266,11 @@ export default {
           console.log('newItem2', this.currentPage)
           this.fetchData()
         }
-        this.setCheckedKeys(this.row.menus)
         this.listLoading = false
       })
       getMenus('', '-1').then(response => {
         const data = response.data.items
-        console.log('Data', this.data)
+        console.log('Data', data)
         this.treeData = this.setTreeData(data, 1)
         // this.tableData = this.treeData[0].children
         console.log('treeData', this.treeData)
@@ -262,11 +288,11 @@ export default {
     },
     tableCurrentChange(val) {
       console.log(`第 ${val.id} 条`)
-      this.save = true
-      this.resetChecked()
+      // this.save = true
       this.row = val
+      console.log('val.menus', val.menus)
       this.menus = val.menus
-      this.setCheckedKeys(this.menus)
+      // this.$refs.tree.filter(val.menus)
     },
     handleAdd() {
       console.log('defaultForm', this.defaultForm)
@@ -292,25 +318,12 @@ export default {
         this.listLoading = false
       })
     },
-    handleCheckChange(data, checked, indeterminate) {
-      console.log('handleCheckChange', data, checked, indeterminate)
-      this.getCheckedKeys()
-    },
-    setCheckedKeys(menus) {
-      this.$refs.tree.setCheckedKeys(menus)
-    },
-    getCheckedKeys() {
-      this.menus = this.$refs.tree.getCheckedKeys()
-      console.log('menus', this.menus)
-    },
-    resetChecked() {
-      this.$refs.tree.setCheckedKeys([])
-    },
     update() {
       this.$refs['form'].validate((valid) => {
         if (valid) {
           console.log('编辑成功!')
           console.log('form', this.form)
+          this.menus = this.form.menus
           this.listLoading = true
           if (this.form.id === 0) {
             addItem(this.form).then(response => {
@@ -327,15 +340,6 @@ export default {
           this.fetchData()
         }
       })
-    },
-    saveMenus() {
-      console.log('row', this.row)
-      console.log('menus', this.menus)
-      this.row.menus = this.menus
-      updateList(this.row).then(response => {
-        console.log('update', response.data)
-      })
-      this.fetchData()
     },
     delete1() {
       deleteItem(this.form).then(response => {
@@ -365,6 +369,21 @@ export default {
       this.listLoading = true
       this.name = ''
       this.fetchData()
+    },
+    // 替换树形选择器
+    normalizer(node) {
+      return {
+        label: node.name,
+        value: node.id,
+        key: node.id
+      }
+    },
+    // 树形控件过滤
+    filterNode(value, data) {
+      if (!value) return true
+      // console.log('data', data.id, value)
+      return value.indexOf(data.id) !== -1
+      // console.log('data', data.id)
     }
   }
 }
@@ -378,7 +397,6 @@ export default {
 .el-row {
     margin-top: 10px;
     margin-bottom: 10px;
-    ma
     &:last-child {
     margin-bottom: 0;
     }
