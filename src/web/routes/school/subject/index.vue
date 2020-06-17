@@ -124,7 +124,7 @@
         <span>确认删除选中项？</span>
       </el-col>
       <span slot="footer" class="dialog-footer">
-        <el-button type="primary" @click="delete1">确 定</el-button>
+        <el-button type="primary" @click="deleteData">确 定</el-button>
         <el-button @click="closeForm">取 消</el-button>
       </span>
     </el-dialog>
@@ -265,7 +265,7 @@ export default {
         }
       })
     },
-    delete1() {
+    deleteData() {
       deleteItem(this.form).then(response => {
         console.log('delete', response.data)
         this.total = response.data
@@ -298,7 +298,7 @@ export default {
     },
     handleAdd() {
       console.log('defaultForm', this.defaultForm)
-      this.dialogTitle = '添加管理员'
+      this.dialogTitle = '添加课程'
       this.form = JSON.parse(JSON.stringify(this.defaultForm))
       console.log('form', this.form)
       this.visible = true
