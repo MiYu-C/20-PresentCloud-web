@@ -40,10 +40,10 @@ export function getFather(fatherId) {
   })
 }
 
-export function isExist(id, value, thisType, type) {
+export function isExist(id, value, thisType, kind) {
   return request({
     url: '/present-cloud/menu/exist',
     method: 'get',
-    params: { id, value, thisType, type }
+    params: { id, value, thisType, kind }
   })
 }
