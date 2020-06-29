@@ -54,12 +54,12 @@ export default [
         }
       }
 
-      if (password !== user.password) {
-        return {
-          code: 60204,
-          message: '帐号或密码错误'
-        }
-      }
+      // if (password !== user.password) {
+      //   return {
+      //     code: 60204,
+      //     message: '帐号或密码错误'
+      //   }
+      // }
 
       return {
         code: 20000,
