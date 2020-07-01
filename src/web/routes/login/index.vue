@@ -67,7 +67,7 @@
               prefix-icon="el-icon-unlock"
               @keyup.enter.native="handleLogin"
             >
-              <el-button slot="append" @click="showPwd">
+              <el-button slot="append" :disabled="loginForm.password.length > 20" @click="showPwd">
                 <!-- {{ passwordType === 'password' ? '显示密码' : '隐藏密码' }} -->
                 <svg-icon :icon-class="passwordType === 'password' ? 'eye' : 'eye-open'" />
               </el-button>
@@ -108,18 +108,18 @@
           <el-form-item label="帐号" :label-width="formLabelWidth" prop="user">
             <el-input v-model="ruleForm.user" placeholder="请输入帐号" clearable />
           </el-form-item>
-          <el-form-item label="手机号" :label-width="formLabelWidth">
+          <el-form-item label="手机号" :label-width="formLabelWidth" prop="phone">
             <el-input v-model="ruleForm.phone" placeholder="请输入手机号" clearable />
           </el-form-item>
-          <el-form-item label="验证码" :label-width="formLabelWidth">
+          <el-form-item label="验证码" :label-width="formLabelWidth" prop="code">
             <el-input v-model="ruleForm.code" placeholder="请输入验证码" clearable>
               <el-button slot="append" :disabled="resend" @click="sendCode">{{ codeStatus }}</el-button>
             </el-input>
           </el-form-item>
-          <el-form-item label="新密码" :label-width="formLabelWidth">
+          <el-form-item label="新密码" :label-width="formLabelWidth" prop="password">
             <el-input v-model="ruleForm.password" placeholder="请输入新密码" clearable />
           </el-form-item>
-          <el-form-item label="确认密码" :label-width="formLabelWidth">
+          <el-form-item label="确认密码" :label-width="formLabelWidth" prop="password_re">
             <el-input v-model="ruleForm.password_re" placeholder="请再次输入密码" clearable />
           </el-form-item>
         </el-form>
@@ -136,6 +136,7 @@
 import { validUsername } from '@/web/utils/validate'
 import Cookies from 'js-cookie'
 import Config from '@/settings'
+// eslint-disable-next-line no-unused-vars
 import { encrypt, decrypt } from '@/web/utils/rsaEncrypt'
 import { getCode, changePassword } from '@/web/api/user'
 import { removeToken } from '@/web/utils/auth'
@@ -151,11 +152,15 @@ export default {
         callback()
       }
     }
-    const validatePassword = (rule, value, callback) => {
-      if (value.length < 6) {
-        callback(new Error('密码不能少于6位'))
+    const password_re = (rule, value, callback) => {
+      if (value) {
+        if (this.ruleForm.password !== value) {
+          callback(new Error('两次输入的密码不一致'))
+        } else {
+          callback()
+        }
       } else {
-        callback()
+        callback(new Error('请再次输入密码'))
       }
     }
     return {
@@ -171,7 +176,10 @@ export default {
           // { required: true, trigger: 'blur', validator: validateUsername }
           { required: true, message: '请输入用户名', trigger: 'blur' }
         ],
-        password: [{ required: true, trigger: 'blur', validator: validatePassword }]
+        password: [
+          { required: true, message: '请输入密码', trigger: 'blur' },
+          { min: 5, message: '长度在 6 个字符以上', trigger: 'blur' }
+        ]
       },
       ruleForm: {
         user: '',
@@ -183,6 +191,19 @@ export default {
       rules: {
         user: [
           { required: true, message: '请输入帐号', trigger: 'blur' }
+        ],
+        phone: [
+          { required: true, message: '请输入手机号', trigger: 'blur' }
+        ],
+        code: [
+          { required: true, message: '请输入验证码', trigger: 'blur' }
+        ],
+        password: [
+          { required: true, message: '请输入新密码', trigger: 'blur' },
+          { min: 6, max: 20, message: '长度在 6 到 20 个字符', trigger: 'blur' }
+        ],
+        password_re: [
+          { required: true, validator: password_re, trigger: 'blur' }
         ]
       },
       cookiePass: '',
@@ -239,11 +260,24 @@ export default {
     },
     sendCode() {
       this.resend = !this.resend
-      this.codeStatus = '60s'
+      const TIME_COUNT = 6
+      let count = TIME_COUNT
+      this.codeStatus = count.toString() + '秒'
       getCode().then(response => {
         this.ruleForm.code = response.data
-        console.log('code', this.ruleForm.code)
+        // console.log('code', this.ruleForm.code)
       })
+      let timer = setInterval(() => {
+        if (count > 0 && count <= TIME_COUNT) {
+          count--
+          this.codeStatus = count.toString() + '秒'
+        } else {
+          this.codeStatus = '获取验证码'
+          this.resend = !this.resend
+          clearInterval(timer)
+          timer = null
+        }
+      }, 1000)
       console.log(this.resend)
     },
     changePassword() {
@@ -265,23 +299,28 @@ export default {
           const user = {
             username: this.loginForm.username,
             password: this.loginForm.password,
-            rememberMe: this.loginForm.rememberMe
+            rememberMe: this.loginForm.rememberMe,
+            code: '',
+            uuid: ''
           }
           if (user.password !== this.cookiePass) {
             user.password = encrypt(user.password)
             console.log('password', user.password)
           }
+          console.log('valid', valid)
           if (valid) {
             this.loading = true
             Cookies.set('username', user.username, { expires: Config.passCookieExpires })
             Cookies.set('password', user.password, { expires: Config.passCookieExpires })
             Cookies.set('rememberMe', user.rememberMe, { expires: Config.passCookieExpires })
-            user.password = decrypt(user.password)
-            console.log('password', user.password)
+            // user.password = decrypt(user.password)
+            // console.log('password', user.password)
             this.$store.dispatch('user/login', user).then(() => {
+              // console.log('redirect', this.redirect)
               this.$router.push({ path: this.redirect || '/' })
               this.loading = false
             }).catch(() => {
+              console.log('redirect', this.redirect)
               this.loading = false
             })
           } else {

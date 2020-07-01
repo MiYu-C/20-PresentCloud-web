@@ -7,13 +7,13 @@
     <div class="right-menu">
       <el-dropdown class="avatar-container" trigger="click">
         <div class="avatar-wrapper">
-          <img :src="avatar+'?imageView2/1/w/80/h/80'" class="user-avatar">
+          <img :src="avatar ? avatar +'?imageView2/1/w/80/h/80' : Avatar" class="user-avatar">
           <i class="el-icon-caret-bottom" />
         </div>
         <el-dropdown-menu slot="dropdown" class="user-dropdown">
-          <router-link to="/">
+          <router-link to="/userCenter">
             <el-dropdown-item>
-              首页
+              个人中心
             </el-dropdown-item>
           </router-link>
           <el-dropdown-item divided @click.native="logout">
@@ -34,6 +34,11 @@ export default {
   components: {
     Breadcrumb,
     Hamburger
+  },
+  data() {
+    return {
+      Avatar: 'https://wpimg.wallstcn.com/f778738c-e4f8-4870-b634-56703b4acafe.gif'
+    }
   },
   computed: {
     ...mapGetters([

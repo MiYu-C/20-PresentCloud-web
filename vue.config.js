@@ -37,9 +37,17 @@ module.exports = {
       errors: true
     },
     proxy: {
+      // '/prod-api': {
+      //   target: 'http://localhost:8000',
+      //   pathRewrite: { '^/prod-api': '' }
+      // },
+      '/auth': {
+        target: 'http://47.115.22.87:8010',
+        changeOrigin: true
+      },
       '/api': {
-        target: 'http://localhost:9528',
-        pathRewrite: { '^/api': 'dev-api' }
+        target: 'http://47.115.22.87:8010',
+        changeOrigin: true
       }
     },
     // before: require('./mock/mock-server.js') //默认

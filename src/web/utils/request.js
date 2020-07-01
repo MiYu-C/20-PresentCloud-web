@@ -6,7 +6,8 @@ import { getToken } from '@/web/utils/auth'
 // 创建一个axios实例
 const service = axios.create({
   // baseURL: process.env.VUE_APP_BASE_API, // url = base url + request url
-  baseURL: '/api',
+  baseURL: process.env.NODE_ENV === 'production' ? process.env.VUE_APP_BASE_API : '/', // api 的 base_url
+  // baseURL: '',
   // withCredentials: true, // send cookies when cross-domain requests
   timeout: 5000 // request timeout
 })
@@ -20,8 +21,9 @@ service.interceptors.request.use(
       // let each request carry token
       // ['Token'] is a custom headers key
       // please modify it according to the actual situation
-      config.headers['Token'] = getToken()
+      config.headers['Authorization'] = getToken()
     }
+    config.headers['Content-Type'] = 'application/json'
     return config
   },
   error => {
@@ -45,9 +47,9 @@ service.interceptors.response.use(
    */
   response => {
     const res = response.data
-    // console.log('baseURL', process.env.VUE_APP_BASE_API)
-    // if the custom code is not 20000, it is judged as an error.
-    if (res.code !== 20000) {
+    console.log('res:', res)
+    // if the custom code is not null, it is judged as an error.
+    if (res.status && res.status !== 20000) {
       console.log('res.message', res.message)
       Message({
         message: res.message || 'Error',
@@ -55,8 +57,8 @@ service.interceptors.response.use(
         duration: 5 * 1000
       })
 
-      // 50008：Token不存在；50014：Token已过期；
-      if (res.code === 50008 || res.code === 50014) {
+      // 已过期；
+      if (res.code === 401) {
         // to re-login
         MessageBox.confirm('登录状态已过期，您可以继续留在该页面，或者重新登录', '系统提示', {
           confirmButtonText: '重新登录',
@@ -74,12 +76,22 @@ service.interceptors.response.use(
     }
   },
   error => {
-    console.log('err' + error) // for debug
-    Message({
-      message: error.message,
-      type: 'error',
-      duration: 5 * 1000
-    })
+    console.log('err:' + error) // for debug
+    const errorMsg = error.response.data.message
+    console.log('errorMsg:' + errorMsg !== undefined) // for debug
+    if (errorMsg !== undefined) {
+      Message({
+        message: errorMsg,
+        type: 'error',
+        duration: 5 * 1000
+      })
+    } else {
+      Message({
+        message: error.message,
+        type: 'error',
+        duration: 5 * 1000
+      })
+    }
     return Promise.reject(error)
   }
 )

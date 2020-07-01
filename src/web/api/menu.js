@@ -1,49 +1,58 @@
 import request from '@/web/utils/request'
 
-export function getList(name, fatherId) {
+export function getMenusTree(pid) {
   return request({
-    url: '/present-cloud/menu/data',
+    url: 'api/menus/lazy?pid=' + pid,
+    method: 'get'
+  })
+}
+
+export function getMenus(params) {
+  return request({
+    url: 'api/menus',
     method: 'get',
-    params: { name, fatherId }
+    params
   })
 }
 
-export function updateList(form) {
+export function getMenuSuperior(ids) {
+  const data = ids.length || ids.length === 0 ? ids : Array.of(ids)
   return request({
-    url: '/present-cloud/menu/update',
-    method: 'put',
-    params: { form }
-  })
-}
-
-export function deleteItem(form) {
-  return request({
-    url: '/present-cloud/menu/delete',
-    method: 'delete',
-    params: { form }
-  })
-}
-
-export function addItem(form) {
-  return request({
-    url: '/present-cloud/menu/add',
+    url: 'api/menus/superior',
     method: 'post',
-    params: { form }
+    data
   })
 }
 
-export function getFather(fatherId) {
+export function buildMenus() {
   return request({
-    url: '/present-cloud/menu/getFather',
-    method: 'get',
-    params: { fatherId }
+    url: 'api/menus/build',
+    method: 'get'
   })
 }
 
-export function isExist(id, value, thisType, kind) {
+export function add(data) {
   return request({
-    url: '/present-cloud/menu/exist',
-    method: 'get',
-    params: { id, value, thisType, kind }
+    url: 'api/menus',
+    method: 'post',
+    data
   })
 }
+
+export function del(ids) {
+  return request({
+    url: 'api/menus',
+    method: 'delete',
+    data: ids
+  })
+}
+
+export function edit(data) {
+  return request({
+    url: 'api/menus',
+    method: 'put',
+    data
+  })
+}
+
+export default { add, edit, del, getMenusTree, getMenuSuperior, getMenus }

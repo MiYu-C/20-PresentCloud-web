@@ -1,41 +1,56 @@
 import request from '@/web/utils/request'
 
-export function getList(currentPage, pagesize, name) {
+export function getAll() {
   return request({
-    url: '/present-cloud/role/data',
-    method: 'get',
-    params: { currentPage, pagesize, name }
+    url: 'api/roles/all',
+    method: 'get'
   })
 }
 
-export function updateList(form) {
+export function add(data) {
   return request({
-    url: '/present-cloud/role/update',
-    method: 'put',
-    params: { form }
-  })
-}
-
-export function deleteItem(form) {
-  return request({
-    url: '/present-cloud/role/delete',
-    method: 'delete',
-    params: { form }
-  })
-}
-
-export function addItem(form) {
-  return request({
-    url: '/present-cloud/role/add',
+    url: 'api/roles',
     method: 'post',
-    params: { form }
+    data
   })
 }
 
-export function isExist(id, name) {
+export function get(id) {
   return request({
-    url: '/present-cloud/role/exist',
-    method: 'get',
-    params: { id, name }
+    url: 'api/roles/' + id,
+    method: 'get'
   })
 }
+
+export function getLevel() {
+  return request({
+    url: 'api/roles/level',
+    method: 'get'
+  })
+}
+
+export function del(ids) {
+  return request({
+    url: 'api/roles',
+    method: 'delete',
+    data: ids
+  })
+}
+
+export function edit(data) {
+  return request({
+    url: 'api/roles',
+    method: 'put',
+    data
+  })
+}
+
+export function editMenu(data) {
+  return request({
+    url: 'api/roles/menu',
+    method: 'put',
+    data
+  })
+}
+
+export default { add, edit, del, get, editMenu, getLevel }

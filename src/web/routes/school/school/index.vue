@@ -1,565 +1,255 @@
 <template>
-  <el-row>
-    <el-col :span="24">
-      <el-card class="box-card">
-        <div>
-          <el-row>
-            <span>学校名：</span>
-            <el-input
-              v-model="name"
-              placeholder="请输入学校名"
-              style="width: 150px;"
-            />
-            <el-button type="primary" style="margin-left: 10px" @click="handlesearch">查询</el-button>
-            <el-button @click="resetData">重置</el-button>
-          </el-row>
-          <el-row>
-            <el-button type="primary" size="small" icon="el-icon-plus" @click="handleAdd">添加</el-button>
-            <el-button @click="setCurrent()">取消选择</el-button>
-          </el-row>
-        </div>
-        <div>
-          <el-table
-            ref="table"
-            v-loading="listLoading"
-            :data="tableData"
-            style="width: 100%"
-            row-key="id"
-            border
-            lazy
-            :load="load"
-            :tree-props="{children: 'children', hasChildren: 'hasChildren'}"
-            highlight-current-row
-            @current-change="tableCurrentChange"
-          >
-            <el-table-column
-              type="selection"
-              width="50"
-            />
-            <el-table-column
-              prop="name"
-              label="名称"
-            />
-            <el-table-column
-              prop="level"
-              label="级别"
-            />
-            <el-table-column
-              prop="address"
-              label="地址"
-            />
-            <el-table-column label="操作" width="150">
-              <template slot-scope="scope">
-                <el-button
-                  size="mini"
-                  @click="handleEdit(scope.$index, scope.row)"
-                >编辑</el-button>
-                <el-button
-                  size="mini"
-                  type="danger"
-                  @click="handleDelete(scope.$index, scope.row)"
-                >删除</el-button>
-              </template>
-            </el-table-column>
-          </el-table>
-          <el-row>
-            <el-pagination
-              background
-              :current-page="currentPage"
-              :page-sizes="pagesizes"
-              :page-size="pagesize"
-              layout="total, sizes, prev, pager, next, jumper"
-              :total="total"
-              @size-change="handleSizeChange"
-              @current-change="handleCurrentChange"
-            />
-          </el-row>
-        </div>
-      </el-card>
-    </el-col>
+  <el-card class="box-card">
+    <div>
+      <!-- 顶部菜单 -->
+      <div v-if="crud.props.searchToggle">
+        <span>院校名：</span>
+        <el-input
+          v-model="query.name"
+          clearable
+          placeholder="输入院校名称搜索"
+          style="width: 200px;"
+          class="filter-item"
+          @keyup.enter.native="crud.toQuery"
+        />
+        <rrOperation />
+      </div>
+      <crudOperation />
+    </div>
+    <!-- 对话框 -->
     <el-dialog
-      :title="dialog"
-      :visible.sync="visible1"
-      width="30%"
-      :show-close="false"
-      :destroy-on-close="true"
+      append-to-body
+      :close-on-click-modal="false"
+      :before-close="crud.cancelCU"
+      :visible.sync="crud.status.cu > 0"
+      :title="crud.status.title"
+      width="500px"
     >
-      <el-col :span="22">
-        <el-form ref="form" :model="form" :rules="rules" label-position="right" label-width="80px">
-          <el-form-item label="名称" prop="name">
-            <el-input v-model="form.name" placeholder="请输入名称" />
-          </el-form-item>
-          <el-form-item v-show="form.type.toString() === '1'" label="级别" prop="level">
-            <el-select v-model="form.level" placeholder="请选择级别">
-              <el-option
-                v-for="item in schoolLevelList"
-                :key="item"
-                :label="item"
-                :value="item"
-              />
-            </el-select>
-          </el-form-item>
-          <el-form-item v-show="form.type.toString() === '2'" label="级别" prop="level">
-            <el-select v-model="form.level" placeholder="请选择级别">
-              <el-option
-                v-for="item in collegeLevelList"
-                :key="item"
-                :label="item"
-                :value="item"
-              />
-            </el-select>
-          </el-form-item>
-          <el-form-item v-show="form.type.toString() === '3'" label="级别" prop="level">
-            <el-select v-model="form.level" placeholder="请选择级别">
-              <el-option
-                v-for="item in majorLevelList"
-                :key="item"
-                :label="item"
-                :value="item"
-              />
-            </el-select>
-          </el-form-item>
-          <el-form-item v-show="form.type.toString() === '3' || form.type.toString() === '2'" label="所属学校">
-            <span>{{ fathers[0].name }}</span>
-          </el-form-item>
-          <el-form-item v-show="form.type.toString() === '3'" label="所属学院">
-            <!-- <span>{{ fathers[1].name }}</span> -->
-            <template>
-              <el-select v-model="college" placeholder="请输入关键词">
-                <el-option
-                  v-for="item in collegeList"
-                  :key="item.id"
-                  :label="item.name"
-                  :value="item.id"
-                />
-              </el-select>
-            </template>
-          </el-form-item>
-          <el-form-item v-show="form.type.toString() === '1'" label="省份">
-            <el-select v-model="area[0]" placeholder="请选择省份">
-              <el-option
-                v-for="item in provinceList"
-                :key="item.id"
-                :label="item.name"
-                :value="item.name"
-              />
-            </el-select>
-          </el-form-item>
-          <el-form-item v-show="form.type.toString() === '1'" label="城市">
-            <el-select v-model="area[1]" :disabled="city" placeholder="请选择城市">
-              <el-option
-                v-for="item in cityList"
-                :key="item.id"
-                :label="item.name"
-                :value="item.name"
-              />
-            </el-select>
-          </el-form-item>
-        </el-form>
-      </el-col>
-      <span slot="footer" class="dialog-footer">
-        <el-button type="primary" @click="update">确 定</el-button>
-        <el-button @click="closeForm">取 消</el-button>
-      </span>
+      <el-form ref="form" inline :model="form" :rules="rules" size="small" label-width="80px">
+        <el-form-item label="院校名称" prop="name">
+          <el-input v-model="form.name" style="width: 370px;" />
+        </el-form-item>
+        <el-form-item label="院校排序" prop="deptSort">
+          <el-input-number
+            v-model.number="form.deptSort"
+            :min="0"
+            :max="999"
+          />
+        </el-form-item>
+        <el-form-item label="是否学校">
+          <el-radio-group v-model="form.isTop" style="width: 140px">
+            <el-radio label="1">是</el-radio>
+            <el-radio label="0">否</el-radio>
+          </el-radio-group>
+        </el-form-item>
+        <el-form-item v-if="form.isTop === '0'" style="margin-bottom: 0;" label="上级院校" prop="pid">
+          <treeselect
+            v-model="form.pid"
+            :load-options="loadDepts"
+            :options="depts"
+            style="width: 370px;"
+            placeholder="选择上级类目"
+          />
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button :loading="crud.status.cu === 2" type="primary" @click="crud.submitCU">确认</el-button>
+        <el-button @click="crud.cancelCU">取消</el-button>
+      </div>
     </el-dialog>
-    <!-- <el-dialog
-      title="编辑信息"
-      :visible.sync="visible2"
-      width="50%"
-      :show-close="false"
-      :destroy-on-close="true"
+    <!-- 表格 -->
+    <el-table
+      ref="table"
+      v-loading="crud.loading"
+      lazy
+      :load="getDeptDatas"
+      :tree-props="{children: 'children', hasChildren: 'hasChildren'}"
+      :data="crud.data.slice((currentPage-1)*pagesize,currentPage*pagesize)"
+      row-key="id"
+      @select="crud.selectChange"
+      @select-all="crud.selectAllChange"
+      @selection-change="crud.selectionChangeHandler"
     >
-      <el-col :span="22">
-        <el-form ref="form" :model="form" :rules="rules" label-position="right" label-width="80px">
-          <el-form-item label="名称" prop="name">
-            <el-input v-model="form.name" placeholder="请输入名称" clearable />
-          </el-form-item>
-          <el-form-item label="级别" prop="level">
-            <el-select v-model="form.level" placeholder="请选择级别">
-              <el-option
-                v-for="item in levelList2"
-                :key="item"
-                :label="item"
-                :value="item"
-              />
-            </el-select>
-          </el-form-item>
-        </el-form>
-      </el-col>
-      <span slot="footer" class="dialog-footer">
-        <el-button type="primary" @click="update">确 定</el-button>
-        <el-button @click="closeForm">取 消</el-button>
-      </span>
-    </el-dialog> -->
-    <el-dialog
-      title="确认删除"
-      :visible.sync="visible3"
-      width="30%"
-      :show-close="false"
-      :destroy-on-close="true"
-    >
-      <el-col :span="22">
-        <span>确认删除选中项？</span>
-      </el-col>
-      <span slot="footer" class="dialog-footer">
-        <el-button type="primary" @click="delete1">确 定</el-button>
-        <el-button @click="closeForm">取 消</el-button>
-      </span>
-    </el-dialog>
-  </el-row>
+      <el-table-column :selectable="checkboxT" type="selection" width="55" />
+      <el-table-column label="名称" prop="name" />
+      <el-table-column label="排序" prop="deptSort" />
+      <el-table-column prop="createTime" label="创建日期">
+        <template slot-scope="scope">
+          <span>{{ parseTime(scope.row.createTime) }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column label="操作" width="150px" align="center" fixed="right">
+        <template slot-scope="scope">
+          <udOperation
+            :data="scope.row"
+            :disabled-dle="scope.row.id === 1"
+            msg="确定删除吗,如果存在下级节点则一并删除，此操作不能撤销！"
+          />
+        </template>
+      </el-table-column>
+    </el-table>
+    <!-- 翻页组件 -->
+    <Pagination :message="crud.page.total" :type="type" @func="getMsg" />
+  </el-card>
 </template>
+
 <script>
-// eslint-disable-next-line no-unused-vars
-import { getList, updateList, addItem, deleteItem, getFather, isExist } from '@/web/api/school'
-// eslint-disable-next-line no-unused-vars
-import { getCity, getProvince, inProvince } from '@/web/api/area'
+import crudDept from '@/web/api/dept'
+import Treeselect from '@riophae/vue-treeselect'
+import '@riophae/vue-treeselect/dist/vue-treeselect.css'
+import { LOAD_CHILDREN_OPTIONS } from '@riophae/vue-treeselect'
+import CRUD, { presenter, header, form, crud } from '@/components/Crud/crud'
+import rrOperation from '@/components/Crud/RR.operation'
+import crudOperation from '@/components/Crud/CRUD.operation'
+import udOperation from '@/components/Crud/UD.operation'
+import Pagination from '@/components/Pagination/Pagination'
+
+const defaultForm = {
+  id: null,
+  name: null,
+  isTop: '1',
+  subCount: 0,
+  pid: null,
+  deptSort: 999,
+  enabled: 'true'
+}
 export default {
+  name: 'Dept',
+  components: {
+    Treeselect,
+    crudOperation,
+    rrOperation,
+    udOperation,
+    Pagination
+  },
+  cruds() {
+    return CRUD({ title: '院校', url: 'api/dept', crudMethod: { ...crudDept }})
+  },
+  mixins: [presenter(), header(), form(defaultForm), crud()],
+  // 设置数据字典
+  // dicts: ['dept_status'],
   data() {
-    const nameValidate = (rule, value, callback) => {
-      console.log('isExist', this.form.id, this.form.name, this.form.fatherId)
-      isExist(this.form.id, this.form.name, this.form.fatherId).then(response => {
-        const exist = response.data
-        console.log('exist', exist)
-        if (exist) {
-          callback(value + '已存在')
-        } else {
-          callback()
-        }
-      })
-    }
     return {
-      visible1: false,
-      visible2: false,
-      visible3: false,
-      dialog: '',
-      newItem: 0,
-      name: '',
-      pagesizes: [5, 10, 15, 20],
       pagesize: 5,
       currentPage: 1,
-      listLoading: true,
-      collegeLoading: false,
-      tableData: [],
-      childrenData: [],
-      total: 0,
-      level: ['', '本科', '学院', '专业'],
-      form: {
-        id: 0,
-        name: '',
-        level: '',
-        hasChildren: false,
-        type: 1,
-        childrenType: 2,
-        fatherId: 0,
-        address: ''
-      },
+      type: 0,
+      depts: [],
       rules: {
         name: [
-          { type: 'string', required: true, message: '名称不能为空', trigger: 'blur' },
-          { validator: nameValidate, trigger: 'blur' }
+          { required: true, message: '请输入名称', trigger: 'blur' }
         ],
-        level: [
-          { required: true, message: '不能为空', trigger: 'blur' }
+        deptSort: [
+          { required: true, message: '请输入序号', trigger: 'blur', type: 'number' }
         ]
-      },
-      row: {
-        id: 0,
-        name: '',
-        level: '',
-        hasChildren: false,
-        type: 0,
-        childrenType: 1,
-        fatherId: 0,
-        address: ''
-      },
-      schoolLevelList: ['本科', '专科'],
-      collegeLevelList: ['学院', '系'],
-      majorLevelList: ['专业', '系'],
-      schoolList: [],
-      collegeList: [],
-      college: '',
-      provinceList: [],
-      area: ['', ''],
-      city: true,
-      cityList: [],
-      fathers: ['', '']
-    }
-  },
-  watch: {
-    area(n, o) {
-      console.log('area', n)
-      if (n[0] === '') {
-        this.city = true
-        console.log('city', this.city)
-        this.area[1] = ''
-      } else {
-        this.city = false
-        inProvince(n[0], n[1]).then(response => {
-          console.log('inProvince', response.data.result)
-          if (response.data.result === false) {
-            this.area[1] = ''
-          }
-        })
-        getCity(n[0]).then(response => {
-          this.cityList = response.data.items
-        })
       }
-    },
-    form(n, o) {
-      console.log('fatherId', n.fatherId)
-      getFather(n.fatherId).then(response => {
-        this.fathers = response.data.fathers
-        console.log('fathers', this.fathers)
-        this.college = this.fathers[1].id
-        if (n.type === 3) {
-          getList(-1, -1, 2, '', this.fathers[0].id).then(response => {
-            console.log('collegeList', response.data.items)
-            this.collegeList = response.data.items
-          })
-        }
-      })
     }
-  },
-  created() {
-    this.fetchData()
-    this.levelList1 = this.schoolLevelList
   },
   methods: {
-    fetchData() {
-      getProvince().then(response => {
-        this.provinceList = response.data.items
-        console.log('provinceList', this.provinceList)
-      })
-      getCity('福建省').then(response => {
-        this.cityList = response.data.items
-        console.log('cityList', this.cityList)
-      })
-      this.listLoading = true
-      getList(this.currentPage, this.pagesize, 1, this.name, 0).then(response => {
-        this.tableData = response.data.items
-        this.total = response.data.total
-        if ((this.currentPage - 1) * this.pagesize >= response.data.total && this.currentPage > 1) {
-          this.currentPage -= 1
-          this.fetchData()
-        }
-        if (this.newItem > 0) {
-          this.currentPage = Math.floor(this.total / this.pagesize) + 1
-          this.newItem = 0
-          console.log('newItem2', this.currentPage)
-          this.fetchData()
-        }
-        console.log('search', this.tableData, this.total)
-        this.listLoading = false
-      })
+    getDeptDatas(tree, treeNode, resolve) {
+      const params = { pid: tree.id }
+      setTimeout(() => {
+        crudDept.getDepts(params).then(res => {
+          resolve(res.content)
+        })
+      }, 100)
     },
-    handleSizeChange(val) {
-      console.log(`每页 ${val} 条`)
-      console.log(this.pagesize)
-      this.pagesize = val
-      this.fetchData()
-    },
-    tableCurrentChange(val) {
-      console.log(`第 ${val.id} 条`)
-      this.row = val
-    },
-    handleCurrentChange(val) {
-      console.log(`当前页: ${val}`)
-      console.log(this.currentPage)
-      this.currentPage = val
-      this.fetchData()
-    },
-    handleAdd() {
-      this.form = {
-        id: 0,
-        name: '',
-        level: '',
-        hasChildren: false,
-        type: this.row.type + 1,
-        childrenType: '',
-        fatherId: this.row.id,
-        address: ''
+    // 新增与编辑前做的操作
+    [CRUD.HOOK.afterToCU](crud, form) {
+      if (form.pid !== null) {
+        form.isTop = '0'
+      } else if (form.id !== null) {
+        form.isTop = '1'
       }
-      this.area = ['', '']
-      console.log('type', this.row.type)
-      if (this.row.type === 0) {
-        this.dialog = '添加学校'
+      form.enabled = `${form.enabled}`
+      if (form.id != null) {
+        this.getSupDepts(form.id)
       } else {
-        if (this.row.type === 3) {
-          this.form.type = 3
-          this.form.fatherId = this.row.fatherId
-          // this.levelList2 = this.majorLevelList
-        }
-        if (this.form.type === 3) {
-          this.levelList2 = this.majorLevelList
-        } else {
-          this.levelList2 = this.collegeLevelList
-        }
-        this.dialog = '添加' + this.level[this.form.type].toString()
+        this.getDepts()
       }
-      this.form.level = this.level[this.form.type]
-      this.visible1 = true
     },
-    handlesearch() {
-      this.listLoading = true
-      this.currentPage = 1
-      console.log('search', this.name.length, this.currentPage)
-      this.fetchData()
-    },
-    handleEdit(index, row) {
-      console.log(index, row.type)
-      this.form = JSON.parse(JSON.stringify(row))
-      this.area = this.form.address.split(' ')
-      console.log('address', this.form.address)
-      if (row.type === 1) {
-        this.dialog = '编辑学校'
-      } else {
-        if (this.form.type === 3) {
-          this.levelList2 = this.majorLevelList
-        } else {
-          this.levelList2 = this.collegeLevelList
-        }
-        this.dialog = '编辑' + this.level[this.form.type].toString()
-      }
-      this.visible1 = true
-    },
-    handleDelete(index, row) {
-      console.log(index, row)
-      this.form = JSON.parse(JSON.stringify(row))
-      this.visible3 = true
-    },
-    // grtChildren(type, ID) {
-    //   getList(-1, -1, type, '', ID).then(response => {
-    //     console.log('grtChildren', response.data.items)
-    //     this.childrenData = response.data.items
-    //   })
-    // },
-    refreshRow(type, ID) {
-      getList(this.currentPage, this.pagesize, type, '', ID).then(response => {
-        console.log('refreshRow', type, ID, response.data.items)
-        this.$set(this.$refs.table.store.states.lazyTreeNodeMap, ID, response.data.items)
+    getSupDepts(id) {
+      crudDept.getDeptSuperior(id).then(res => {
+        const date = res.content
+        this.buildDepts(date)
+        this.depts = date
       })
     },
-    update() {
-      this.$refs['form'].validate((valid) => {
-        if (valid) {
-          console.log('编辑成功!')
-          console.log('form', this.form.id, this.form.type, this.form.fatherId)
-          const id = this.form.fatherId
-          this.form.address = this.area.join(' ')
-          if (this.form.type === 3) {
-            this.form.fatherId = this.college
+    buildDepts(depts) {
+      depts.forEach(data => {
+        if (data.children) {
+          this.buildDepts(data.children)
+        }
+        if (data.hasChildren && !data.children) {
+          data.children = null
+        }
+      })
+    },
+    getDepts() {
+      crudDept.getDepts({ enabled: true }).then(res => {
+        this.depts = res.content.map(function(obj) {
+          if (obj.hasChildren) {
+            obj.children = null
           }
-          this.listLoading = true
-          if (this.form.id === 0) {
-            addItem(this.form).then(response => {
-              console.log('add', response.data)
-              this.newItem = response.data
-              console.log('newItem1', response.data)
-            })
-          } else {
-            updateList(this.form).then(response => {
-              console.log('update', response.data)
-            })
-          }
-          if (this.form.type !== 1) {
-            console.log('form', this.form.type, this.form.fatherId)
-            this.refreshRow(this.form.type, id)
-            this.refreshRow(this.form.type, this.form.fatherId)
-          }
-          this.closeForm()
-          this.fetchData()
-        }
+          return obj
+        })
       })
     },
-    delete1() {
-      deleteItem(this.form).then(response => {
-        console.log('delete', response.data, (this.currentPage - 1) * this.pagesize)
-        this.total = response.data
-      })
-      if (this.form.type !== '1') {
-        console.log('form', this.form.type, this.form.fatherId)
-        this.refreshRow(this.form.type, this.form.fatherId)
-      }
-      this.row = {
-        id: 0,
-        name: '',
-        level: '',
-        hasChildren: false,
-        type: 0,
-        childrenType: 1,
-        fatherId: 0,
-        address: ''
-      }
-      this.closeForm()
-      this.fetchData()
-    },
-    setCurrent() {
-      const row = {
-        id: 0,
-        name: '',
-        level: '',
-        hasChildren: false,
-        type: 0,
-        childrenType: 1,
-        fatherId: 0,
-        address: ''
-      }
-      this.$refs.table.setCurrentRow(row)
-    },
-    closeForm() {
-      this.visible1 = false
-      this.visible2 = false
-      this.visible3 = false
-      this.form = {
-        id: 0,
-        name: '',
-        level: '',
-        hasChildren: false,
-        type: 1,
-        childrenType: 2,
-        fatherId: 0,
-        address: ''
+    // 获取弹窗内院校数据
+    loadDepts({ action, parentNode, callback }) {
+      if (action === LOAD_CHILDREN_OPTIONS) {
+        crudDept.getDepts({ enabled: true, pid: parentNode.id }).then(res => {
+          parentNode.children = res.content.map(function(obj) {
+            if (obj.hasChildren) {
+              obj.children = null
+            }
+            return obj
+          })
+          setTimeout(() => {
+            callback()
+          }, 100)
+        })
       }
     },
-    resetData() {
-      this.listLoading = true
-      this.currentPage = 1
-      this.name = ''
-      this.fetchData()
+    // 提交前的验证
+    [CRUD.HOOK.afterValidateCU]() {
+      if (this.form.pid !== null && this.form.pid === this.form.id) {
+        this.$message({
+          message: '上级院校不能为空',
+          type: 'warning'
+        })
+        return false
+      }
+      if (this.form.isTop === '1') {
+        this.form.pid = null
+      }
+      return true
     },
-    load(tree, treeNode, resolve) {
-      console.log('参数', tree.childrenType, tree.id)
-      // this.grtChildren(tree.childrenType, tree.id)
-      getList(-1, -1, tree.childrenType, '', tree.id).then(response => {
-        console.log('grtChildren', response.data.items)
-        this.childrenData = response.data.items
-        resolve(this.childrenData)
-      })
-      // setTimeout(() => {
-      //   console.log('childrenData', this.childrenData)
-      //   resolve(this.childrenData)
-      // }, 1000)
-      this.childrenData = []
+    // 获取分页参数
+    getMsg(data) {
+      this.pagesize = data[0]
+      this.currentPage = data[1]
+    },
+    checkboxT(row, rowIndex) {
+      return row.id !== 1
     }
   }
 }
 </script>
 
+<style rel="stylesheet/scss" lang="scss" scoped>
+  /deep/ .vue-treeselect__control, /deep/ .vue-treeselect__placeholder, /deep/ .vue-treeselect__single-value {
+    height: 30px;
+    line-height: 30px;
+  }
+</style>
+<style rel="stylesheet/scss" lang="scss" scoped>
+  /deep/ .el-input-number .el-input__inner {
+    text-align: center;
+  }
+</style>
 <style lang="scss" scoped>
 .box-card {
     margin: 15px;
     width: 95%;
-}
-.el-row {
-    margin-top: 10px;
-    margin-bottom: 10px;
-    &:last-child {
-    margin-bottom: 0;
-    }
-}
-.row-bg {
-    margin: 15px;
-    padding: 10px 0;
-    background-color: #f9fafc;
 }
 </style>
