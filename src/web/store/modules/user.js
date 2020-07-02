@@ -5,8 +5,9 @@ import { resetRouter } from '@/router'
 const getDefaultState = () => {
   return {
     token: getToken(),
-    name: '',
-    avatar: ''
+    user: {},
+    roles: [],
+    loadMenus: false
   }
 }
 
@@ -30,6 +31,9 @@ const mutations = {
   },
   SET_ROLES: (state, roles) => {
     state.roles = roles
+  },
+  SET_LOAD_MENUS: (state, loadMenus) => {
+    state.loadMenus = loadMenus
   }
 }
 
@@ -40,11 +44,18 @@ const actions = {
     return new Promise((resolve, reject) => {
       login({ username: username.trim(), password: password }).then(response => {
         // const { data } = response
+        // console.log('loginres', response)
         commit('SET_TOKEN', response.token)
+        commit('SET_LOAD_MENUS', true)
         setToken(response.token, rememberMe)
+        // commit('SET_USER', response.user)
+        // getInfo().then(response => {
+        //   console.log('getInfo', response)
+        // })
         setUserInfo(response.user, commit)
         resolve()
       }).catch(error => {
+        console.log('loginErr', error)
         reject(error)
       })
     })
@@ -55,7 +66,7 @@ const actions = {
     return new Promise((resolve, reject) => {
       getInfo().then(response => {
         // const { data } = response
-        console.log('response', response)
+        console.log('getInfo', response)
         if (!response) {
           reject('验证失败，请重新登录')
         }
@@ -93,17 +104,26 @@ const actions = {
       commit('RESET_STATE')
       resolve()
     })
+  },
+
+  updateLoadMenus({ commit }) {
+    return new Promise((resolve, reject) => {
+      commit('SET_LOAD_MENUS', false)
+    })
   }
 }
 
 export const setUserInfo = (res, commit) => {
   // 如果没有任何权限，则赋予一个默认的权限，避免请求死循环
+  // console.log('setUserInfo1', res)
+  // console.log('setUserInfo2', res.roles)
+  // console.log('setUserInfo3', res.user)
   if (res.roles.length === 0) {
     commit('SET_ROLES', ['ROLE_SYSTEM_DEFAULT'])
   } else {
     commit('SET_ROLES', res.roles)
   }
-  commit('SET_USER', res)
+  commit('SET_USER', res.user)
 }
 
 export default {

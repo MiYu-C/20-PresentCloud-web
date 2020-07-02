@@ -1,5 +1,5 @@
 import axios from 'axios'
-import { MessageBox, Message } from 'element-ui'
+import { MessageBox, Message, Notification } from 'element-ui'
 import store from '@/web/store'
 import { getToken } from '@/web/utils/auth'
 
@@ -77,19 +77,45 @@ service.interceptors.response.use(
   },
   error => {
     console.log('err:' + error) // for debug
-    const errorMsg = error.response.data.message
-    console.log('errorMsg:' + errorMsg !== undefined) // for debug
-    if (errorMsg !== undefined) {
-      Message({
-        message: errorMsg,
-        type: 'error',
-        duration: 5 * 1000
-      })
+    let resCode = 0
+    try {
+      resCode = error.response.data.status
+    } catch (e) {
+      if (error.toString().indexOf('Error: timeout') !== -1) {
+        Notification.error({
+          title: '网络请求超时',
+          duration: 5000
+        })
+        return Promise.reject(error)
+      }
+    }
+    if (resCode) {
+      if (resCode === 401) {
+        // to re-login
+        MessageBox.confirm('登录状态已过期，您可以继续留在该页面，或者重新登录', '系统提示', {
+          confirmButtonText: '重新登录',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }).then(() => {
+          store.dispatch('user/resetToken').then(() => {
+            location.reload()
+          })
+        })
+      } else if (resCode === 403) {
+        this.$router.push({ path: '/403' })
+      } else {
+        const errorMsg = error.response.data.message
+        if (errorMsg !== undefined) {
+          Notification.error({
+            title: errorMsg,
+            duration: 5000
+          })
+        }
+      }
     } else {
-      Message({
-        message: error.message,
-        type: 'error',
-        duration: 5 * 1000
+      Notification.error({
+        title: '接口请求失败',
+        duration: 5000
       })
     }
     return Promise.reject(error)

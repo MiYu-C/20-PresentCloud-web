@@ -7,6 +7,14 @@ export function getAll() {
   })
 }
 
+export function getList(params) {
+  return request({
+    url: 'api/roles',
+    method: 'get',
+    params
+  })
+}
+
 export function add(data) {
   return request({
     url: 'api/roles',
@@ -53,4 +61,4 @@ export function editMenu(data) {
   })
 }
 
-export default { add, edit, del, get, editMenu, getLevel }
+export default { getList, add, edit, del, get, editMenu, getLevel }

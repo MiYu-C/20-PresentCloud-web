@@ -8,8 +8,8 @@
               <span>字典名：</span>
               <el-input
                 v-model="name"
-                placeholder="请输入字典名"
-                style="width: 150px;"
+                placeholder="请输入字典名或描述"
+                style="width: 200px;"
                 @keyup.enter.native="search"
               />
               <el-button type="primary" style="margin-left: 10px" @click="search">查询</el-button>
@@ -17,6 +17,7 @@
             </el-row>
             <el-row>
               <el-button type="primary" size="small" icon="el-icon-plus" @click="handleAdd">添加</el-button>
+              <el-button :disabled="ids.length === 0" type="danger" size="small" @click="deleteVisible = true">删除</el-button>
             </el-row>
           </div>
           <div>
@@ -25,10 +26,10 @@
               :data="tableData"
               style="width: 100%"
               row-key="id"
-              border
               lazy
               highlight-current-row
               @current-change="tableCurrentChange"
+              @selection-change="handleSelectionChange"
             >
               <el-table-column
                 type="selection"
@@ -77,20 +78,20 @@
             <el-col :span="12"><span>字典详情</span></el-col>
           </div>
           <div>
+            <span v-if="row.id === null || row.id < 1">点击左侧字典可以查看详情</span>
             <el-table
+              v-if="row.id !== null && row.id > 0"
               ref="singleTable"
               v-loading="labelLoading"
               :data="lableData"
               style="width: 100%"
               row-key="id"
-              border
               lazy
-              :default-sort="{prop: 'order', order: 'ascending'}"
+              :default-sort="{prop: 'dictSort', order: 'ascending'}"
             >
-              <el-table-column
-                prop="name"
-                label="所属字典"
-              />
+              <el-table-column label="所属字典">
+                {{ row.name }}
+              </el-table-column>
               <el-table-column
                 prop="label"
                 label="标签名"
@@ -100,18 +101,10 @@
                 label="标签值"
               />
               <el-table-column
-                prop="order"
+                prop="dictSort"
                 label="排序"
                 sortable
               />
-              <el-table-column
-                prop="isdefault"
-                label="是否默认"
-              >
-                <template slot-scope="scope">
-                  <el-tag :type="scope.row.isdefault.toString() === 'true' ? 'success' : 'danger'">{{ scope.row.isdefault.toString() === 'true' ? '是' : '否' }}</el-tag>
-                </template>
-              </el-table-column>
             </el-table>
           </div>
         </el-card>
@@ -135,36 +128,31 @@
     <el-dialog
       title="编辑字典"
       :visible.sync="visible"
-      width="60%"
+      width="660px"
       :show-close="false"
       :destroy-on-close="true"
     >
       <el-col :span="23">
-        <el-form ref="form" :model="form" label-width="80px" label-position="top">
-          <el-form-item label="数据字典" prop="name">
-            <div>
-              字典名：
-              <el-input v-model="form.name" style="width: 200px;" placeholder="请输入字典名" clearable />
-              描述：
-              <el-input v-model="form.description" style="width: 350px;" placeholder="请输入描述" clearable />
-            </div>
+        <el-form ref="form" :inline="true" :model="form" label-width="80px">
+          <el-form-item label="字典名" label-position="right" prop="name">
+            <el-input v-model="form.name" style="width: 150px;" placeholder="请输入字典名" clearable />
           </el-form-item>
-          <el-form-item label="字典详情">
+          <el-form-item label="字典描述" label-position="right">
+            <el-input v-model="form.description" style="width: 200px;" placeholder="请输入描述" clearable />
+          </el-form-item>
+          <el-form-item v-if="form.id !== null" label="字典详情" label-position="top">
             <el-table
               ref="lableList"
               v-loading="formLoading"
               :data.sync="formlableData"
-              style="width: 100%"
+              style="width: 630px"
               row-key="id"
-              border
               lazy
-              :default-sort="{prop: 'order', order: 'ascending'}"
+              :default-sort="{prop: 'dictSort', order: 'ascending'}"
             >
-              <el-table-column
-                prop="name"
-                label="所属字典"
-                width="100"
-              />
+              <el-table-column label="所属字典">
+                {{ form.name }}
+              </el-table-column>
               <el-table-column
                 prop="label"
                 label="标签名"
@@ -179,19 +167,10 @@
                 label="标签值"
               />
               <el-table-column
-                prop="order"
+                prop="dictSort"
                 label="排序"
                 sortable
               />
-              <el-table-column
-                prop="isdefault"
-                label="是否默认"
-                width="100"
-              >
-                <template slot-scope="scope">
-                  <el-tag :type="scope.row.isdefault.toString() === 'true' ? 'success' : 'danger'">{{ scope.row.isdefault.toString() === 'true' ? '是' : '否' }}</el-tag>
-                </template>
-              </el-table-column>
               <el-table-column label="操作" width="150">
                 <template slot-scope="scope">
                   <el-button
@@ -224,24 +203,14 @@
     >
       <el-col :span="23">
         <el-form ref="labelForm" :model="labelForm" label-width="80px">
-          <el-form-item label="所属字典">
-            <el-input v-model="labelForm.name" placeholder="请输入字典名" clearable :disabled="true" />
-          </el-form-item>
           <el-form-item label="标签名" prop="label">
             <el-input v-model="labelForm.label" placeholder="请输入标签名" clearable />
           </el-form-item>
           <el-form-item label="标签值" prop="value">
             <el-input v-model="labelForm.value" placeholder="请输入标签值" clearable />
           </el-form-item>
-          <el-form-item label="排序" prop="order">
-            <el-input-number v-model="labelForm.order" :min="1" :max="999" clearable />
-          </el-form-item>
-          <el-form-item label="是否默认">
-            <el-switch
-              v-model="labelForm.isdefault"
-              active-color="#13ce66"
-              inactive-color="#ff4949"
-            />
+          <el-form-item label="排序" prop="dictSort">
+            <el-input-number v-model="labelForm.dictSort" :min="1" :max="999" clearable />
           </el-form-item>
         </el-form>
       </el-col>
@@ -254,7 +223,8 @@
 </template>
 <script>
 
-import { getList, addItem, getLabel, updateList, deleteItem } from '@/web/api/dictionary'
+import crudDict from '@/web/api/dictionary'
+import crudDicts from '@/web/api/dicts'
 
 export default {
   data() {
@@ -274,21 +244,21 @@ export default {
       lableData: [],
       formlableData: [],
       defaultForm: {
-        id: 0,
+        id: null,
         name: '',
         description: ''
       },
       defaultlabelForm: {
-        id: 0,
-        name: '',
+        id: null,
         label: '',
         value: '',
-        order: 0,
-        isdefault: false
+        dictSort: 0,
+        dict: { id: null }
       },
       form: null,
       labelForm: null,
-      row: null
+      row: null,
+      ids: []
     }
   },
   created() {
@@ -300,9 +270,14 @@ export default {
   methods: {
     fetchData() {
       this.tableLoading = true
-      getList(this.currentPage, this.pagesize, this.name).then(response => {
-        this.tableData = response.data.items
-        this.total = response.data.total
+      const page = this.currentPage - 1
+      const size = this.pagesize
+      const sort = 'id,desc'
+      const blurry = this.name
+      crudDicts.getDicts(page, size, sort, blurry).then(response => {
+        console.log(response)
+        this.tableData = response.content
+        this.total = response.totalElements
         console.log('search', this.tableData, this.total)
         if ((this.currentPage - 1) * this.pagesize >= this.total && this.currentPage > 1) {
           this.currentPage -= 1
@@ -324,16 +299,18 @@ export default {
     resetData() {
       this.tableLoading = true
       this.currentPage = 1
-      this.name = ''
+      this.name = null
+      this.form = JSON.parse(JSON.stringify(this.defaultForm))
+      this.row = JSON.parse(JSON.stringify(this.defaultForm))
+      this.labelForm = JSON.parse(JSON.stringify(this.defaultlabelForm))
       this.fetchData()
     },
     tableCurrentChange(val) {
       console.log(`第 ${val.id} 条`)
       this.row = val
       this.labelLoading = true
-      getLabel(this.row.id).then(response => {
-        this.lableData = response.data.items
-        console.log('lableData', this.lableData)
+      crudDict.get(val.name).then(response => {
+        this.lableData = response.content
         this.labelLoading = false
       })
     },
@@ -347,6 +324,7 @@ export default {
       console.log(`当前页: ${val}`)
       console.log(this.currentPage)
       this.currentPage = val
+      this.row = JSON.parse(JSON.stringify(this.defaultForm))
       this.fetchData()
     },
     handleAdd() {
@@ -359,7 +337,7 @@ export default {
     handleLabelAdd() {
       console.log('defaultlabelForm', this.defaultlabelForm)
       this.labelForm = JSON.parse(JSON.stringify(this.defaultlabelForm))
-      this.labelForm.name = this.form.name
+      this.labelForm.dict.id = this.form.id
       console.log('labelForm', this.labelForm)
       this.visibleLabel = true
     },
@@ -368,9 +346,8 @@ export default {
       console.log(index, row)
       this.form = JSON.parse(JSON.stringify(row))
       this.formLoading = true
-      getLabel(this.form.id).then(response => {
-        this.formlableData = response.data.items
-        console.log('formlableData', this.formlableData)
+      crudDict.get(this.form.name).then(response => {
+        this.formlableData = response.content
         this.formLoading = false
       })
       this.visible = true
@@ -384,12 +361,19 @@ export default {
     handleDelete(index, row) {
       console.log(index, row)
       this.form = JSON.parse(JSON.stringify(row))
+      this.ids = [this.form.id]
       this.deleteVisible = true
     },
     handleLabelDelete(index, row) {
       console.log(index, row)
       this.labelForm = JSON.parse(JSON.stringify(row))
-      this.formlableData = this.formlableData.filter(item => item.id !== this.labelForm.id)
+      this.formLoading = true
+      crudDict.del(this.labelForm.id).then(response => {
+        crudDict.get(this.form.name).then(response => {
+          this.formlableData = response.content
+          this.formLoading = false
+        })
+      })
     },
     update() {
       this.$refs['form'].validate((valid) => {
@@ -397,19 +381,13 @@ export default {
           console.log('验证成功!')
           console.log('form', this.form)
           this.listLoading = true
-          if (this.form.id === 0) {
-            addItem(this.form, this.formlableData).then(response => {
-              console.log('add', response.data)
-              this.newItem = response.data
-              console.log('afterAdd', response.data)
-              this.tableCurrentChange(this.form)
+          if (this.form.id === null) {
+            crudDicts.add(this.form).then(response => {
               this.closeForm()
               this.fetchData()
             })
           } else {
-            updateList(this.form, this.formlableData).then(response => {
-              console.log('update', response.data)
-              this.tableCurrentChange(this.form)
+            crudDicts.edit(this.form).then(response => {
               this.closeForm()
               this.fetchData()
             })
@@ -420,39 +398,63 @@ export default {
     updatelableData() {
       this.$refs['labelForm'].validate((valid) => {
         if (valid) {
-          this.formLoading = true
-          if (this.labelForm.id.toString() === '0') {
-            let id = this.getRandomInt(10, 100)
-            while (this.formlableData.findIndex(item => item.id.toString() === id.toString()) > -1) {
-              id = this.getRandomInt(10, 100)
-            }
-            this.labelForm.id = id
-            this.formlableData.push(this.labelForm)
+          if (this.labelForm.id === null) {
+            crudDict.add(this.labelForm).then(response => {
+              this.formLoading = true
+              crudDict.get(this.form.name).then(response => {
+                this.formlableData = response.content
+                this.formLoading = false
+              })
+            })
           } else {
-            const index = this.formlableData.findIndex(item => item.id.toString() === this.labelForm.id.toString())
-            // this.formlableData[index] = JSON.parse(JSON.stringify(this.labelForm))
-            this.$set(this.formlableData, index, this.labelForm)
+            crudDict.edit(this.labelForm).then(response => {
+              this.formLoading = true
+              crudDict.get(this.form.name).then(response => {
+                this.formlableData = response.content
+                this.formLoading = false
+              })
+            })
           }
           this.visibleLabel = false
-          this.formLoading = false
         }
       })
     },
     deleteData() {
-      deleteItem(this.form).then(response => {
-        console.log('delete', response.data)
-        this.total = response.data
+      crudDicts.del(this.ids).then(response => {
+        this.ids = []
+        console.log('delete', response)
+        this.deleteVisible = false
+        this.form = JSON.parse(JSON.stringify(this.defaultForm))
+        this.row = JSON.parse(JSON.stringify(this.defaultForm))
+        this.fetchData()
       })
-      this.closeForm()
-      this.fetchData()
     },
     closeForm() {
-      this.visible = false
-      this.deleteVisible = false
+      if (this.form.id !== null) {
+        this.labelLoading = true
+        crudDict.get(this.form.name).then(response => {
+          console.log('closeForm', this.lableData)
+          this.lableData = response.content
+          this.labelLoading = false
+          this.visible = false
+          this.deleteVisible = false
+        })
+      } else {
+        this.lableData = []
+        this.visible = false
+        this.deleteVisible = false
+      }
+      this.row = JSON.parse(JSON.stringify(this.form))
       this.form = JSON.parse(JSON.stringify(this.defaultForm))
     },
-    getRandomInt(min, max) {
-      return Math.floor(Math.random() * (max - min + 1)) + min
+    handleSelectionChange(val) {
+      console.log('val', val)
+      const ids = []
+      val.forEach(data => {
+        ids.push(data.id)
+      })
+      this.ids = ids
+      console.log('多选', this.ids)
     }
   }
 }
@@ -464,7 +466,7 @@ export default {
     width: 95%;
 }
 .el-row {
-    margin-top: 10px;
+    // margin-top: 10px;
     margin-bottom: 10px;
     &:last-child {
     margin-bottom: 0;

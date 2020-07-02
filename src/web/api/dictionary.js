@@ -1,50 +1,52 @@
 import request from '@/web/utils/request'
 
-export function getList(currentPage, pagesize, name) {
+export function get(dictName) {
+  const params = {
+    dictName,
+    page: 0,
+    size: 9999
+  }
   return request({
-    url: '/present-cloud/dictionary/data',
+    url: 'api/dictDetail',
     method: 'get',
-    params: { currentPage, pagesize, name }
+    params
   })
 }
 
-export function getLabel(id) {
+export function getDictMap(dictName) {
+  const params = {
+    dictName,
+    page: 0,
+    size: 9999
+  }
   return request({
-    url: '/present-cloud/dictionary/label',
+    url: 'api/dictDetail/map',
     method: 'get',
-    params: { id }
+    params
   })
 }
 
-export function updateList(form, dictData) {
+export function add(data) {
   return request({
-    url: '/present-cloud/dictionary/update',
-    method: 'put',
-    params: { form, dictData }
-  })
-}
-
-export function deleteItem(form) {
-  return request({
-    url: '/present-cloud/dictionary/delete',
-    method: 'delete',
-    params: { form }
-  })
-}
-
-export function addItem(form, dictData) {
-  return request({
-    url: '/present-cloud/dictionary/add',
+    url: 'api/dictDetail',
     method: 'post',
-    params: { form, dictData }
+    data
   })
 }
 
-export function isExist(id, name) {
+export function del(id) {
   return request({
-    url: '/present-cloud/dictionary/exist',
-    method: 'get',
-    params: { id, name }
+    url: 'api/dictDetail/' + id,
+    method: 'delete'
   })
 }
 
+export function edit(data) {
+  return request({
+    url: 'api/dictDetail',
+    method: 'put',
+    data
+  })
+}
+
+export default { get, getDictMap, add, edit, del }

@@ -1,41 +1,69 @@
 import request from '@/web/utils/request'
+import { encrypt } from '@/web/utils/rsaEncrypt'
 
-export function getList(currentPage, pagesize, type, name, ID) {
+export function get(params) {
   return request({
-    url: '/present-cloud/userinfo/data',
+    url: 'api/users',
     method: 'get',
-    params: { currentPage, pagesize, type, name, ID }
+    params
   })
 }
 
-export function updateList(form) {
+export function add(data) {
   return request({
-    url: '/present-cloud/userinfo/update',
-    method: 'put',
-    params: { form }
-  })
-}
-
-export function deleteItem(form) {
-  return request({
-    url: '/present-cloud/userinfo/delete',
-    method: 'delete',
-    params: { form }
-  })
-}
-
-export function addItem(form) {
-  return request({
-    url: '/present-cloud/userinfo/add',
+    url: 'api/users',
     method: 'post',
-    params: { form }
+    data
   })
 }
 
-export function isExist(id, value, type, kind) {
+export function del(ids) {
   return request({
-    url: '/present-cloud/userinfo/exist',
-    method: 'get',
-    params: { id, value, type, kind }
+    url: 'api/users',
+    method: 'delete',
+    data: ids
   })
 }
+
+export function edit(data) {
+  return request({
+    url: 'api/users',
+    method: 'put',
+    data
+  })
+}
+
+export function editUser(data) {
+  return request({
+    url: 'api/users/center',
+    method: 'put',
+    data
+  })
+}
+
+export function updatePass(user) {
+  const data = {
+    oldPass: encrypt(user.oldPass),
+    newPass: encrypt(user.newPass)
+  }
+  return request({
+    url: 'api/users/updatePass/',
+    method: 'post',
+    data
+  })
+}
+
+export function updateEmail(form) {
+  const data = {
+    password: encrypt(form.pass),
+    email: form.email
+  }
+  return request({
+    url: 'api/users/updateEmail/' + form.code,
+    method: 'post',
+    data
+  })
+}
+
+export default { get, add, edit, del }
+

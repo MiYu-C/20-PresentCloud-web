@@ -434,7 +434,7 @@ export default {
     width: 95%;
 }
 .el-row {
-    margin-top: 10px;
+    // margin-top: 10px;
     margin-bottom: 10px;
 }
 .row-bg {

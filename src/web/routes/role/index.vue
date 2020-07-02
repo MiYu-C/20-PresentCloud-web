@@ -1,129 +1,164 @@
 <template>
-  <el-card class="box-card">
-    <div class="head-container">
-      <div v-if="crud.props.searchToggle">
-        <span>角色名：</span>
-        <el-input
-          v-model="query.blurry"
-          clearable
-          size="small"
-          placeholder="输入菜单名称搜索"
-          style="width: 200px;"
-          class="filter-item"
-          @keyup.enter.native="crud.toQuery"
-        />
-        <rrOperation />
-      </div>
-      <crudOperation />
-    </div>
-    <div>
-      <el-table
-        ref="table"
-        v-loading="crud.loading"
-        highlight-current-row
-        style="width: 100%;"
-        align="center"
-        :data="crud.data"
-        @selection-change="crud.selectionChangeHandler"
-        @current-change="handleCurrentChange"
-      >
-        <el-table-column
-          type="selection"
-          width="55"
-        />
-        <el-table-column
-          prop="id"
-          label="编号"
-          width="80"
-        />
-        <el-table-column
-          prop="name"
-          label="角色名"
-          width="100"
-        />
-        <el-table-column
-          prop="dataScope"
-          label="数据权限"
-        />
-        <el-table-column
-          prop="level"
-          label="角色级别"
-        />
-        <el-table-column
-          prop="description"
-          label="描述"
-          width="200"
-        />
-        <el-table-column label="操作" width="150px" align="center" fixed="right">
-          <template slot-scope="scope">
-            <udOperation
-              :data="scope.row"
-            />
-          </template>
-        </el-table-column>
-      </el-table>
-      <pagination />
-    </div>
-    <el-dialog
-      append-to-body
-      :close-on-click-modal="false"
-      :before-close="crud.cancelCU"
-      :visible.sync="crud.status.cu > 0"
-      :title="crud.status.title"
-      width="550px"
-    >
-      <el-form ref="form" :inline="true" :model="form" :rules="rules" size="small" label-width="80px">
-        <el-form-item label="角色名" prop="name">
-          <el-input v-model="form.name" placeholder="请输入角色名" clearable />
-        </el-form-item>
-        <el-form-item label="角色级别" prop="level" size="mini">
-          <el-input-number v-model="form.level" :min="1" :max="999" clearable />
-        </el-form-item>
-        <el-form-item label="数据权限" prop="dateScope">
-          <el-select v-model="form.dataScope" placeholder="请选择数据权限" @change="changeScope">
-            <el-option
-              v-for="item in dateScopes"
-              :key="item"
-              :label="item"
-              :value="item"
-            />
-          </el-select>
-        </el-form-item>
-        <el-form-item v-if="form.dataScope === '自定义'" label="数据权限" prop="depts">
-          <treeselect
-            v-model="form.depts"
-            :load-options="loadDepts"
-            :options="depts"
-            multiple
-            style="width: 380px"
-            placeholder="请选择"
-          />
-        </el-form-item>
-        <el-form-item v-if="form.id !== null" label="菜单权限">
-          <treeselect
-            v-model="menuIds"
-            :options="menus"
-            :load-options="loadMenus"
-            multiple
-            style="width: 380px"
-            placeholder="请选择菜单"
-          />
-        </el-form-item>
-        <el-form-item label="描述" prop="description" size="mini">
+  <el-row>
+    <el-card class="box-card">
+      <div>
+        <el-row>
+          <span>角色名：</span>
           <el-input
-            v-model="form.description"
-            type="textarea"
-            autosize
-            placeholder="请输入内容"
+            v-model="name"
+            placeholder="请输入角色名"
+            style="width: 200px;"
           />
-        </el-form-item>
-      </el-form>
-      <div slot="footer" class="dialog-footer">
-        <el-button :loading="crud.status.cu === 2" type="primary" @click="crud.submitCU">确认</el-button>
-        <el-button @click="crud.cancelCU">取消</el-button>
+          <el-button type="primary" style="margin-left: 10px" @click="handlesearch">查询</el-button>
+          <el-button @click="resetData">重置</el-button>
+        </el-row>
+        <el-row>
+          <el-button type="primary" size="small" icon="el-icon-plus" @click="handleAdd">添加</el-button>
+          <el-button :disabled="ids.length === 0" type="danger" size="small" @click="deleteVisible = true">删除</el-button>
+        </el-row>
       </div>
-    </el-dialog>
-  </el-card>
+      <div>
+        <el-table
+          ref="table"
+          v-loading="listLoading"
+          :data="tableData"
+          style="width: 100%"
+          row-key="id"
+          highlight-current-row
+          @current-change="tableCurrentChange"
+          @selection-change="handleSelectionChange"
+        >
+          <el-table-column
+            type="selection"
+            width="55"
+          />
+          <el-table-column
+            prop="id"
+            label="编号"
+            width="80"
+          />
+          <el-table-column
+            prop="name"
+            label="角色名"
+            width="100"
+          />
+          <el-table-column
+            prop="dataScope"
+            label="数据权限"
+          />
+          <el-table-column
+            prop="level"
+            label="角色级别"
+          />
+          <el-table-column
+            prop="description"
+            label="描述"
+            width="200"
+          />
+          <el-table-column label="操作" width="150" fixed="right">
+            <template slot-scope="scope">
+              <el-button
+                size="mini"
+                @click="handleEdit(scope.$index, scope.row)"
+              >编辑</el-button>
+              <el-button
+                size="mini"
+                type="danger"
+                @click="handleDelete(scope.$index, scope.row)"
+              >删除</el-button>
+            </template>
+          </el-table-column>
+        </el-table>
+        <el-row>
+          <el-pagination
+            background
+            :current-page="currentPage"
+            :page-sizes="pagesizes"
+            :page-size="pagesize"
+            layout="total, sizes, prev, pager, next, jumper"
+            :total="total"
+            @size-change="handleSizeChange"
+            @current-change="handleCurrentChange"
+          />
+        </el-row>
+      </div>
+      <el-dialog
+        title="编辑信息"
+        :visible.sync="visible"
+        width="650px"
+        :show-close="false"
+        :destroy-on-close="true"
+      >
+        <el-col :span="24">
+          <el-form ref="form" :inline="true" :model="form" :rules="rules" size="small" label-width="80px">
+            <el-form-item label="角色名" prop="name">
+              <el-input v-model="form.name" placeholder="请输入角色名" clearable />
+            </el-form-item>
+            <el-form-item label="角色级别" prop="level" size="mini">
+              <el-input-number v-model="form.level" :min="1" :max="999" clearable />
+            </el-form-item>
+            <el-form-item label="数据权限" prop="dataScopes">
+              <el-select v-model="form.dataScope" placeholder="请选择数据权限" @change="changeScope">
+                <el-option
+                  v-for="item in dataScopes"
+                  :key="item"
+                  :label="item"
+                  :value="item"
+                />
+              </el-select>
+            </el-form-item>
+            <el-form-item label="描述" prop="description" size="mini">
+              <el-input
+                v-model="form.description"
+                type="textarea"
+                autosize
+                placeholder="请输入内容"
+              />
+            </el-form-item>
+            <el-form-item v-if="form.dataScope === '自定义'" label="数据权限" prop="depts">
+              <treeselect
+                v-model="form.depts"
+                :load-options="loadDepts"
+                :options="depts"
+                multiple
+                style="width: 450px"
+                placeholder="请选择"
+              />
+            </el-form-item>
+            <el-form-item v-if="form.id !== null" label="菜单权限">
+              <treeselect
+                v-model="roleMenus"
+                :options="menus"
+                :load-options="loadMenus"
+                multiple
+                style="width: 450px"
+                placeholder="请选择菜单"
+              />
+            </el-form-item>
+          </el-form>
+        </el-col>
+        <span slot="footer" class="dialog-footer">
+          <el-button type="primary" @click="update">确 定</el-button>
+          <el-button @click="closeForm">取 消</el-button>
+        </span>
+      </el-dialog>
+      <el-dialog
+        title="确认删除"
+        :visible.sync="deleteVisible"
+        width="30%"
+        :show-close="false"
+        :destroy-on-close="true"
+      >
+        <el-col :span="22">
+          <span>确认删除选中项？</span>
+        </el-col>
+        <span slot="footer" class="dialog-footer">
+          <el-button type="primary" @click="deleteData">确 定</el-button>
+          <el-button @click="closeForm">取 消</el-button>
+        </span>
+      </el-dialog>
+    </el-card>
+  </el-row>
 </template>
 <script>
 // eslint-disable-next-line no-unused-vars
@@ -133,146 +168,230 @@ import { getMenus, getMenuSuperior } from '@/web/api/menu'
 import Treeselect from '@riophae/vue-treeselect'
 import '@riophae/vue-treeselect/dist/vue-treeselect.css'
 import { LOAD_CHILDREN_OPTIONS } from '@riophae/vue-treeselect'
-import CRUD, { presenter, header, form, crud } from '@/components/Crud/crud'
-import rrOperation from '@/components/Crud/RR.operation'
-import crudOperation from '@/components/Crud/CRUD.operation'
-import udOperation from '@/components/Crud/UD.operation'
-import pagination from '@/components/Crud/Pagination'
-
-const defaultForm = { id: null, name: null, depts: [], description: null, dataScope: '全部', level: 3 }
 
 export default {
   name: 'Role',
   components: {
-    Treeselect,
-    pagination,
-    crudOperation,
-    rrOperation,
-    udOperation
+    Treeselect
   },
-  cruds() {
-    return CRUD({ title: '角色', url: 'api/roles', sort: 'level,asc', crudMethod: { ...crudRoles }})
-  },
-  mixins: [presenter(), header(), form(defaultForm), crud()],
   data() {
     return {
-      defaultProps: { children: 'children', label: 'label', isLeaf: 'leaf' },
-      dateScopes: ['全部', '本级', '自定义'],
-      currentId: 0, menuLoading: false, showButton: false,
+      name: '',
       valueConsistsOf: 'ALL',
-      menus: [], menuIds: [], depts: [],
+      visible: false,
+      deleteVisible: false,
+      save: false,
+      listLoading: true,
+      pagesizes: [5, 10, 15, 20],
+      pagesize: 5,
+      currentPage: 1,
+      tableData: [],
+      treeData: [],
+      roleMenus: [],
+      delateDatas: [],
+      props: { children: 'children', label: 'label', isLeaf: 'leaf' },
+      total: 0,
+      dataScopes: ['全部', '本级', '自定义'],
       rules: {
         name: [
-          { required: true, message: '请输入名称', trigger: 'blur' }
-        ],
-        permission: [
-          { required: true, message: '请输入权限', trigger: 'blur' }
+          { type: 'string', required: true, message: '名称不能为空', trigger: 'blur' }
         ]
-      }
+      },
+      defaultForm: {
+        id: null,
+        name: null,
+        depts: [],
+        description: null,
+        dataScope: '全部',
+        level: 3
+      },
+      form: null,
+      row: null,
+      menus: [],
+      depts: [],
+      ids: []
     }
   },
+  created() {
+    this.fetchData()
+    this.form = JSON.parse(JSON.stringify(this.defaultForm))
+    this.row = JSON.parse(JSON.stringify(this.defaultForm))
+  },
   methods: {
-    // getMenuDatas(node, resolve) {
-    //   setTimeout(() => {
-    //     getMenusTree(node.data.id ? node.data.id : 0).then(res => {
-    //       console.log('res:', res)
-    //       resolve(res)
-    //     })
-    //   }, 100)
-    // },
-    // [CRUD.HOOK.afterRefresh]() {
-    //   this.$refs.menu.setCheckedKeys([])
-    // },
-    // 添加前
-    [CRUD.HOOK.beforeToAdd](crud, form) {
-      console.log('beforeToAddform:', this.form)
-      this.menuIds = []
+    fetchData() {
+      this.listLoading = true
+      const page = this.currentPage - 1
+      const size = this.pagesize
+      const sort = 'level,asc'
+      const blurry = this.name
+      let params = null
+      params = { page, size, sort, blurry }
+      crudRoles.getList(params).then(response => {
+        this.tableData = response.content
+        this.total = response.totalElements
+        console.log('tableData', this.tableData)
+        if ((this.currentPage - 1) * this.pagesize >= this.total && this.currentPage > 1) {
+          this.currentPage -= 1
+          this.fetchData()
+        }
+        this.listLoading = false
+      })
+    },
+    handleSizeChange(val) {
+      console.log(`每页 ${val} 条`)
+      console.log(this.pagesize)
+      this.pagesize = val
+    },
+    handleCurrentChange(val) {
+      console.log(`当前页: ${val}`)
+      console.log(this.currentPage)
+      this.currentPage = val
+    },
+    tableCurrentChange(val) {
+      console.log(val)
+    },
+    handleAdd() {
+      console.log('defaultForm', this.defaultForm)
+      this.form = JSON.parse(JSON.stringify(this.defaultForm))
+      this.roleMenus = []
       this.getMenus()
+      console.log('form', this.form)
+      this.visible = true
     },
-    // 添加后
-    [CRUD.HOOK.afterToAdd](crud, form) {
-      console.log('afterToAdd:', this.form)
-    },
-    // 编辑前
-    [CRUD.HOOK.beforeToEdit](crud, form) {
-      this.menuIds = []
-      if (form.dataScope === '自定义') {
-        if (form.id === null) {
+    handleEdit(index, row) {
+      this.form = JSON.parse(JSON.stringify(row))
+      this.roleMenus = []
+      if (this.form.dataScope === '自定义') {
+        if (this.form.id === null) {
           this.getDepts()
         } else {
-          this.getSupDepts(form.depts)
+          this.getSupDepts(this.form.depts)
         }
       }
-      if (form.id === null) {
+      if (this.form.id === null) {
         this.getMenus()
       } else {
-        this.getSupMenus(form.menus)
+        this.getSupMenus(this.form.menus)
         const menus = []
-        form.menus.forEach(function(menu) {
+        this.form.menus.forEach(function(menu) {
           menus.push(menu.id)
         })
-        this.menuIds = menus
+        this.roleMenus = menus
       }
-      console.log('menuIds:', this.menuIds)
-      console.log('depts:', form.depts)
+      console.log('roleMenus:', this.roleMenus)
+      console.log('depts:', this.form.depts)
       const depts = []
-      form.depts.forEach(function(dept) {
+      this.form.depts.forEach(function(dept) {
         depts.push(dept.id)
       })
-      form.depts = depts
-      console.log('menus:', form.menus)
-      console.log('depts:', form.depts)
+      this.form.depts = depts
+      this.visible = true
     },
-    // 提交前做的操作
-    [CRUD.HOOK.afterValidateCU](crud) {
-      if (crud.form.dataScope === '自定义' && crud.form.depts.length === 0) {
-        this.$message({
-          message: '自定义数据权限不能为空',
-          type: 'warning'
-        })
-        return false
-      } else if (crud.form.dataScope === '自定义') {
-        const depts = []
-        crud.form.depts.forEach(function(data) {
-          const dept = { id: data }
-          depts.push(dept)
-        })
-        crud.form.depts = depts
-      } else {
-        crud.form.depts = []
-      }
-      if (crud.form.id !== null) {
-        this.saveMenu()
-      }
-      return true
+    handleDelete(index, row) {
+      console.log(index, row)
+      this.form = JSON.parse(JSON.stringify(row))
+      this.ids = [this.form.id]
+      this.deleteVisible = true
     },
-    [CRUD.HOOK.afterAddError](crud) {
-      this.afterErrorMethod(crud)
+    handlesearch() {
+      this.listLoading = true
+      this.fetchData()
+      console.log('search')
     },
-    [CRUD.HOOK.afterEditError](crud) {
-      this.afterErrorMethod(crud)
-    },
-    afterErrorMethod(crud) {
-      // 部门
-      const depts = []
-      crud.form.depts.forEach(function(dept) {
-        depts.push(dept.id)
-      })
-      crud.form.depts = depts
-    },
-    // 改变数据
     update() {
-      // 无刷新更新 表格数据
-      crudRoles.get(this.currentId).then(res => {
-        for (let i = 0; i < this.crud.data.length; i++) {
-          if (res.id === this.crud.data[i].id) {
-            this.crud.data[i] = res
-            break
+      this.$refs['form'].validate((valid) => {
+        if (this.form.dataScope === '自定义' && this.form.depts.length === 0) {
+          this.$message({
+            message: '自定义数据权限不能为空',
+            type: 'warning'
+          })
+        } else if (valid) {
+          console.log('编辑成功!')
+          console.log('form', this.form)
+          this.listLoading = true
+          if (this.form.dataScope === '自定义') {
+            const depts = []
+            this.form.depts.forEach(function(data) {
+              const dept = { id: data }
+              depts.push(dept)
+            })
+            this.form.depts = depts
+          } else {
+            this.form.depts = []
+          }
+          if (this.form.id === null) {
+            crudRoles.add(this.form).then(response => {
+              console.log('add', response)
+              this.closeForm()
+              this.fetchData()
+            }).catch(error => {
+              console.log('err', error)
+              this.closeForm()
+              this.fetchData()
+            })
+          } else {
+            crudRoles.edit(this.form).then(response => {
+              console.log('update', response)
+              this.saveMenu()
+              this.closeForm()
+              this.fetchData()
+            }).catch(error => {
+              console.log('err', error)
+              this.closeForm()
+              this.fetchData()
+            })
           }
         }
       })
     },
-    // 获取部门数据
+    deleteData() {
+      crudRoles.del(this.ids).then(response => {
+        console.log('delete', response)
+        this.row = JSON.parse(JSON.stringify(this.defaultForm))
+        this.$refs.table.setCurrentRow()
+        this.fetchData()
+      })
+      this.closeForm()
+    },
+    closeForm() {
+      this.visible = false
+      this.deleteVisible = false
+      this.form = JSON.parse(JSON.stringify(this.defaultForm))
+    },
+    setTreeData(source, id) {
+      console.log('source', source)
+      const cloneData = JSON.parse(JSON.stringify(source)) // 对源数据深度克隆
+      console.log('cloneData', cloneData)
+      return cloneData.filter(father => { // 循环所有项，并添加children属性
+        const branchArr = cloneData.filter(child => Number(father.id) === Number(child.fatherId)) // 返回每一项的子级数组
+        // console.log('branchArr', branchArr)
+        branchArr.length > 0 ? father.children = branchArr : father.children = [] // 给父级添加一个children属性，并赋值
+        return father.fatherId === id // 返回第一层
+      })
+    },
+    resetData() {
+      this.listLoading = true
+      this.name = ''
+      this.form = JSON.parse(JSON.stringify(this.defaultForm))
+      this.row = JSON.parse(JSON.stringify(this.defaultForm))
+      this.$refs.table.setCurrentRow()
+      this.fetchData()
+    },
+    // 替换树形选择器
+    normalizer(node) {
+      return {
+        label: node.name,
+        value: node.id,
+        key: node.id
+      }
+    },
+    // 树形控件过滤
+    filterNode(value, data) {
+      if (!value) return true
+      // console.log('data', data.id, value)
+      return value.indexOf(data.id) !== -1
+      // console.log('data', data.id)
+    },
     getDepts() {
       getDepts({ enabled: true }).then(res => {
         this.depts = res.content.map(function(obj) {
@@ -306,7 +425,6 @@ export default {
         }
       })
     },
-    // 获取弹窗内部门数据
     loadDepts({ action, parentNode, callback }) {
       if (action === LOAD_CHILDREN_OPTIONS) {
         getDepts({ enabled: true, pid: parentNode.id }).then(res => {
@@ -322,7 +440,6 @@ export default {
         })
       }
     },
-    // 获取菜单数据
     getMenus() {
       getMenus({ enabled: true }).then(res => {
         this.menus = res.content.map(function(obj) {
@@ -356,7 +473,6 @@ export default {
         }
       })
     },
-    // 获取弹窗内菜单数据
     loadMenus({ action, parentNode, callback }) {
       if (action === LOAD_CHILDREN_OPTIONS) {
         getMenus({ enabled: true, pid: parentNode.id }).then(res => {
@@ -372,38 +488,30 @@ export default {
         })
       }
     },
-    // 如果数据权限为自定义则获取部门数据
     changeScope() {
       console.log(this.form.dataScope)
       if (this.form.dataScope === '自定义') {
         this.getDepts()
       }
     },
-    checkboxT(row) {
-      return row.level >= this.level
+    handleSelectionChange(val) {
+      console.log('val', val)
+      const ids = []
+      val.forEach(data => {
+        ids.push(data.id)
+      })
+      this.ids = ids
+      console.log('多选', this.ids)
     },
-    // 触发单选
-    handleCurrentChange(val) {
-      if (val) {
-        const _this = this
-        // 保存当前的角色id
-        this.currentId = val.id
-        // 初始化默认选中的key
-        this.menuIds = []
-        val.menus.forEach(function(data) {
-          _this.menuIds.push(data.id)
-        })
-      }
-    },
-    // 保存菜单
     saveMenu() {
       this.menuLoading = true
-      const role = { id: this.currentId, menus: [] }
-      // 得到已选中的 key 值
-      this.menuIds.forEach(function(id) {
+      const role = { id: this.form.id, menus: [] }
+      this.roleMenus.forEach(function(id) {
         const menu = { id: id }
         role.menus.push(menu)
       })
+      console.log(role)
+      this.$refs.table.setCurrentRow()
       crudRoles.editMenu(role).then(() => {
       }).catch(err => {
         console.log(err.response.data.message)

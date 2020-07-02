@@ -1,54 +1,26 @@
 import Vue from 'vue'
 import Router from 'vue-router'
+import Layout from '@/web/layout'
 
 Vue.use(Router)
 
-/* Layout */
-import Layout from '@/web/layout'
-
-/**
- * Note: sub-menu only appear when route children.length >= 1
- * Detail see: https://panjiachen.github.io/vue-element-admin-site/guide/essentials/router-and-nav.html
- *
- * hidden: true                   if set true, item will not show in the sidebar(default is false)
- * alwaysShow: true               if set true, will always show the root menu
- *                                if not set alwaysShow, when item has more than one children route,
- *                                it will becomes nested mode, otherwise not show the root menu
- * redirect: noRedirect           if set noRedirect will no redirect in the breadcrumb
- * name:'router-name'             the name is used by <keep-alive> (must set!!!)
- * meta : {
-    roles: ['admin','editor']    control the page roles (you can set multiple roles)
-    title: 'title'               the name show in sidebar and breadcrumb (recommend set)
-    icon: 'svg-name'             the icon show in the sidebar
-    breadcrumb: false            if set false, the item will hidden in breadcrumb(default is true)
-    activeMenu: '/example/list'  if set path, the sidebar will highlight the path you set
-  }
- */
-
-/**
- * constantRoutes
- * a base page that does not have permission requirements
- * all roles can be accessed
- */
 export const constantRoutes = [
   {
     path: '/login',
+    meta: { title: '登录', noCache: true },
     component: () => import('@/web/routes/login/index'),
     hidden: true
   },
-
-  {
-    path: '/403',
-    component: () => import('@/web/routes/403'),
-    hidden: true
-  },
-
   {
     path: '/404',
-    component: () => import('@/web/routes/404'),
+    component: (resolve) => require(['@/web/routes/404'], resolve),
     hidden: true
   },
-
+  {
+    path: '/403',
+    component: (resolve) => require(['@/web/routes/403'], resolve),
+    hidden: true
+  },
   {
     path: '/500',
     component: () => import('@/web/routes/500'),
@@ -60,27 +32,30 @@ export const constantRoutes = [
     component: () => import('@/web/routes/def'),
     hidden: true
   },
-
+  {
+    path: '/redirect',
+    component: Layout,
+    hidden: true,
+    children: [
+      {
+        path: '/redirect/:path*',
+        component: (resolve) => require(['@/web/routes/redirect'], resolve)
+      }
+    ]
+  },
   {
     path: '/',
     component: Layout,
     redirect: '/dashboard',
-    name: '首页',
-    meta: { title: '首页', icon: 'dashboard' },
-    children: [{
-      path: 'dashboard',
-      name: 'Dashboard',
-      component: () => import('@/web/routes/dashboard/index'),
-      meta: { title: '首页', icon: 'dashboard' }
-    },
-    {
-      path: 'userCenter',
-      name: '个人中心',
-      component: () => import('@/web/routes/user/center/index'),
-      meta: { title: '个人中心', icon: 'table' }
-    }]
+    children: [
+      {
+        path: 'dashboard',
+        component: () => import('@/web/routes/dashboard/index'),
+        name: 'Dashboard',
+        meta: { title: '首页', icon: 'dashboard', affix: true, noCache: true }
+      }
+    ]
   },
-
   {
     path: '/example',
     component: Layout,
@@ -100,12 +75,6 @@ export const constantRoutes = [
         component: () => import('@/web/routes/list/index'),
         meta: { title: '列表', icon: 'list' }
       },
-      /* {
-        path: 'tree',
-        name: 'Tree',
-        component: () => import('@/web/routes/tree/index'),
-        meta: { title: 'Tree', icon: 'tree' }
-      }, */
       {
         path: 'form',
         name: '编辑',
@@ -122,34 +91,35 @@ export const constantRoutes = [
     meta: { title: '用户管理', icon: 'user' },
     children: [
       {
-        path: 'student',
-        name: '学生管理',
-        component: () => import('@/web/routes/user/student/index'),
-        meta: { title: '学生管理', icon: 'peoples' }
-      },
-      {
-        path: 'teacher',
-        name: '教师管理',
-        component: () => import('@/web/routes/user/teacher/index'),
-        meta: { title: '教师管理', icon: 'peoples' }
+        path: 'center',
+        component: () => import('@/web/routes/user/center/index'),
+        hidden: true,
+        name: '个人中心',
+        meta: { title: '个人中心' }
       },
       {
         path: 'manager',
-        name: '管理员',
+        name: '用户管理',
         component: () => import('@/web/routes/user/manager/index'),
-        meta: { title: '管理员', icon: 'form' }
+        meta: { title: '用户管理', icon: 'form' }
+      },
+      {
+        path: 'teacher',
+        name: '用户管理改',
+        component: () => import('@/web/routes/user/teacher/index'),
+        meta: { title: '用户管理改', icon: 'form' }
       }
     ]
   },
   {
     path: '/role',
     component: Layout,
-    redirect: '/role/role',
+    redirect: '/role/roleList',
     name: '角色管理',
     meta: { title: '角色管理', icon: 'role' },
     children: [
       {
-        path: 'role',
+        path: 'roleList',
         name: '角色管理',
         component: () => import('@/web/routes/role/index'),
         meta: { title: '角色管理', icon: 'role' }
@@ -180,12 +150,12 @@ export const constantRoutes = [
   {
     path: '/school',
     component: Layout,
-    redirect: '/school/school',
+    redirect: '/school/schoolList',
     name: '学校管理',
     meta: { title: '学校管理', icon: 'education' },
     children: [
       {
-        path: 'school',
+        path: 'schoolList',
         name: '院校管理',
         component: () => import('@/web/routes/school/school/index'),
         meta: { title: '院校管理', icon: 'school1' }
@@ -203,112 +173,7 @@ export const constantRoutes = [
         meta: { title: '课程管理', icon: 'behavior' }
       }
     ]
-  },
-  {
-    path: '/routes',
-    component: Layout,
-    redirect: 'noRedirect',
-    name: '异常管理',
-    meta: { title: '异常管理', icon: 'error' },
-    children: [
-      {
-        path: '404',
-        name: '404异常',
-        component: () => import('@/web/routes/404'),
-        meta: { title: '404', icon: '404' }
-      },
-      {
-        path: '403',
-        name: '403异常',
-        component: () => import('@/web/routes/403'),
-        meta: { title: '403', icon: '403' }
-      },
-      {
-        path: '500',
-        name: '500异常',
-        component: () => import('@/web/routes/500'),
-        meta: { title: '500', icon: '500' }
-      },
-      {
-        path: 'def1',
-        name: '自定义',
-        component: () => import('@/web/routes/def'),
-        meta: { title: '自定义异常', icon: 'bug' }
-      }
-    ]
-  },
-
-  /*   {
-    path: '/nested',
-    component: Layout,
-    redirect: '/nested/menu1',
-    name: 'Nested',
-    meta: {
-      title: 'Nested',
-      icon: 'nested'
-    },
-    children: [
-      {
-        path: 'menu1',
-        component: () => import('@/web/routes/nested/menu1/index'), // Parent router-view
-        name: 'Menu1',
-        meta: { title: 'Menu1' },
-        children: [
-          {
-            path: 'menu1-1',
-            component: () => import('@/web/routes/nested/menu1/menu1-1'),
-            name: 'Menu1-1',
-            meta: { title: 'Menu1-1' }
-          },
-          {
-            path: 'menu1-2',
-            component: () => import('@/web/routes/nested/menu1/menu1-2'),
-            name: 'Menu1-2',
-            meta: { title: 'Menu1-2' },
-            children: [
-              {
-                path: 'menu1-2-1',
-                component: () => import('@/web/routes/nested/menu1/menu1-2/menu1-2-1'),
-                name: 'Menu1-2-1',
-                meta: { title: 'Menu1-2-1' }
-              },
-              {
-                path: 'menu1-2-2',
-                component: () => import('@/web/routes/nested/menu1/menu1-2/menu1-2-2'),
-                name: 'Menu1-2-2',
-                meta: { title: 'Menu1-2-2' }
-              }
-            ]
-          },
-          {
-            path: 'menu1-3',
-            component: () => import('@/web/routes/nested/menu1/menu1-3'),
-            name: 'Menu1-3',
-            meta: { title: 'Menu1-3' }
-          }
-        ]
-      },
-      {
-        path: 'menu2',
-        component: () => import('@/web/routes/nested/menu2/index'),
-        meta: { title: 'menu2' }
-      }
-    ]
-  }, */
-
-  /* {
-    path: 'external-link',
-    component: Layout,
-    children: [
-      {
-        path: 'https://panjiachen.github.io/vue-element-admin-site/#/',
-        meta: { title: 'External Link', icon: 'link' }
-      }
-    ]
-  }, */
-
-  // 404 page must be placed at the end !!!
-  { path: '*', redirect: '/404', hidden: true }
+  }
 ]
 
 const createRouter = () => new Router({

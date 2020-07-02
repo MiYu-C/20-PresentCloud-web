@@ -1,6 +1,6 @@
 <template>
   <el-card class="box-card">
-    <div>
+    <div class="head-container">
       <!-- 顶部菜单 -->
       <div v-if="crud.props.searchToggle">
         <span>院校名：</span>
@@ -251,5 +251,12 @@ export default {
 .box-card {
     margin: 15px;
     width: 95%;
+}
+.el-row {
+    // margin-top: 10px;
+    margin-bottom: 10px;
+    &:last-child {
+    margin-bottom: 0;
+    }
 }
 </style>

@@ -5,7 +5,7 @@
         <span>欢迎：{{ username }}</span>
       </div>
       <!-- <panel-group @handleSetLineChartData="handleSetLineChartData" /> -->
-      <panel-group />
+      <!-- <panel-group /> -->
       <!-- <el-row style="background:#fff;padding:16px 16px 0;margin-bottom:32px;">
       <line-chart :chart-data="lineChartData" />
     </el-row> -->
@@ -23,7 +23,7 @@
       </el-col> -->
         <el-col>
           <div class="chart-wrapper">
-            <bar-chart />
+            <!-- <bar-chart /> -->
           </div>
         </el-col>
       </el-row>
@@ -45,11 +45,11 @@
 
 <script>
 // import GithubCorner from '@/components/GithubCorner'
-import PanelGroup from './components/PanelGroup'
+// import PanelGroup from './components/PanelGroup'
 // import LineChart from './components/LineChart'
 // import RaddarChart from './components/RaddarChart'
 // import PieChart from './components/PieChart'
-import BarChart from './components/BarChart'
+// import BarChart from './components/BarChart'
 // import TransactionTable from './components/TransactionTable'
 // import TodoList from './components/TodoList'
 // import BoxCard from './components/BoxCard'
@@ -76,11 +76,11 @@ export default {
   name: 'DashboardAdmin',
   components: {
     // GithubCorner,
-    PanelGroup,
+    // PanelGroup,
     // LineChart,
     // RaddarChart,
     // PieChart,
-    BarChart
+    // BarChart
     // TransactionTable,
     // TodoList,
     // BoxCard

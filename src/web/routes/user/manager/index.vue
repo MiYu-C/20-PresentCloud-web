@@ -1,371 +1,413 @@
 <template>
   <div>
-    <el-card class="box-card">
-      <div>
-        <el-row>
-          <span>帐号：</span>
-          <el-input
-            v-model="account"
-            placeholder="请输入帐号"
-            style="width: 200px;"
-          />
-          <span>或姓名：</span>
-          <el-input
-            v-model="name"
-            placeholder="请输入姓名"
-            style="width: 200px;"
-          />
-          <el-button type="primary" style="margin-left: 10px" @click="search">查询</el-button>
-          <el-button @click="resetData">重置</el-button>
-        </el-row>
-        <el-row>
-          <el-button type="primary" size="small" icon="el-icon-plus" @click="handleAdd">添加</el-button>
-          <!-- <el-button size="small">批量操作</el-button> -->
-        </el-row>
-      </div>
-      <div>
-        <el-table
-          v-loading="listLoading"
-          :data="tableData"
-          style="width: 100%"
-          row-key="id"
-          border
-          :tree-props="{children: 'children', hasChildren: 'hasChildren'}"
-        >
-          <el-table-column
-            type="selection"
-            width="55"
-          />
-          <el-table-column
-            prop="name"
-            label="昵称"
-          />
-          <el-table-column
-            prop="account"
-            label="帐号"
-          />
-          <el-table-column
-            prop="roles"
-            label="角色"
-            width="155"
+    <el-row>
+      <el-col :span="17">
+        <el-card class="box-card">
+          <div class="head-container">
+            <div v-if="crud.props.searchToggle">
+              <span>用户名或邮箱：</span>
+              <el-input
+                v-model="query.blurry"
+                clearable
+                placeholder="输入用户名或邮箱搜索"
+                style="width: 200px;"
+                class="filter-item"
+                @keyup.enter.native="crud.toQuery"
+              />
+              <rrOperation />
+            </div>
+            <crudOperation />
+          </div>
+          <el-table
+            ref="table"
+            v-loading="crud.loading"
+            :data="crud.data"
+            row-key="id"
+            :row-class-name="tableRowClassName"
+            @select="crud.selectChange"
+            @select-all="crud.selectAllChange"
+            @selection-change="crud.selectionChangeHandler"
           >
-            <template slot-scope="scope">
-              {{ scope.row.roles.join(' ') }}
-            </template>
-          </el-table-column>
-          <!-- <el-table-column
-            prop="datapermission"
-            label="数据权限"
-          /> -->
-          <el-table-column
-            prop="school"
-            label="学校/单位"
-          />
-          <el-table-column
-            prop="department"
-            label="院系/部门"
-          />
-          <el-table-column
-            prop="phone"
-            label="联系电话"
-          />
-          <el-table-column label="操作" width="150">
-            <template slot-scope="scope">
-              <el-button
-                size="mini"
-                @click="handleEdit(scope.$index, scope.row)"
-              >编辑</el-button>
-              <el-button
-                size="mini"
-                type="danger"
-                @click="handleDelete(scope.$index, scope.row)"
-              >删除</el-button>
-            </template>
-          </el-table-column>
-        </el-table>
-        <el-row>
-          <el-pagination
-            background
-            :current-page="currentPage"
-            :page-sizes="pagesizes"
-            :page-size="pagesize"
-            layout="total, sizes, prev, pager, next, jumper"
-            :total="total"
-            @size-change="handleSizeChange"
-            @current-change="handleCurrentChange"
-          />
-        </el-row>
-      </div>
-    </el-card>
-    <el-dialog
-      :title="dialogTitle"
-      :visible.sync="visible"
-      width="50%"
-      :show-close="false"
-      :destroy-on-close="true"
-    >
-      <el-col :span="22">
-        <el-form ref="form" :model="form" :rules="rules" label-position="right" label-width="80px">
-          <el-form-item label="姓名" prop="name">
-            <el-input v-model="form.name" placeholder="请输入姓名" clearable />
-          </el-form-item>
-          <el-form-item label="账号" prop="account">
-            <el-input v-model="form.account" placeholder="请输入帐号" clearable />
-            <!-- <span>{{ form.account }}</span> -->
-          </el-form-item>
-          <el-form-item label="角色">
-            <!-- <el-input v-model="form.roles" placeholder="请输入帐号" clearable /> -->
-            <el-select v-model="form.roles" multiple placeholder="请选择">
-              <el-option
-                v-for="item in roleList"
-                :key="item.name"
-                :label="item.name"
-                :value="item.name"
-              />
-            </el-select>
-          </el-form-item>
-          <!-- <el-form-item label="数据权限" prop="account">
-            <el-input v-model="form.address" placeholder="请输入帐号" clearable />
-          </el-form-item> -->
-          <el-form-item label="学校/单位">
-            <el-select v-model="job[0]" placeholder="请选择学校/单位">
-              <el-option
-                v-for="item in schoolList"
-                :key="item"
-                :label="item"
-                :value="item"
-              />
-            </el-select>
-          </el-form-item>
-          <el-form-item label="院系/部门">
-            <el-select v-model="job[1]" :disabled="disabled" placeholder="请选择院系/部门">
-              <el-option
-                v-for="item in departmentList"
-                :key="item"
-                :label="item"
-                :value="item"
-              />
-            </el-select>
-          </el-form-item>
-          <el-form-item label="联系电话">
-            <el-input v-model="form.phone" placeholder="请输入联系电话" clearable />
-          </el-form-item>
-        </el-form>
+            <el-table-column
+              type="selection"
+              width="55"
+            />
+            <el-table-column
+              prop="nickName"
+              label="昵称"
+            />
+            <el-table-column
+              prop="username"
+              label="帐号"
+              width="155"
+            />
+            <el-table-column
+              prop="type"
+              label="身份"
+            >
+              <template slot-scope="scope">
+                <span>{{ scope.row.type.toString() === '1' ? '员工' : '教师' }}</span>
+              </template>
+            </el-table-column>
+            <el-table-column
+              prop="gender"
+              label="性别"
+            />
+            <el-table-column
+              prop="phone"
+              label="电话"
+              width="135"
+            />
+            <el-table-column
+              prop="email"
+              label="邮箱"
+              width="155"
+            />
+            <el-table-column label="操作" width="150px" align="center" fixed="right">
+              <template slot-scope="scope">
+                <udOperation
+                  :data="scope.row"
+                  :disabled-dle="scope.row.id === 1"
+                  msg="确定删除吗,如果存在下级节点则一并删除，此操作不能撤销！"
+                />
+              </template>
+            </el-table-column>
+          </el-table>
+          <pagination />
+          <el-dialog
+            append-to-body
+            :close-on-click-modal="false"
+            :before-close="crud.cancelCU"
+            :visible.sync="crud.status.cu > 0"
+            :title="crud.status.title"
+            width="620px"
+          >
+            <el-form ref="form" :inline="true" :model="form" :rules="rules" size="small" label-width="80px">
+              <el-form-item label="用户名" prop="username">
+                <el-input v-model="form.username" />
+              </el-form-item>
+              <el-form-item label="昵称" prop="nickName">
+                <el-input v-model="form.nickName" />
+              </el-form-item>
+              <el-form-item label="电话" prop="phone">
+                <el-input v-model.number="form.phone" />
+              </el-form-item>
+              <el-form-item label="邮箱" prop="email">
+                <el-input v-model="form.email" />
+              </el-form-item>
+              <el-form-item label="院校/部门" prop="dept.id">
+                <treeselect
+                  v-model="form.dept.id"
+                  :options="depts"
+                  :load-options="loadDepts"
+                  style="width: 178px"
+                  placeholder="选择院校/部门"
+                />
+              </el-form-item>
+              <el-form-item label="性别">
+                <el-radio-group v-model="form.gender" style="width: 178px">
+                  <el-radio label="男">男</el-radio>
+                  <el-radio label="女">女</el-radio>
+                </el-radio-group>
+              </el-form-item>
+              <el-form-item label="帐号状态">
+                <el-radio-group v-model="form.enabled" style="width: 178px">
+                  <el-radio label="true">启用</el-radio>
+                  <el-radio label="false">停用</el-radio>
+                </el-radio-group>
+              </el-form-item>
+              <el-form-item style="margin-bottom: 0;" label="角色" prop="roles">
+                <el-select
+                  v-model="form.roles"
+                  style="width: 450px"
+                  multiple
+                  placeholder="请选择"
+                  @remove-tag="deleteTag"
+                  @change="changeRole"
+                >
+                  <el-option
+                    v-for="item in roles"
+                    :key="item.name"
+                    :disabled="level !== 1 && item.level <= level"
+                    :label="item.name"
+                    :value="item.id"
+                  />
+                </el-select>
+              </el-form-item>
+            </el-form>
+            <div slot="footer" class="dialog-footer">
+              <el-button :loading="crud.status.cu === 2" type="primary" @click="crud.submitCU">确认</el-button>
+              <el-button type="text" @click="crud.cancelCU">取消</el-button>
+            </div>
+          </el-dialog>
+        </el-card>
       </el-col>
-      <span slot="footer" class="dialog-footer">
-        <el-button type="primary" @click="update">确 定</el-button>
-        <el-button @click="closeForm">取 消</el-button>
-      </span>
-    </el-dialog>
-    <el-dialog
-      title="确认删除"
-      :visible.sync="deleteVisible"
-      width="30%"
-      :show-close="false"
-      :destroy-on-close="true"
-    >
-      <el-col :span="22">
-        <span>确认删除选中项？</span>
+      <el-col :span="6">
+        <el-card class="box-card">
+          <div class="head-container">
+            <el-input
+              v-model="deptName"
+              clearable
+              size="small"
+              placeholder="输入院校/部门名称搜索"
+              prefix-icon="el-icon-search"
+              class="filter-item"
+              @input="getDeptDatas"
+            />
+          </div>
+          <el-tree
+            :data="deptDatas"
+            :load="getDeptDatas"
+            :props="defaultProps"
+            :expand-on-click-node="false"
+            lazy
+            @node-click="handleNodeClick"
+          />
+        </el-card>
       </el-col>
-      <span slot="footer" class="dialog-footer">
-        <el-button type="primary" @click="delete1">确 定</el-button>
-        <el-button @click="closeForm">取 消</el-button>
-      </span>
-    </el-dialog>
+    </el-row>
   </div>
 </template>
 <script>
 // eslint-disable-next-line no-unused-vars
-import { getList, updateList, addItem, deleteItem, isExist } from '@/web/api/userinfo'
-import { getList as getRoleList } from '@/web/api/role'
+import crudUser from '@/web/api/userinfo'
+import Treeselect from '@riophae/vue-treeselect'
+import '@riophae/vue-treeselect/dist/vue-treeselect.css'
+import { LOAD_CHILDREN_OPTIONS } from '@riophae/vue-treeselect'
+import CRUD, { presenter, header, form, crud } from '@/components/Crud/crud'
+import rrOperation from '@/components/Crud/RR.operation'
+import crudOperation from '@/components/Crud/CRUD.operation'
+import udOperation from '@/components/Crud/UD.operation'
+import pagination from '@/components/Crud/Pagination'
+import { getDepts, getDeptSuperior } from '@/web/api/dept'
+import { getAll, getLevel } from '@/web/api/role'
+import { isvalidPhone } from '@/web/utils/validate'
+import { mapGetters } from 'vuex'
+
+let userRoles = []
+const defaultForm = { id: null, username: null, nickName: null, gender: '男', email: null, enabled: 'false', roles: [], jobs: [], dept: { id: null }, phone: null }
 export default {
+  name: 'User',
+  components: { Treeselect, crudOperation, rrOperation, udOperation, pagination },
+  cruds() {
+    return CRUD({ title: '用户', url: 'api/users', crudMethod: { ...crudUser }})
+  },
+  mixins: [presenter(), header(), form(defaultForm), crud()],
+  // 数据字典
+  dicts: ['user_status'],
   data() {
-    const accountValidate = (rule, value, callback) => {
-      console.log('isExist', this.form.id, this.form.account)
-      if (this.form.account === '') {
-        callback('不能为空')
+    // 自定义验证
+    const validPhone = (rule, value, callback) => {
+      if (!value) {
+        callback(new Error('请输入电话号码'))
+      } else if (!isvalidPhone(value)) {
+        callback(new Error('请输入正确的11位手机号码'))
+      } else {
+        callback()
       }
-      isExist(this.form.id, this.form.account, this.form.type, 'account').then(response => {
-        const exist = response.data
-        console.log('exist', exist)
-        if (exist) {
-          callback('帐号' + value + '已存在')
-        } else {
-          callback()
-        }
-      })
     }
     return {
-      dialogTitle: '',
-      visible: false,
-      disabled: true,
-      deleteVisible: false,
-      account: '',
-      type: 3,
-      total: 0,
-      name: '',
-      pagesizes: [5, 10, 15, 20],
-      pagesize: 5,
-      currentPage: 1,
-      listLoading: true,
-      tableData: [],
+      height: document.documentElement.clientHeight - 180 + 'px;',
+      deptName: '', depts: [], deptDatas: [], level: 3, roles: [],
+      defaultProps: { children: 'children', label: 'name', isLeaf: 'leaf' },
       rules: {
-        name: [
-          { required: true, message: '不能为空', trigger: 'blur' }
+        username: [
+          { required: true, message: '请输入用户名', trigger: 'blur' },
+          { min: 2, max: 20, message: '长度在 2 到 20 个字符', trigger: 'blur' }
         ],
-        account: [
-          { required: true, message: '不能为空', trigger: 'blur' },
-          { validator: accountValidate, trigger: 'blur' }
+        nickName: [
+          { required: true, message: '请输入用户昵称', trigger: 'blur' },
+          { min: 2, max: 20, message: '长度在 2 到 20 个字符', trigger: 'blur' }
+        ],
+        email: [
+          { required: true, message: '请输入邮箱地址', trigger: 'blur' },
+          { type: 'email', message: '请输入正确的邮箱地址', trigger: 'blur' }
+        ],
+        phone: [
+          { required: true, trigger: 'blur', validator: validPhone }
         ]
-      },
-      defaultForm: {
-        id: 0,
-        name: '',
-        userID: '',
-        account: '',
-        roles: [],
-        gender: '',
-        school: '公司',
-        department: '',
-        phone: '',
-        type: 3
-      },
-      form: null,
-      row: null,
-      job: ['', ''],
-      schoolList: ['公司', '福州大学'],
-      departmentList: [],
-      roleList: []
+      }
     }
   },
-  watch: {
-    form(n, o) {
-      this.disabled = true
-      console.log('school', n.school)
-      this.job = [n.school, n.department]
-    },
-    job(n, o) {
-      if (n[0] === '公司') {
-        this.departmentList = ['运维', '开发']
-        this.disabled = false
-      }
-      if (n[0] === '福州大学') {
-        this.departmentList = ['数计学院', '外语学院', '物信学院']
-        this.disabled = false
-      }
-      if (this.departmentList.findIndex(item => item === n[1]) === -1) {
-        n[1] = this.departmentList[0]
-      }
-    }
+  computed: {
+    ...mapGetters([
+      'user'
+    ])
   },
   created() {
-    this.form = JSON.parse(JSON.stringify(this.defaultForm))
-    this.row = JSON.parse(JSON.stringify(this.defaultForm))
-    this.fetchData()
+    this.crud.msg.add = '新增成功，默认密码：123456'
+  },
+  mounted: function() {
+    const that = this
+    window.onresize = function temp() {
+      that.height = document.documentElement.clientHeight - 180 + 'px;'
+    }
   },
   methods: {
-    fetchData() {
-      this.listLoading = true
-      getList(this.currentPage, this.pagesize, this.type, this.name, this.account).then(response => {
-        this.tableData = response.data.items
-        this.total = response.data.total
-        console.log('search', this.tableData, this.total)
-        if ((this.currentPage - 1) * this.pagesize >= this.total && this.currentPage > 1) {
-          this.currentPage -= 1
-          this.fetchData()
-        }
-        this.listLoading = false
-      })
-      getRoleList(-1, -1, '').then(response => {
-        this.roleList = response.data.items
-        console.log('roleList', this.roleList)
-      })
-    },
-    update() {
-      this.$refs['form'].validate((valid) => {
-        if (valid) {
-          console.log('编辑成功!')
-          console.log('form', this.form)
-          this.listLoading = true
-          this.form.school = this.job[0]
-          this.form.department = this.job[1]
-          if (this.form.id === 0) {
-            addItem(this.form).then(response => {
-              console.log('add', response.data)
-              this.newItem = response.data
-              console.log('afterAdd', response.data)
-            })
-          } else {
-            updateList(this.form).then(response => {
-              console.log('update', response.data)
-            })
-          }
-          this.closeForm()
-          this.fetchData()
-        }
-      })
-    },
-    delete1() {
-      deleteItem(this.form).then(response => {
-        console.log('delete', response.data)
-        this.total = response.data
-      })
-      this.closeForm()
-      this.fetchData()
-    },
-    closeForm() {
-      this.visible = false
-      this.deleteVisible = false
-      this.form = JSON.parse(JSON.stringify(this.defaultForm))
-    },
-    search() {
-      if (this.name.length > 0 && this.account.length > 0) {
-        this.$message('只能同时搜索一项')
+    tableRowClassName({ row, rowIndex }) {
+      console.log(row)
+      if (row.enabled.toString() === 'false') {
+        return 'warning-row'
       } else {
-        this.listLoading = true
-        this.currentPage = 1
-        console.log('search', this.name.length, this.currentPage)
-        this.fetchData()
+        return ''
       }
     },
-    resetData() {
-      this.listLoading = true
-      this.currentPage = 1
-      this.name = ''
-      this.account = ''
-      this.form = JSON.parse(JSON.stringify(this.defaultForm))
-      this.row = JSON.parse(JSON.stringify(this.defaultForm))
-      this.fetchData()
+    changeRole(value) {
+      userRoles = []
+      value.forEach(function(data, index) {
+        const role = { id: data }
+        userRoles.push(role)
+      })
     },
-    handleSizeChange(val) {
-      console.log(`每页 ${val} 条`)
-      console.log(this.pagesize)
-      this.pagesize = val
-      this.fetchData()
+    [CRUD.HOOK.afterAddError](crud) {
+      this.afterErrorMethod(crud)
     },
-    handleCurrentChange(val) {
-      console.log(`当前页: ${val}`)
-      console.log(this.currentPage)
-      this.currentPage = val
-      this.fetchData()
+    [CRUD.HOOK.afterEditError](crud) {
+      this.afterErrorMethod(crud)
     },
-    handleAdd() {
-      console.log('defaultForm', this.defaultForm)
-      this.dialogTitle = '添加管理员'
-      this.form = JSON.parse(JSON.stringify(this.defaultForm))
-      console.log('form', this.form)
-      this.visible = true
+    afterErrorMethod(crud) {
+      // 恢复select
+      const initRoles = []
+      userRoles.forEach(function(role, index) {
+        initRoles.push(role.id)
+      })
+      crud.form.roles = initRoles
     },
-    handleEdit(index, row) {
-      this.dialogTitle = '编辑信息'
-      console.log(index, row)
-      this.form = JSON.parse(JSON.stringify(row))
-      this.visible = true
+    deleteTag(value) {
+      userRoles.forEach(function(data, index) {
+        if (data.id === value) {
+          userRoles.splice(index, value)
+        }
+      })
     },
-    handleDelete(index, row) {
-      console.log(index, row)
-      this.form = JSON.parse(JSON.stringify(row))
-      this.deleteVisible = true
+    // 新增与编辑前做的操作
+    [CRUD.HOOK.afterToCU](crud, form) {
+      this.getRoles()
+      if (form.id === null) {
+        this.getDepts()
+      } else {
+        this.getSupDepts(form.dept.id)
+      }
+      this.getRoleLevel()
+      form.enabled = form.enabled.toString()
+    },
+    // 打开编辑弹窗前做的操作
+    [CRUD.HOOK.beforeToEdit](crud, form) {
+      userRoles = []
+      const roles = []
+      form.roles.forEach(function(role, index) {
+        roles.push(role.id)
+        // 初始化编辑时候的角色
+        const rol = { id: role.id }
+        userRoles.push(rol)
+      })
+      form.roles = roles
+    },
+    // 提交前做的操作
+    [CRUD.HOOK.afterValidateCU](crud) {
+      if (!crud.form.dept.id) {
+        this.$message({
+          message: '院校/部门不能为空',
+          type: 'warning'
+        })
+        return false
+      } else if (crud.form.roles.length === 0) {
+        this.$message({
+          message: '角色不能为空',
+          type: 'warning'
+        })
+        return false
+      }
+      crud.form.roles = userRoles
+      return true
+    },
+    // 获取左侧院校/部门数据
+    getDeptDatas(node, resolve) {
+      const sort = 'id,desc'
+      const params = { sort: sort }
+      if (typeof node !== 'object') {
+        if (node) {
+          params['name'] = node
+        }
+      } else if (node.level !== 0) {
+        params['pid'] = node.data.id
+      }
+      setTimeout(() => {
+        getDepts(params).then(res => {
+          if (resolve) {
+            resolve(res.content)
+          } else {
+            this.deptDatas = res.content
+          }
+        })
+      }, 100)
+    },
+    getDepts() {
+      getDepts({ enabled: true }).then(res => {
+        this.depts = res.content.map(function(obj) {
+          if (obj.hasChildren) {
+            obj.children = null
+          }
+          return obj
+        })
+      })
+    },
+    getSupDepts(deptId) {
+      getDeptSuperior(deptId).then(res => {
+        const date = res.content
+        this.buildDepts(date)
+        this.depts = date
+      })
+    },
+    buildDepts(depts) {
+      depts.forEach(data => {
+        if (data.children) {
+          this.buildDepts(data.children)
+        }
+        if (data.hasChildren && !data.children) {
+          data.children = null
+        }
+      })
+    },
+    // 获取弹窗内院校/部门数据
+    loadDepts({ action, parentNode, callback }) {
+      if (action === LOAD_CHILDREN_OPTIONS) {
+        getDepts({ enabled: true, pid: parentNode.id }).then(res => {
+          parentNode.children = res.content.map(function(obj) {
+            if (obj.hasChildren) {
+              obj.children = null
+            }
+            return obj
+          })
+          setTimeout(() => {
+            callback()
+          }, 200)
+        })
+      }
+    },
+    // 切换院校/部门
+    handleNodeClick(data) {
+      if (data.pid === 0) {
+        this.query.deptId = null
+      } else {
+        this.query.deptId = data.id
+      }
+      this.crud.toQuery()
+    },
+    // 获取弹窗内角色数据
+    getRoles() {
+      getAll().then(res => {
+        this.roles = res
+      }).catch(() => { })
+    },
+    // 获取权限级别
+    getRoleLevel() {
+      getLevel().then(res => {
+        this.level = res.level
+      }).catch(() => { })
+    },
+    checkboxT(row, rowIndex) {
+      return row.id !== this.user.id
     }
   }
 }
@@ -377,9 +419,8 @@ export default {
     width: 95%;
 }
 .el-row {
-    margin-top: 10px;
+    // margin-top: 10px;
     margin-bottom: 10px;
-
     &:last-child {
     margin-bottom: 0;
     }
@@ -389,4 +430,22 @@ export default {
     padding: 10px 0;
     background-color: #f9fafc;
 }
+</style>
+<style rel="stylesheet/scss" lang="scss" scoped>
+  /deep/ .el-input-number .el-input__inner {
+    text-align: center;
+  }
+  /deep/ .vue-treeselect__control, /deep/ .vue-treeselect__placeholder, /deep/ .vue-treeselect__single-value {
+    height: 30px;
+    line-height: 30px;
+  }
+</style>
+<style>
+  .el-table .warning-row {
+    background: oldlace;
+  }
+
+  .el-table .success-row {
+    background: #f0f9eb;
+  }
 </style>

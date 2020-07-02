@@ -3,12 +3,11 @@
     <el-dialog :visible.sync="dialog" :close-on-click-modal="false" :before-close="cancel" :title="title" append-to-body width="475px" @close="cancel">
       <el-form ref="form" :model="form" :rules="rules" size="small" label-width="88px">
         <el-form-item label="新邮箱" prop="email">
-          <el-input v-model="form.email" auto-complete="on" style="width: 320px;" />
+          <el-input v-model="form.email" auto-complete="on" style="width: 200px;" />
+          <el-button :loading="codeLoading" :disabled="isDisabled" size="small" @click="sendCode">{{ buttonName }}</el-button>
         </el-form-item>
         <el-form-item label="验证码" prop="code">
-          <el-input v-model="form.code" style="width: 320px;">
-            <el-button slot="append" :disabled="resend" @click="sendCode">{{ codeStatus }}</el-button>
-          </el-input>
+          <el-input v-model="form.code" style="width: 320px;" />
         </el-form-item>
         <el-form-item label="当前密码" prop="pass">
           <el-input v-model="form.pass" type="password" style="width: 320px;" />
@@ -23,10 +22,10 @@
 </template>
 
 <script>
+import store from '@/web/store'
 import { validEmail } from '@/web/utils/validate'
-import { updateEmail, getCode } from '@/web/api/user'
-// import { resetEmail } from '@/web/api/code'
-
+import { updateEmail } from '@/web/api/user'
+import { resetEmail } from '@/web/api/code'
 export default {
   props: {
     email: {
@@ -49,8 +48,7 @@ export default {
     return {
       loading: false, dialog: false, title: '修改邮箱', form: { pass: '', email: '', code: '' },
       user: { email: '', password: '' }, codeLoading: false,
-      codeData: { type: 'email', value: '' },
-      buttonName: '获取验证码', resend: false, time: 60,
+      buttonName: '获取验证码', isDisabled: false, time: 60,
       rules: {
         pass: [
           { required: true, message: '当前密码不能为空', trigger: 'blur' }
@@ -61,8 +59,7 @@ export default {
         code: [
           { required: true, message: '验证码不能为空', trigger: 'blur' }
         ]
-      },
-      codeStatus: '发送验证码'
+      }
     }
   },
   methods: {
@@ -70,57 +67,33 @@ export default {
       this.resetForm()
     },
     sendCode() {
-      if (this.form.email && this.form.email !== this.email && validEmail(this.form.email)) {
+      if (this.form.email && this.form.email !== this.email) {
         this.codeLoading = true
-        this.codeStatus = '验证码发送中'
-        this.codeData.value = this.form.email
-        const TIME_COUNT = this.time
-        let count = TIME_COUNT
-        getCode().then(response => {
-          this.form.code = response.data
-          let timer = setInterval(() => {
-            if (count > 0 && count <= TIME_COUNT) {
-              count--
-              this.codeStatus = count.toString() + '秒'
-            } else {
-              this.codeStatus = '获取验证码'
-              this.resend = true
-              clearInterval(timer)
-              timer = null
+        this.buttonName = '验证码发送中'
+        const _this = this
+        resetEmail(this.form.email).then(res => {
+          this.$message({
+            showClose: true,
+            message: '发送成功，验证码有效期5分钟',
+            type: 'success'
+          })
+          this.codeLoading = false
+          this.isDisabled = true
+          this.buttonName = this.time-- + '秒后重新发送'
+          this.timer = window.setInterval(function() {
+            _this.buttonName = _this.time + '秒后重新发送'
+            --_this.time
+            if (_this.time < 0) {
+              _this.buttonName = '重新发送'
+              _this.time = 60
+              _this.isDisabled = false
+              window.clearInterval(_this.timer)
             }
           }, 1000)
-        // console.log('code', this.ruleForm.code)
-        // })
-        // const _this = this
-        // resetEmail(this.codeData).then(res => {
-        //   this.$message({
-        //     showClose: true,
-        //     message: '发送成功，验证码有效期5分钟',
-        //     type: 'success'
-        //   })
-        //   this.codeLoading = false
-        //   this.isDisabled = true
-        //   this.buttonName = this.time-- + '秒后重新发送'
-        //   this.timer = window.setInterval(function() {
-        //     _this.buttonName = _this.time + '秒后重新发送'
-        //     --_this.time
-        //     if (_this.time < 0) {
-        //       _this.buttonName = '重新发送'
-        //       _this.time = 60
-        //       _this.isDisabled = false
-        //       window.clearInterval(_this.timer)
-        //     }
-        //   }, 1000)
         }).catch(err => {
           this.resetForm()
           this.codeLoading = false
           console.log(err.response.data.message)
-        })
-      } else {
-        this.$notify({
-          title: '请先填写邮箱',
-          type: 'error',
-          duration: 2500
         })
       }
     },
@@ -136,7 +109,7 @@ export default {
               type: 'success',
               duration: 1500
             })
-            this.$store.dispatch('user/getInfo').then(() => {})
+            store.dispatch('GetInfo').then(() => {})
           }).catch(err => {
             this.loading = false
             console.log(err.response.data.message)
@@ -150,8 +123,9 @@ export default {
       this.dialog = false
       this.$refs['form'].resetFields()
       window.clearInterval(this.timer)
+      this.time = 60
       this.buttonName = '获取验证码'
-      this.resend = false
+      this.isDisabled = false
       this.form = { pass: '', email: '', code: '' }
     }
   }

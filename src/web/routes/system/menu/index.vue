@@ -7,7 +7,6 @@
           <el-input
             v-model="query.blurry"
             clearable
-            size="small"
             placeholder="输入菜单名称搜索"
             style="width: 200px;"
             class="filter-item"
@@ -140,10 +139,10 @@
               <el-form-item label="排序" prop="menuSort">
                 <el-input-number v-model="form.menuSort" :min="1" :max="999" clearable />
               </el-form-item>
-              <el-form-item v-show="form.type.toString() !== '3'" label="路由地址">
+              <el-form-item v-show="form.type.toString() !== '2'" label="路由地址">
                 <el-input v-model="form.path" placeholder="请输入路由地址" />
               </el-form-item>
-              <el-form-item v-show="form.type.toString() === '2'" label="组件路径">
+              <el-form-item v-show="form.type.toString() === '1'" label="组件路径">
                 <el-input v-model="form.component" placeholder="请输入组件路径" />
               </el-form-item>
               <el-form-item v-show="form.type.toString() !== '0'" label="权限">
@@ -186,7 +185,6 @@
 </template>
 <script>
 // eslint-disable-next-line no-unused-vars
-import { getList, updateList, addItem, deleteItem, getFather, isExist } from '@/web/api/menu'
 // import Treeselect from '@/components/treeSelect.vue'
 import crudMenu from '@/web/api/menu'
 import Treeselect from '@riophae/vue-treeselect'
@@ -329,7 +327,7 @@ export default {
     width: 95%;
 }
 .el-row {
-    margin-top: 10px;
+    // margin-top: 10px;
     margin-bottom: 10px;
     &:last-child {
     margin-bottom: 0;
