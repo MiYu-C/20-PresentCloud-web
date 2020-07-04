@@ -91,7 +91,7 @@ function CRUD(options) {
       // 页码
       page: 0,
       // 每页数据条数
-      size: 10,
+      size: 5,
       // 总数据条数
       total: 0
     },

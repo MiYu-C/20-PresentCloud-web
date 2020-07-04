@@ -1,10 +1,13 @@
 import router from './router'
 import store from './web/store'
+// eslint-disable-next-line no-unused-vars
 import { Message } from 'element-ui'
 import NProgress from 'nprogress' // progress bar
 import 'nprogress/nprogress.css' // progress bar style
 import { getToken } from '@/web/utils/auth' // get token from cookie
 import getPageTitle from '@/web/utils/get-page-title'
+import { buildMenus } from '@/web/api/menu'
+import { filterAsyncRouter } from '@/web/store/modules/permission'
 
 NProgress.configure({ showSpinner: false }) // NProgress Configuration
 
@@ -26,24 +29,54 @@ router.beforeEach(async(to, from, next) => {
       next({ path: '/' })
       NProgress.done()
     } else {
-      const hasGetUserInfo = store.getters.name
-      if (hasGetUserInfo) {
-        next()
+      if (store.getters.roles.length === 0) { // 判断当前用户是否已拉取完user_info信息
+        store.dispatch('user/getInfo').then(res => { // 拉取user_info
+          // 动态路由，拉取菜单
+          loadMenus(next, to)
+        }).catch((err) => {
+          console.log(err)
+          store.dispatch('user/resetToken').then(() => {
+            location.reload() // 为了重新实例化vue-router对象 避免bug
+          })
+        })
+      // 登录时未拉取 菜单，在此处拉取
+      } else if (store.getters.loadMenus) {
+        // 修改成false，防止死循环
+        store.dispatch('user/updateLoadMenus').then(res => {})
+        loadMenus(next, to)
       } else {
-        try {
-          // 获取用户信息
-          await store.dispatch('user/getInfo')
-
-          next()
-        } catch (error) {
-          // 移除原有token，重定向至登陆页，重新登录
-          await store.dispatch('user/resetToken')
-          Message.error(error || 'Has Error')
-          next(`/login?redirect=${to.path}`)
-          NProgress.done()
-        }
+        next()
       }
     }
+    // else {
+    //   const hasGetUserInfo = store.getters.user
+    //   if (hasGetUserInfo) {
+    //     if (store.getters.loadMenus) {
+    //       // 修改成false，防止死循环
+    //       await store.dispatch('user/updateLoadMenus')
+    //       loadMenus(next, to)
+    //     } else {
+    //       next()
+    //     }
+    //   } else {
+    //     try {
+    //       // 获取用户信息
+    //       store.dispatch('user/getInfo').then(res => {
+    //         // 动态路由，拉取菜单
+    //         loadMenus(next, to)
+    //       })
+    //       next()
+    //     } catch (error) {
+    //       // 移除原有token，重定向至登陆页，重新登录
+    //       store.dispatch('user/resetToken').then(res => {
+    //         location.reload() // 为了重新实例化vue-router对象 避免bug
+    //       })
+    //       Message.error(error || 'Has Error')
+    //       next(`/login?redirect=${to.path}`)
+    //       NProgress.done()
+    //     }
+    //   }
+    // }
   } else {
     /* has no token*/
 
@@ -57,6 +90,18 @@ router.beforeEach(async(to, from, next) => {
     }
   }
 })
+
+export const loadMenus = (next, to) => {
+  buildMenus().then(res => {
+    // console.log('buildMenus', res)
+    const asyncRouter = filterAsyncRouter(res)
+    asyncRouter.push({ path: '*', redirect: '/404', hidden: true })
+    store.dispatch('permission/GenerateRoutes', asyncRouter).then(() => { // 存储路由
+      router.addRoutes(asyncRouter) // 动态添加可访问路由表
+      next({ ...to, replace: true })
+    })
+  })
+}
 
 router.afterEach(() => {
   // finish progress bar

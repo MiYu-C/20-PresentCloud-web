@@ -1,199 +1,207 @@
 <template>
-  <el-row>
-    <el-col :span="17">
-      <el-card class="box-card">
-        <el-row>
-          <span>姓名：</span>
-          <el-input
-            v-model="name"
-            placeholder="请输入姓名"
-            style="width: 200px;"
-          />
-          <el-button type="primary" style="margin-left: 10px" @click="search">查询</el-button>
-          <el-button @click="resetData">重置</el-button>
-        </el-row>
-        <el-row>
-          <el-button type="primary" size="small" icon="el-icon-plus" @click="handleAdd">添加</el-button>
-          <el-button :disabled="ids.length === 0" type="danger" size="small" @click="deleteVisible = true">删除</el-button>
-        </el-row>
-        <el-table
-          v-loading="listLoading"
-          :data="tableData"
-          style="width: 100%"
-          row-key="id"
-          :tree-props="{children: 'children', hasChildren: 'hasChildren'}"
-          :row-class-name="tableRowClassName"
-          @selection-change="handleSelectionChange"
-        >
-          <el-table-column
-            type="selection"
-            width="55"
-          />
-          <el-table-column
-            prop="nickName"
-            label="昵称"
-          />
-          <el-table-column
-            prop="username"
-            label="帐号"
-            width="155"
-          />
-          <el-table-column
-            prop="type"
-            label="身份"
+  <div class="app-container">
+    <el-row>
+      <el-col :span="18">
+        <el-card class="box-card">
+          <el-row>
+            <span>姓名：</span>
+            <el-input
+              v-model="name"
+              placeholder="请输入姓名"
+              style="width: 200px;"
+            />
+            <el-button type="primary" style="margin-left: 10px" @click="search">查询</el-button>
+            <el-button @click="resetData">重置</el-button>
+          </el-row>
+          <el-row>
+            <el-button type="primary" size="small" icon="el-icon-plus" @click="handleAdd">添加</el-button>
+            <el-button :disabled="ids.length === 0" type="danger" size="small" @click="deleteVisible = true">删除</el-button>
+          </el-row>
+          <el-row>
+            <el-table
+              v-loading="listLoading"
+              :data="tableData"
+              style="width: 100%"
+              row-key="id"
+              :tree-props="{children: 'children', hasChildren: 'hasChildren'}"
+              :row-class-name="tableRowClassName"
+              @selection-change="handleSelectionChange"
+            >
+              <el-table-column
+                type="selection"
+                width="55"
+              />
+              <el-table-column
+                prop="nickName"
+                label="昵称"
+              />
+              <el-table-column
+                prop="username"
+                label="帐号"
+                width="155"
+              />
+              <el-table-column
+                prop="type"
+                label="身份"
+              >
+                <template slot-scope="scope">
+                  <span>{{ scope.row.type.toString() === '1' ? '员工' : '教师' }}</span>
+                </template>
+              </el-table-column>
+              <el-table-column
+                prop="gender"
+                label="性别"
+              />
+              <el-table-column
+                prop="phone"
+                label="电话"
+                width="135"
+              />
+              <el-table-column
+                prop="email"
+                label="邮箱"
+                width="155"
+              />
+              <el-table-column label="操作" width="150" fixed="right">
+                <template slot-scope="scope">
+                  <el-button
+                    size="mini"
+                    @click="handleEdit(scope.$index, scope.row)"
+                  >编辑</el-button>
+                  <el-button
+                    size="mini"
+                    type="danger"
+                    @click="handleDelete(scope.$index, scope.row)"
+                  >删除</el-button>
+                </template>
+              </el-table-column>
+            </el-table>
+          </el-row>
+          <el-row>
+            <el-pagination
+              background
+              :current-page="currentPage"
+              :page-sizes="pagesizes"
+              :page-size="pagesize"
+              layout="total, sizes, prev, pager, next, jumper"
+              :total="total"
+              @size-change="handleSizeChange"
+              @current-change="handleCurrentChange"
+            />
+          </el-row>
+          <el-dialog
+            :title="dialogTitle"
+            :visible.sync="visible"
+            width="650px"
+            :show-close="false"
+            :destroy-on-close="true"
           >
-            <template slot-scope="scope">
-              <span>{{ scope.row.type.toString() === '1' ? '员工' : '教师' }}</span>
-            </template>
-          </el-table-column>
-          <el-table-column
-            prop="gender"
-            label="性别"
-          />
-          <el-table-column
-            prop="phone"
-            label="电话"
-            width="135"
-          />
-          <el-table-column
-            prop="email"
-            label="邮箱"
-            width="155"
-          />
-          <el-table-column label="操作" width="150" fixed="right">
-            <template slot-scope="scope">
-              <el-button
-                size="mini"
-                @click="handleEdit(scope.$index, scope.row)"
-              >编辑</el-button>
-              <el-button
-                size="mini"
-                type="danger"
-                @click="handleDelete(scope.$index, scope.row)"
-              >删除</el-button>
-            </template>
-          </el-table-column>
-        </el-table>
-        <el-row>
-          <el-pagination
-            background
-            :current-page="currentPage"
-            :page-sizes="pagesizes"
-            :page-size="pagesize"
-            layout="total, sizes, prev, pager, next, jumper"
-            :total="total"
-            @size-change="handleSizeChange"
-            @current-change="handleCurrentChange"
-          />
-        </el-row>
-        <el-dialog
-          :title="dialogTitle"
-          :visible.sync="visible"
-          width="650px"
-          :show-close="false"
-          :destroy-on-close="true"
-        >
-          <el-col :span="22">
-            <el-form ref="form" :inline="true" :model="form" :rules="rules" size="small" label-width="80px">
-              <el-form-item label="用户名" prop="username">
-                <el-input v-model="form.username" />
-              </el-form-item>
-              <el-form-item label="昵称" prop="nickName">
-                <el-input v-model="form.nickName" />
-              </el-form-item>
-              <el-form-item label="电话" prop="phone">
-                <el-input v-model.number="form.phone" />
-              </el-form-item>
-              <el-form-item label="邮箱" prop="email">
-                <el-input v-model="form.email" />
-              </el-form-item>
-              <el-form-item label="院校/部门" prop="dept.id">
-                <treeselect
-                  v-model="form.dept.id"
-                  :options="depts"
-                  :load-options="loadDepts"
-                  style="width: 180px"
-                  placeholder="选择院校/部门"
-                />
-              </el-form-item>
-              <el-form-item label="性别">
-                <el-radio-group v-model="form.gender" style="width: 150px">
-                  <el-radio label="男">男</el-radio>
-                  <el-radio label="女">女</el-radio>
-                </el-radio-group>
-              </el-form-item>
-              <el-form-item label="帐号状态">
-                <el-radio-group v-model="form.enabled" style="width: 150px">
-                  <el-radio label="true">启用</el-radio>
-                  <el-radio label="false">停用</el-radio>
-                </el-radio-group>
-              </el-form-item>
-              <el-form-item style="margin-bottom: 0;" label="角色" prop="roles">
-                <el-select
-                  v-model="form.roles"
-                  style="width: 250px"
-                  multiple
-                  placeholder="请选择"
-                  @remove-tag="deleteTag"
-                  @change="changeRole"
-                >
-                  <el-option
-                    v-for="item in roles"
-                    :key="item.name"
-                    :disabled="level !== 1 && item.level <= level"
-                    :label="item.name"
-                    :value="item.id"
+            <el-col :span="22">
+              <el-form ref="form" :inline="true" :model="form" :rules="rules" size="small" label-width="80px">
+                <el-form-item label="用户名" prop="username">
+                  <el-input v-model="form.username" />
+                </el-form-item>
+                <el-form-item label="昵称" prop="nickName">
+                  <el-input v-model="form.nickName" />
+                </el-form-item>
+                <el-form-item label="电话" prop="phone">
+                  <el-input v-model.number="form.phone" />
+                </el-form-item>
+                <el-form-item label="邮箱" prop="email">
+                  <el-input v-model="form.email" />
+                </el-form-item>
+                <el-form-item label="院校/部门" prop="dept.id">
+                  <treeselect
+                    v-model="form.dept.id"
+                    :options="depts"
+                    :load-options="loadDepts"
+                    style="width: 185px"
+                    placeholder="选择院校/部门"
                   />
-                </el-select>
-              </el-form-item>
-            </el-form>
-          </el-col>
-          <span slot="footer" class="dialog-footer">
-            <el-button type="primary" @click="update">确 定</el-button>
-            <el-button @click="closeForm">取 消</el-button>
-          </span>
-        </el-dialog>
-        <el-dialog
-          title="确认删除"
-          :visible.sync="deleteVisible"
-          width="30%"
-          :show-close="false"
-          :destroy-on-close="true"
-        >
-          <el-col :span="22">
-            <span>确认删除选中项？</span>
-          </el-col>
-          <span slot="footer" class="dialog-footer">
-            <el-button type="primary" @click="deleteData">确 定</el-button>
-            <el-button @click="closeForm">取 消</el-button>
-          </span>
-        </el-dialog>
-      </el-card>
-    </el-col>
-    <el-col :span="6">
-      <el-card class="box-card">
-        <div class="head-container">
-          <el-input
-            v-model="deptName"
-            clearable
-            size="small"
-            placeholder="输入院校/部门名称搜索"
-            prefix-icon="el-icon-search"
-            class="filter-item"
-            @input="getDeptDatas"
+                </el-form-item>
+                <el-form-item label="性别">
+                  <el-radio-group v-model="form.gender" style="width: 150px">
+                    <el-radio label="男">男</el-radio>
+                    <el-radio label="女">女</el-radio>
+                  </el-radio-group>
+                </el-form-item>
+                <el-form-item label="角色" prop="roles">
+                  <el-select
+                    v-model="form.roles"
+                    style="width: 185px"
+                    multiple
+                    placeholder="请选择"
+                    @remove-tag="deleteTag"
+                    @change="changeRole"
+                  >
+                    <el-option
+                      v-for="item in roles"
+                      :key="item.name"
+                      :disabled="level !== 1 && item.level <= level"
+                      :label="item.name"
+                      :value="item.id"
+                    />
+                  </el-select>
+                </el-form-item>
+                <el-form-item label="状态">
+                  <el-radio-group v-model="form.enabled" style="width: 150px">
+                    <el-radio label="true">启用</el-radio>
+                    <el-radio label="false">停用</el-radio>
+                  </el-radio-group>
+                </el-form-item>
+              </el-form>
+            </el-col>
+            <span slot="footer" class="dialog-footer">
+              <el-button type="primary" @click="update">确 定</el-button>
+              <el-button @click="closeForm">取 消</el-button>
+            </span>
+          </el-dialog>
+          <el-dialog
+            title="确认删除"
+            :visible.sync="deleteVisible"
+            width="30%"
+            :show-close="false"
+            :destroy-on-close="true"
+          >
+            <el-col :span="22">
+              <span>确认删除选中项？</span>
+            </el-col>
+            <span slot="footer" class="dialog-footer">
+              <el-button type="primary" @click="deleteData">确 定</el-button>
+              <el-button @click="closeForm">取 消</el-button>
+            </span>
+          </el-dialog>
+        </el-card>
+      </el-col>
+      <el-col :span="6">
+        <el-card class="box-card">
+          <div slot="header" class="clearfix">
+            <span>用户所在院校/部门</span>
+          </div>
+          <div class="head-container">
+            <el-input
+              v-model="deptName"
+              clearable
+              size="small"
+              placeholder="输入院校/部门名称搜索"
+              prefix-icon="el-icon-search"
+              class="filter-item"
+              @input="getDeptDatas"
+            />
+          </div>
+          <el-tree
+            :data="depts"
+            :load="getDeptDatas"
+            :props="defaultProps"
+            :expand-on-click-node="false"
+            :highlight-current="true"
+            lazy
+            @node-click="handleNodeClick"
           />
-        </div>
-        <el-tree
-          :data="depts"
-          :load="getDeptDatas"
-          :props="defaultProps"
-          :expand-on-click-node="false"
-          lazy
-          @node-click="handleNodeClick"
-        />
-      </el-card>
-    </el-col>
-  </el-row>
+        </el-card>
+      </el-col>
+    </el-row>
+  </div>
 </template>
 <script>
 // eslint-disable-next-line no-unused-vars
@@ -267,22 +275,18 @@ export default {
   methods: {
     fetchData() {
       this.listLoading = true
+      this.ids = []
       const page = this.currentPage - 1
       const size = this.pagesize
       const sort = 'id,desc'
       const blurry = this.name
       const deptId = this.deptId
       let params = null
-      // if (blurry !== null && blurry !== '') {
-      //   params = { page, size, sort, blurry }
-      // } else {
-      //   params = { page, size, sort }
-      // }
       params = { page, size, sort, blurry, deptId }
       crudUser.get(params).then(response => {
         this.tableData = response.content
         this.total = response.totalElements
-        console.log('search', this.tableData, this.total)
+        // console.log('search', this.tableData, this.total)
         if ((this.currentPage - 1) * this.pagesize >= this.total && this.currentPage > 1) {
           this.currentPage -= 1
           this.fetchData()
@@ -293,13 +297,14 @@ export default {
     search() {
       this.listLoading = true
       this.currentPage = 1
-      console.log('search', this.name.length, this.currentPage)
+      // console.log('search', this.name.length, this.currentPage)
       this.fetchData()
     },
     resetData() {
       this.listLoading = true
       this.currentPage = 1
       this.name = ''
+      this.deptId = null
       this.fetchData()
     },
     update() {
@@ -322,18 +327,18 @@ export default {
             this.form.type = 1
           }
           this.form.roles = this.userRoles
-          console.log('编辑成功!')
-          console.log('form', this.form)
+          // console.log('编辑成功!')
+          // console.log('form', this.form)
           this.listLoading = true
           if (this.form.id === null) {
             crudUser.add(this.form).then(response => {
-              console.log('add', response)
+              // console.log('add', response)
               this.closeForm()
               this.fetchData()
             })
           } else {
             crudUser.edit(this.form).then(response => {
-              console.log('update', response)
+              // console.log('update', response)
               this.closeForm()
               this.fetchData()
             })
@@ -343,7 +348,7 @@ export default {
     },
     deleteData() {
       crudUser.del(this.ids).then(response => {
-        console.log('delete', response)
+        // console.log('delete', response)
         this.fetchData()
       })
       this.closeForm()
@@ -351,17 +356,18 @@ export default {
     closeForm() {
       this.visible = false
       this.deleteVisible = false
+      this.ids = []
       this.form = JSON.parse(JSON.stringify(this.defaultForm))
     },
     handleSizeChange(val) {
-      console.log(`每页 ${val} 条`)
-      console.log(this.pagesize)
+      // console.log(`每页 ${val} 条`)
+      // console.log(this.pagesize)
       this.pagesize = val
       this.fetchData()
     },
     handleCurrentChange(val) {
-      console.log(`当前页: ${val}`)
-      console.log(this.currentPage)
+      // console.log(`当前页: ${val}`)
+      // console.log(this.currentPage)
       this.currentPage = val
       this.fetchData()
     },
@@ -375,14 +381,14 @@ export default {
       }
       this.getRoleLevel()
       this.form.enabled = this.form.enabled.toString()
-      console.log('defaultForm', this.defaultForm)
-      this.dialogTitle = '添加管理员'
-      console.log('form', this.form)
+      // console.log('defaultForm', this.defaultForm)
+      this.dialogTitle = '添加用户'
+      // console.log('form', this.form)
       this.visible = true
     },
     handleEdit(index, row) {
       this.dialogTitle = '编辑信息'
-      console.log(index, row)
+      // console.log(index, row)
       this.form = JSON.parse(JSON.stringify(row))
       this.getRoles()
       if (this.form.id === null) {
@@ -405,7 +411,7 @@ export default {
       this.visible = true
     },
     handleDelete(index, row) {
-      console.log(index, row)
+      // console.log(index, row)
       this.form = JSON.parse(JSON.stringify(row))
       this.ids = [this.form.id]
       this.deleteVisible = true
@@ -498,7 +504,7 @@ export default {
       })
     },
     tableRowClassName({ row, rowIndex }) {
-      console.log(row)
+      // console.log(row)
       if (row.enabled.toString() === 'false') {
         return 'warning-row'
       } else {
@@ -506,13 +512,13 @@ export default {
       }
     },
     handleSelectionChange(val) {
-      console.log('val', val)
+      // console.log('val', val)
       const ids = []
       val.forEach(data => {
         ids.push(data.id)
       })
       this.ids = ids
-      console.log('多选', this.ids)
+      // console.log('多选', this.ids)
     },
     handleNodeClick(data) {
       if (data.pid === 0) {
@@ -528,8 +534,8 @@ export default {
 
 <style lang="scss" scoped>
 .box-card {
-    margin: 15px;
-    width: 95%;
+    // margin: 15px;
+    width: 98%;
 }
 .el-row {
     // margin-top: 10px;

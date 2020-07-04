@@ -66,7 +66,7 @@ const actions = {
     return new Promise((resolve, reject) => {
       getInfo().then(response => {
         // const { data } = response
-        console.log('getInfo', response)
+        // console.log('getInfo', response)
         if (!response) {
           reject('验证失败，请重新登录')
         }

@@ -1,5 +1,5 @@
 <template>
-  <el-row>
+  <div class="app-container">
     <el-card class="box-card">
       <div>
         <el-row>
@@ -18,57 +18,59 @@
         </el-row>
       </div>
       <div>
-        <el-table
-          ref="table"
-          v-loading="listLoading"
-          :data="tableData"
-          style="width: 100%"
-          row-key="id"
-          highlight-current-row
-          @current-change="tableCurrentChange"
-          @selection-change="handleSelectionChange"
-        >
-          <el-table-column
-            type="selection"
-            width="55"
-          />
-          <el-table-column
-            prop="id"
-            label="编号"
-            width="80"
-          />
-          <el-table-column
-            prop="name"
-            label="角色名"
-            width="100"
-          />
-          <el-table-column
-            prop="dataScope"
-            label="数据权限"
-          />
-          <el-table-column
-            prop="level"
-            label="角色级别"
-          />
-          <el-table-column
-            prop="description"
-            label="描述"
-            width="200"
-          />
-          <el-table-column label="操作" width="150" fixed="right">
-            <template slot-scope="scope">
-              <el-button
-                size="mini"
-                @click="handleEdit(scope.$index, scope.row)"
-              >编辑</el-button>
-              <el-button
-                size="mini"
-                type="danger"
-                @click="handleDelete(scope.$index, scope.row)"
-              >删除</el-button>
-            </template>
-          </el-table-column>
-        </el-table>
+        <el-row>
+          <el-table
+            ref="table"
+            v-loading="listLoading"
+            :data="tableData"
+            style="width: 100%"
+            row-key="id"
+            highlight-current-row
+            @current-change="tableCurrentChange"
+            @selection-change="handleSelectionChange"
+          >
+            <el-table-column
+              type="selection"
+              width="55"
+            />
+            <el-table-column
+              prop="id"
+              label="编号"
+              width="80"
+            />
+            <el-table-column
+              prop="name"
+              label="角色名"
+              width="100"
+            />
+            <el-table-column
+              prop="dataScope"
+              label="数据权限"
+            />
+            <el-table-column
+              prop="level"
+              label="角色级别"
+            />
+            <el-table-column
+              prop="description"
+              label="描述"
+              width="200"
+            />
+            <el-table-column label="操作" width="150" fixed="right">
+              <template slot-scope="scope">
+                <el-button
+                  size="mini"
+                  @click="handleEdit(scope.$index, scope.row)"
+                >编辑</el-button>
+                <el-button
+                  size="mini"
+                  type="danger"
+                  @click="handleDelete(scope.$index, scope.row)"
+                >删除</el-button>
+              </template>
+            </el-table-column>
+          </el-table>
+        </el-row>
         <el-row>
           <el-pagination
             background
@@ -121,7 +123,7 @@
                 :load-options="loadDepts"
                 :options="depts"
                 multiple
-                style="width: 450px"
+                style="width: 480px"
                 placeholder="请选择"
               />
             </el-form-item>
@@ -129,9 +131,11 @@
               <treeselect
                 v-model="roleMenus"
                 :options="menus"
+                :default-expand-level="1"
                 :load-options="loadMenus"
+                :value-consists-of="valueConsistsOf"
                 multiple
-                style="width: 450px"
+                style="width: 480px"
                 placeholder="请选择菜单"
               />
             </el-form-item>
@@ -158,7 +162,7 @@
         </span>
       </el-dialog>
     </el-card>
-  </el-row>
+  </div>
 </template>
 <script>
 // eslint-disable-next-line no-unused-vars
@@ -178,6 +182,8 @@ export default {
     return {
       name: '',
       valueConsistsOf: 'ALL',
+      // valueConsistsOf: 'BRANCH_PRIORITY',
+      // valueConsistsOf: 'ALL_WITH_INDETERMINATE',
       visible: false,
       deleteVisible: false,
       save: false,
@@ -219,6 +225,7 @@ export default {
   },
   methods: {
     fetchData() {
+      this.ids = []
       this.listLoading = true
       const page = this.currentPage - 1
       const size = this.pagesize
@@ -356,6 +363,7 @@ export default {
     closeForm() {
       this.visible = false
       this.deleteVisible = false
+      this.ids = []
       this.form = JSON.parse(JSON.stringify(this.defaultForm))
     },
     setTreeData(source, id) {
@@ -522,12 +530,12 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.box-card {
-    margin: 15px;
-    width: 95%;
-}
+// .box-card {
+//     margin: 15px;
+//     width: 100%;
+// }
 .el-row {
-    margin-top: 10px;
+    // margin-top: 10px;
     margin-bottom: 10px;
     &:last-child {
     margin-bottom: 0;

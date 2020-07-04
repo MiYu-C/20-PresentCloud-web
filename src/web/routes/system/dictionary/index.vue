@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="app-container">
     <el-row>
       <el-col :span="12">
         <el-card class="box-card">
@@ -21,42 +21,44 @@
             </el-row>
           </div>
           <div>
-            <el-table
-              v-loading="tableLoading"
-              :data="tableData"
-              style="width: 100%"
-              row-key="id"
-              lazy
-              highlight-current-row
-              @current-change="tableCurrentChange"
-              @selection-change="handleSelectionChange"
-            >
-              <el-table-column
-                type="selection"
-                width="50"
-              />
-              <el-table-column
-                prop="name"
-                label="字典名"
-              />
-              <el-table-column
-                prop="description"
-                label="描述"
-              />
-              <el-table-column label="操作" width="150">
-                <template slot-scope="scope">
-                  <el-button
-                    size="mini"
-                    @click="handleEdit(scope.$index, scope.row)"
-                  >编辑</el-button>
-                  <el-button
-                    size="mini"
-                    type="danger"
-                    @click="handleDelete(scope.$index, scope.row)"
-                  >删除</el-button>
-                </template>
-              </el-table-column>
-            </el-table>
+            <el-row>
+              <el-table
+                v-loading="tableLoading"
+                :data="tableData"
+                style="width: 100%"
+                row-key="id"
+                lazy
+                highlight-current-row
+                @current-change="tableCurrentChange"
+                @selection-change="handleSelectionChange"
+              >
+                <el-table-column
+                  type="selection"
+                  width="50"
+                />
+                <el-table-column
+                  prop="name"
+                  label="字典名"
+                />
+                <el-table-column
+                  prop="description"
+                  label="描述"
+                />
+                <el-table-column label="操作" width="150">
+                  <template slot-scope="scope">
+                    <el-button
+                      size="mini"
+                      @click="handleEdit(scope.$index, scope.row)"
+                    >编辑</el-button>
+                    <el-button
+                      size="mini"
+                      type="danger"
+                      @click="handleDelete(scope.$index, scope.row)"
+                    >删除</el-button>
+                  </template>
+                </el-table-column>
+              </el-table>
+            </el-row>
             <el-row>
               <el-pagination
                 background
@@ -270,15 +272,16 @@ export default {
   methods: {
     fetchData() {
       this.tableLoading = true
+      this.ids = []
       const page = this.currentPage - 1
       const size = this.pagesize
       const sort = 'id,desc'
       const blurry = this.name
       crudDicts.getDicts(page, size, sort, blurry).then(response => {
-        console.log(response)
+        // console.log(response)
         this.tableData = response.content
         this.total = response.totalElements
-        console.log('search', this.tableData, this.total)
+        // console.log('search', this.tableData, this.total)
         if ((this.currentPage - 1) * this.pagesize >= this.total && this.currentPage > 1) {
           this.currentPage -= 1
           this.fetchData()
@@ -292,7 +295,7 @@ export default {
       } else {
         this.tableLoading = true
         this.currentPage = 1
-        console.log('search', this.name.length, this.currentPage)
+        // console.log('search', this.name.length, this.currentPage)
         this.fetchData()
       }
     },
@@ -444,6 +447,7 @@ export default {
         this.visible = false
         this.deleteVisible = false
       }
+      this.ids = []
       this.row = JSON.parse(JSON.stringify(this.form))
       this.form = JSON.parse(JSON.stringify(this.defaultForm))
     },
@@ -462,8 +466,8 @@ export default {
 
 <style lang="scss" scoped>
 .box-card {
-    margin: 15px;
-    width: 95%;
+    // margin: 15px;
+    width: 97%;
 }
 .el-row {
     // margin-top: 10px;

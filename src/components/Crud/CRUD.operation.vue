@@ -17,7 +17,6 @@
         slot="reference"
         class="filter-item"
         type="danger"
-        icon="el-icon-delete"
         size="small"
         :loading="crud.delAllLoading"
         :disabled="crud.selections.length === 0"
@@ -27,7 +26,7 @@
       </el-button>
       <slot name="right" />
     </span>
-    <el-button-group class="crud-opts-right">
+    <!-- <el-button-group class="crud-opts-right">
       <el-button
         size="small"
         plain
@@ -40,7 +39,7 @@
         icon="el-icon-refresh"
         @click="crud.refresh()"
       />
-    </el-button-group>
+    </el-button-group> -->
   </div>
 </template>
 <script>

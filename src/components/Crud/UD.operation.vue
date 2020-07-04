@@ -1,14 +1,31 @@
 <template>
   <div>
     <el-button :loading="crud.status.cu === 2" :disabled="disabledEdit" size="mini" @click="crud.toEdit(data)">编辑</el-button>
-    <el-popover v-model="pop" placement="top" width="180" trigger="manual" @show="onPopoverShow" @hide="onPopoverHide">
+    <el-button slot="reference" :disabled="disabledDle" type="danger" size="mini" @click="deleteVisible = true">删除</el-button>
+    <!-- <el-popover v-model="pop" placement="top" width="180" trigger="manual" @show="onPopoverShow" @hide="onPopoverHide">
       <p>{{ msg }}</p>
       <div style="text-align: right; margin: 0">
         <el-button size="mini" type="text" @click="doCancel">取消</el-button>
         <el-button :loading="crud.dataStatus[crud.getDataId(data)].delete === 2" type="primary" size="mini" @click="crud.doDelete(data)">确定</el-button>
       </div>
       <el-button slot="reference" :disabled="disabledDle" type="danger" size="mini" @click="toDelete">删除</el-button>
-    </el-popover>
+    </el-popover> -->
+    <div style="display: inline-block;">
+      <el-dialog
+        title="确认删除"
+        :visible.sync="deleteVisible"
+        width="30%"
+        :append-to-body="true"
+        :show-close="false"
+        :destroy-on-close="true"
+      >
+        <span>确认删除选中项？</span>
+        <span slot="footer" class="dialog-footer">
+          <el-button type="primary" @click="crud.doDelete(data)">确 定</el-button>
+          <el-button @click="doCancel">取 消</el-button>
+        </span>
+      </el-dialog>
+    </div>
   </div>
 </template>
 <script>
@@ -35,12 +52,14 @@ export default {
   },
   data() {
     return {
+      deleteVisible: false,
       pop: false
     }
   },
   methods: {
     doCancel() {
       this.pop = false
+      this.deleteVisible = false
       this.crud.cancelDelete(this.data)
     },
     toDelete() {
@@ -49,6 +68,7 @@ export default {
     [CRUD.HOOK.afterDelete](crud, data) {
       if (data === this.data) {
         this.pop = false
+        this.deleteVisible = false
       }
     },
     onPopoverShow() {
@@ -61,6 +81,7 @@ export default {
     },
     handleDocumentClick(event) {
       this.pop = false
+      this.deleteVisible = false
     }
   }
 }

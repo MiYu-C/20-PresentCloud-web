@@ -8,7 +8,7 @@ import request from '@/web/utils/request'
 //   })
 // }
 
-export function getList1(name) {
+export function getList(name) {
   return request({
     url: '/present-cloud/present/data',
     method: 'get',
@@ -16,7 +16,7 @@ export function getList1(name) {
   })
 }
 
-export function updateList1(form) {
+export function updateList(form) {
   return request({
     url: '/present-cloud/present/update',
     method: 'put',
@@ -24,7 +24,7 @@ export function updateList1(form) {
   })
 }
 
-export function deleteItem1(form) {
+export function deleteItem(form) {
   return request({
     url: '/present-cloud/present/delete',
     method: 'delete',
@@ -32,7 +32,7 @@ export function deleteItem1(form) {
   })
 }
 
-export function addItem1(form) {
+export function addItem(form) {
   return request({
     url: '/present-cloud/present/add',
     method: 'post',
@@ -40,7 +40,7 @@ export function addItem1(form) {
   })
 }
 
-export function isExist1(id, name) {
+export function isExist(id, name) {
   return request({
     url: '/present-cloud/present/exist',
     method: 'get',
@@ -55,4 +55,6 @@ export function level_isExist(id, level) {
     params: { id, level }
   })
 }
+
+export default { getList, updateList, addItem, deleteItem, isExist, level_isExist }
 

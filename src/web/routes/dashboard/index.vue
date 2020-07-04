@@ -92,6 +92,7 @@ export default {
   },
   created() {
     this.getCookie()
+    console.log('123', this.$store.getters.permission_routers)
   },
   methods: {
     // handleSetLineChartData(type) {
