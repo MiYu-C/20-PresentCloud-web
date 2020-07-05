@@ -339,7 +339,12 @@ export default {
     },
     handleEdit(index, row) {
       this.dialogTitle = '编辑字典'
-      this.form = JSON.parse(JSON.stringify(row))
+      this.form = JSON.parse(JSON.stringify(this.defaultForm))
+      this.form = {
+        id: row.id,
+        name: row.name,
+        description: row.description
+      }
       this.formLoading = true
       crudDict.get(this.form.name).then(response => {
         this.formlableData = response.content
@@ -443,17 +448,15 @@ export default {
         crudDict.get(this.form.name).then(response => {
           this.lableData = response.content
           this.labelLoading = false
-          this.visible = false
-          this.deleteVisible = false
         })
       } else {
         this.lableData = []
-        this.visible = false
-        this.deleteVisible = false
       }
       this.ids = []
       this.row = JSON.parse(JSON.stringify(this.form))
       this.form = JSON.parse(JSON.stringify(this.defaultForm))
+      this.visible = false
+      this.deleteVisible = false
     },
     handleSelectionChange(val) {
       const ids = []
