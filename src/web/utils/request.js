@@ -28,7 +28,7 @@ service.interceptors.request.use(
   },
   error => {
     // do something with request error
-    console.log(error) // for debug
+    // console.log(error) // for debug
     return Promise.reject(error)
   }
 )
@@ -47,10 +47,10 @@ service.interceptors.response.use(
    */
   response => {
     const res = response.data
-    console.log('res:', res)
+    // console.log('res:', res)
     // if the custom code is not null, it is judged as an error.
     if (res.status && res.status !== 20000) {
-      console.log('res.message', res.message)
+      // console.log('res.message', res.message)
       Message({
         message: res.message || 'Error',
         type: 'error',
@@ -76,7 +76,7 @@ service.interceptors.response.use(
     }
   },
   error => {
-    console.log('err:' + error) // for debug
+    // console.log('err:' + error) // for debug
     let resCode = 0
     try {
       resCode = error.response.data.status
@@ -107,7 +107,7 @@ service.interceptors.response.use(
         const errorMsg = error.response.data.message
         if (errorMsg !== undefined) {
           Notification.error({
-            title: errorMsg,
+            title: errorMsg.length < 20 ? errorMsg : '未知异常',
             duration: 5000
           })
         }

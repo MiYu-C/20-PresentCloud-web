@@ -13,3 +13,19 @@ export function updatePass(pass) {
     method: 'get'
   })
 }
+
+export function sendCode(data) {
+  return request({
+    url: 'api/users/emailCode',
+    method: 'post',
+    data
+  })
+}
+
+export function checkCode(data) {
+  return request({
+    url: 'api/code/validated',
+    method: 'post',
+    data
+  })
+}

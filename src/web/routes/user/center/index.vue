@@ -80,7 +80,6 @@ export default {
     ])
   },
   created() {
-    console.log('userCenter', this.user)
     this.form = { id: this.user.id, username: this.user.username, nickName: this.user.nickName, gender: this.user.gender, phone: this.user.phone, email: this.user.email }
     this.$store.dispatch('user/getInfo').then(() => {})
   },

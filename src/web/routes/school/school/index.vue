@@ -1,7 +1,6 @@
 <template>
   <el-card class="box-card">
     <div class="head-container">
-      <!-- 顶部菜单 -->
       <div v-if="crud.props.searchToggle">
         <span>院校名：</span>
         <el-input
@@ -16,7 +15,6 @@
       </div>
       <crudOperation />
     </div>
-    <!-- 对话框 -->
     <el-dialog
       append-to-body
       :close-on-click-modal="false"
@@ -57,7 +55,6 @@
         <el-button @click="crud.cancelCU">取消</el-button>
       </div>
     </el-dialog>
-    <!-- 表格 -->
     <el-table
       ref="table"
       v-loading="crud.loading"
@@ -88,7 +85,6 @@
         </template>
       </el-table-column>
     </el-table>
-    <!-- 翻页组件 -->
     <Pagination :message="crud.page.total" :type="type" @func="getMsg" />
   </el-card>
 </template>
@@ -114,7 +110,7 @@ const defaultForm = {
   enabled: 'true'
 }
 export default {
-  name: 'Dept',
+  name: 'School',
   components: {
     Treeselect,
     crudOperation,

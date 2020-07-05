@@ -25,7 +25,7 @@ export function add(data) {
 
 export function del(ids) {
   return request({
-    url: 'api/course/',
+    url: 'api/course',
     method: 'delete',
     data: ids
   })

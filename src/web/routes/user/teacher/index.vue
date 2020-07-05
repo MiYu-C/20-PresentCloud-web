@@ -158,7 +158,7 @@
           <el-dialog
             title="确认删除"
             :visible.sync="deleteVisible"
-            width="30%"
+            width="400px"
             :show-close="false"
             :destroy-on-close="true"
           >
@@ -213,10 +213,10 @@ import { LOAD_CHILDREN_OPTIONS } from '@riophae/vue-treeselect'
 import { Notification } from 'element-ui'
 
 export default {
+  name: 'User',
   components: { Treeselect },
   data() {
     const accountValidate = (rule, value, callback) => {
-      console.log('isExist', this.form.id, this.form.account)
       if (this.form.account === '') {
         callback('不能为空')
       }
@@ -286,7 +286,6 @@ export default {
       crudUser.get(params).then(response => {
         this.tableData = response.content
         this.total = response.totalElements
-        // console.log('search', this.tableData, this.total)
         if ((this.currentPage - 1) * this.pagesize >= this.total && this.currentPage > 1) {
           this.currentPage -= 1
           this.fetchData()
@@ -297,7 +296,6 @@ export default {
     search() {
       this.listLoading = true
       this.currentPage = 1
-      // console.log('search', this.name.length, this.currentPage)
       this.fetchData()
     },
     resetData() {
@@ -327,8 +325,6 @@ export default {
             this.form.type = 1
           }
           this.form.roles = this.userRoles
-          // console.log('编辑成功!')
-          // console.log('form', this.form)
           this.listLoading = true
           if (this.form.id === null) {
             crudUser.add(this.form).then(response => {
@@ -366,18 +362,15 @@ export default {
       this.form = JSON.parse(JSON.stringify(this.defaultForm))
     },
     handleSizeChange(val) {
-      // console.log(`每页 ${val} 条`)
-      // console.log(this.pagesize)
       this.pagesize = val
       this.fetchData()
     },
     handleCurrentChange(val) {
-      // console.log(`当前页: ${val}`)
-      // console.log(this.currentPage)
       this.currentPage = val
       this.fetchData()
     },
     handleAdd() {
+      this.dialogTitle = '添加用户'
       this.form = JSON.parse(JSON.stringify(this.defaultForm))
       this.getRoles()
       if (this.form.id === null) {
@@ -387,14 +380,10 @@ export default {
       }
       this.getRoleLevel()
       this.form.enabled = this.form.enabled.toString()
-      // console.log('defaultForm', this.defaultForm)
-      this.dialogTitle = '添加用户'
-      // console.log('form', this.form)
       this.visible = true
     },
     handleEdit(index, row) {
-      this.dialogTitle = '编辑信息'
-      // console.log(index, row)
+      this.dialogTitle = '编辑用户信息'
       this.form = JSON.parse(JSON.stringify(row))
       this.getRoles()
       if (this.form.id === null) {
@@ -417,7 +406,6 @@ export default {
       this.visible = true
     },
     handleDelete(index, row) {
-      // console.log(index, row)
       this.form = JSON.parse(JSON.stringify(row))
       this.ids = [this.form.id]
       this.deleteVisible = true
@@ -510,7 +498,6 @@ export default {
       })
     },
     tableRowClassName({ row, rowIndex }) {
-      // console.log(row)
       if (row.enabled.toString() === 'false') {
         return 'warning-row'
       } else {
@@ -518,13 +505,11 @@ export default {
       }
     },
     handleSelectionChange(val) {
-      // console.log('val', val)
       const ids = []
       val.forEach(data => {
         ids.push(data.id)
       })
       this.ids = ids
-      // console.log('多选', this.ids)
     },
     handleNodeClick(data) {
       if (data.pid === 0) {

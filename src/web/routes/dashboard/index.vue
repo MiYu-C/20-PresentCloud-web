@@ -2,102 +2,50 @@
   <div class="dashboard-editor-container">
     <el-card>
       <div slot="header" class="text">
-        <span>欢迎：{{ username }}</span>
+        <span>到云签到后台简单说明，登录用户：{{ username }}</span>
       </div>
-      <!-- <panel-group @handleSetLineChartData="handleSetLineChartData" /> -->
-      <!-- <panel-group /> -->
-      <!-- <el-row style="background:#fff;padding:16px 16px 0;margin-bottom:32px;">
-      <line-chart :chart-data="lineChartData" />
-    </el-row> -->
-
-      <el-row :gutter="32">
-        <!-- <el-col :xs="24" :sm="24" :lg="8">
-        <div class="chart-wrapper">
-          <raddar-chart />
-        </div>
-      </el-col>
-      <el-col :xs="24" :sm="24" :lg="8">
-        <div class="chart-wrapper">
-          <pie-chart />
-        </div>
-      </el-col> -->
-        <el-col>
-          <div class="chart-wrapper">
-            <!-- <bar-chart /> -->
-          </div>
-        </el-col>
-      </el-row>
-
-    <!-- <el-row :gutter="8">
-      <el-col :xs="{span: 24}" :sm="{span: 24}" :md="{span: 24}" :lg="{span: 12}" :xl="{span: 12}" style="padding-right:8px;margin-bottom:30px;">
-        <transaction-table />
-      </el-col>
-      <el-col :xs="{span: 24}" :sm="{span: 12}" :md="{span: 12}" :lg="{span: 6}" :xl="{span: 6}" style="margin-bottom:30px;">
-        <todo-list />
-      </el-col>
-      <el-col :xs="{span: 24}" :sm="{span: 12}" :md="{span: 12}" :lg="{span: 6}" :xl="{span: 6}" style="margin-bottom:30px;">
-        <box-card />
-      </el-col>
-    </el-row> -->
+      <el-collapse>
+        <el-collapse-item title="右上角" name="1">
+          <div>个人中心</div>
+          <div>退出登录</div>
+        </el-collapse-item>
+        <el-collapse-item title="静态界面" name="2">
+          <div>静态保存菜单路由，里面菜单的显示不受角色权限控制</div>
+        </el-collapse-item>
+      </el-collapse>
+      <el-carousel height="350px" type="card">
+        <el-carousel-item v-for="item in 3" :key="item">
+          <el-image
+            :src="require('@/web/routes/dashboard/images/'+ item +'.png')"
+            fit="scale-down"
+          />
+        </el-carousel-item>
+      </el-carousel>
     </el-card>
   </div>
 </template>
 
 <script>
-// import GithubCorner from '@/components/GithubCorner'
-// import PanelGroup from './components/PanelGroup'
-// import LineChart from './components/LineChart'
-// import RaddarChart from './components/RaddarChart'
-// import PieChart from './components/PieChart'
-// import BarChart from './components/BarChart'
-// import TransactionTable from './components/TransactionTable'
-// import TodoList from './components/TodoList'
-// import BoxCard from './components/BoxCard'
-// const lineChartData = {
-//   newVisitis: {
-//     expectedData: [100, 120, 161, 134, 105, 160, 165]
-//   },
-//   messages: {
-//     expectedData: [200, 192, 120, 144, 160, 130, 140],
-//     actualData: [180, 160, 151, 106, 145, 150, 130]
-//   },
-//   purchases: {
-//     expectedData: [80, 100, 121, 104, 105, 90, 100],
-//     actualData: [120, 90, 100, 138, 142, 130, 130]
-//   },
-//   shoppings: {
-//     expectedData: [130, 140, 141, 142, 145, 150, 160],
-//     actualData: [120, 82, 91, 154, 162, 140, 130]
-//   }
-// }
+
 import Cookies from 'js-cookie'
 
 export default {
   name: 'DashboardAdmin',
-  components: {
-    // GithubCorner,
-    // PanelGroup,
-    // LineChart,
-    // RaddarChart,
-    // PieChart,
-    // BarChart
-    // TransactionTable,
-    // TodoList,
-    // BoxCard
-  },
   data() {
     return {
-      username: 'user'
+      username: 'user',
+      value: new Date(),
+      url: [
+        '@/web/routes/dashboard/images/login.png',
+        '@/web/routes/dashboard/images/login.png',
+        '@/web/routes/dashboard/images/login.png'
+      ]
     }
   },
   created() {
     this.getCookie()
-    console.log('123', this.$store.getters.permission_routers)
   },
   methods: {
-    // handleSetLineChartData(type) {
-    //   this.lineChartData = lineChartData[type]
-    // }
     getCookie() {
       this.username = Cookies.get('username')
     }
@@ -110,17 +58,6 @@ export default {
   padding: 32px;
   background-color: rgb(240, 242, 245);
   position: relative;
-  .github-corner {
-    position: absolute;
-    top: 0px;
-    border: 0;
-    right: 0;
-  }
-  .chart-wrapper {
-    background: #fff;
-    padding: 16px 16px 0;
-    margin-bottom: 32px;
-  }
 }
 .text {
     font-size: 25px;

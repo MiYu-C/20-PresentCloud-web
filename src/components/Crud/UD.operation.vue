@@ -14,7 +14,7 @@
       <el-dialog
         title="确认删除"
         :visible.sync="deleteVisible"
-        width="30%"
+        width="400px"
         :append-to-body="true"
         :show-close="false"
         :destroy-on-close="true"

@@ -161,7 +161,7 @@
       <el-dialog
         title="选择图标"
         :visible.sync="iconVisible"
-        width="50%"
+        width="600px"
         :show-close="false"
         :destroy-on-close="true"
       >
@@ -290,7 +290,6 @@ export default {
     },
     // 选中图标
     selected(name) {
-      console.log('icon', name)
       this.form.icon = name
     },
     // 读取图标文件
@@ -301,10 +300,8 @@ export default {
       this.icons = requireAll(req).map(i => {
         return i.match(re)[1]
       })
-      console.log('icons', this.icons)
     },
     selectIcon(icon) {
-      console.log('icon', this.icon)
       this.form.icon = icon
       this.iconVisible = false
     }

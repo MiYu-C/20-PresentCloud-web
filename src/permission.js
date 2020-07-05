@@ -33,8 +33,8 @@ router.beforeEach(async(to, from, next) => {
         store.dispatch('user/getInfo').then(res => { // 拉取user_info
           // 动态路由，拉取菜单
           loadMenus(next, to)
-        }).catch((err) => {
-          console.log(err)
+        }).catch(() => {
+          // console.log(err)
           store.dispatch('user/resetToken').then(() => {
             location.reload() // 为了重新实例化vue-router对象 避免bug
           })

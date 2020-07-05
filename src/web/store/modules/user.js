@@ -55,7 +55,7 @@ const actions = {
         setUserInfo(response.user, commit)
         resolve()
       }).catch(error => {
-        console.log('loginErr', error)
+        // console.log('loginErr', error)
         reject(error)
       })
     })

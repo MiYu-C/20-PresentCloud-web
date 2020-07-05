@@ -7,7 +7,7 @@
       </div>
 
       <el-tabs v-model="activeName">
-        <el-tab-pane label="手机号码登录" name="phone">
+        <!-- <el-tab-pane label="手机号码登录" name="phone">
           <el-form-item prop="phone">
             <el-input
               ref="phone"
@@ -33,7 +33,7 @@
               <el-button slot="append" :disabled="resend" @click="sendCode">{{ codeStatus }}</el-button>
             </el-input>
           </el-form-item>
-        </el-tab-pane>
+        </el-tab-pane> -->
         <el-tab-pane label="帐号密码登录" name="username">
           <el-form-item prop="username">
             <!-- <span class="svg-container">
@@ -42,7 +42,7 @@
             <el-input
               ref="username"
               v-model="loginForm.username"
-              placeholder="账户"
+              placeholder="输入帐号/手机号/邮箱进行登录"
               name="username"
               type="text"
               tabindex="1"
@@ -105,16 +105,13 @@
     >
       <el-col :span="22">
         <el-form ref="ruleForm" :model="ruleForm" :rules="rules" label-position="right">
-          <el-form-item label="帐号" :label-width="formLabelWidth" prop="user">
-            <el-input v-model="ruleForm.user" placeholder="请输入帐号" clearable />
-          </el-form-item>
-          <el-form-item label="手机号" :label-width="formLabelWidth" prop="phone">
-            <el-input v-model="ruleForm.phone" placeholder="请输入手机号" clearable />
-          </el-form-item>
-          <el-form-item label="验证码" :label-width="formLabelWidth" prop="code">
-            <el-input v-model="ruleForm.code" placeholder="请输入验证码" clearable>
+          <el-form-item label="邮箱" :label-width="formLabelWidth" prop="email">
+            <el-input v-model="ruleForm.email" placeholder="请输入邮箱" clearable >
               <el-button slot="append" :disabled="resend" @click="sendCode">{{ codeStatus }}</el-button>
             </el-input>
+          </el-form-item>
+          <el-form-item label="验证码" :label-width="formLabelWidth" prop="code">
+            <el-input v-model="ruleForm.code" placeholder="请输入验证码" clearable />
           </el-form-item>
           <el-form-item label="新密码" :label-width="formLabelWidth" prop="password">
             <el-input v-model="ruleForm.password" placeholder="请输入新密码" clearable />
@@ -138,7 +135,9 @@ import Cookies from 'js-cookie'
 import Config from '@/settings'
 // eslint-disable-next-line no-unused-vars
 import { encrypt, decrypt } from '@/web/utils/rsaEncrypt'
-import { getCode, changePassword } from '@/web/api/user'
+import { changePassword } from '@/web/api/user'
+import { sendCode, checkCode } from '@/web/api/code'
+import { validEmail } from '@/web/utils/validate'
 import { removeToken } from '@/web/utils/auth'
 
 export default {
@@ -150,6 +149,17 @@ export default {
         callback(new Error('请输入正确的用户名'))
       } else {
         callback()
+      }
+    }
+    const validMail = (rule, value, callback) => {
+      if (value === '' || value === null) {
+        callback(new Error('新邮箱不能为空'))
+      } else if (value === this.email) {
+        callback(new Error('新邮箱不能与旧邮箱相同'))
+      } else if (validEmail(value)) {
+        callback()
+      } else {
+        callback(new Error('邮箱格式错误'))
       }
     }
     const password_re = (rule, value, callback) => {
@@ -182,18 +192,14 @@ export default {
         ]
       },
       ruleForm: {
-        user: '',
-        phone: '',
+        email: '',
         code: '',
         password: '',
         password_re: ''
       },
       rules: {
-        user: [
-          { required: true, message: '请输入帐号', trigger: 'blur' }
-        ],
-        phone: [
-          { required: true, message: '请输入手机号', trigger: 'blur' }
+        email: [
+          { required: true, validator: validMail, trigger: 'blur' }
         ],
         code: [
           { required: true, message: '请输入验证码', trigger: 'blur' }
@@ -259,38 +265,67 @@ export default {
       this.findPwdVisible = true
     },
     sendCode() {
-      this.resend = !this.resend
-      const TIME_COUNT = 6
-      let count = TIME_COUNT
-      this.codeStatus = count.toString() + '秒'
-      getCode().then(response => {
-        this.ruleForm.code = response.data
-        // console.log('code', this.ruleForm.code)
-      })
-      let timer = setInterval(() => {
-        if (count > 0 && count <= TIME_COUNT) {
-          count--
-          this.codeStatus = count.toString() + '秒'
-        } else {
-          this.codeStatus = '获取验证码'
-          this.resend = !this.resend
-          clearInterval(timer)
-          timer = null
-        }
-      }, 1000)
-      console.log(this.resend)
+      if (this.ruleForm.email) {
+        this.resend = !this.resend
+        const TIME_COUNT = 60
+        let count = TIME_COUNT
+        this.codeStatus = count.toString() + '秒'
+        const codeData = { type: 'email', value: this.ruleForm.email }
+        codeData.value
+        sendCode(codeData).then(response => {
+          this.$message({
+            showClose: true,
+            message: '发送成功，验证码有效期5分钟',
+            type: 'success'
+          })
+          let timer = setInterval(() => {
+            if (count > 0 && count <= TIME_COUNT) {
+              count--
+              this.codeStatus = count.toString() + '秒'
+            } else {
+              this.codeStatus = '获取验证码'
+              this.resend = !this.resend
+              clearInterval(timer)
+              timer = null
+            }
+          }, 1000)
+        }).catch(() => {
+        })
+      } else {
+        this.$message({
+          showClose: true,
+          message: '请输入邮箱',
+          type: 'error'
+        })
+      }
     },
     changePassword() {
       this.$refs.ruleForm.validate(valid => {
-        if (valid) {
-          changePassword(this.ruleForm).then(response => {
-            this.closeForm()
-            removeToken()
-            Cookies.remove('password')
-            this.getCookie()
-            console.log('status', response.data)
-          })
+        this.ruleForm.password = encrypt(this.ruleForm.password)
+        const verification = {
+          code: this.ruleForm.code,
+          type: 'email',
+          scenes: '重置密码',
+          value: this.ruleForm.email
         }
+        checkCode(verification).then(response => {
+          if (valid) {
+            const info = {
+              email: this.ruleForm.email,
+              password: this.ruleForm.password
+            }
+            changePassword(info).then(response => {
+              this.closeForm()
+              removeToken()
+              Cookies.remove('password')
+            })
+          }
+        }).catch(() => {
+          this.$message({
+            message: '验证码错误',
+            type: 'warning'
+          })
+        })
       })
     },
     handleLogin(loginWays) {
@@ -305,9 +340,7 @@ export default {
           }
           if (user.password !== this.cookiePass) {
             user.password = encrypt(user.password)
-            console.log('password', user.password)
           }
-          console.log('valid', valid)
           if (valid) {
             this.loading = true
             Cookies.set('username', user.username, { expires: Config.passCookieExpires })
@@ -320,11 +353,9 @@ export default {
               this.$router.push({ path: this.redirect || '/' })
               this.loading = false
             }).catch(() => {
-              console.log('redirect', this.redirect)
               this.loading = false
             })
           } else {
-            console.log('error submit!!')
             return false
           }
         })

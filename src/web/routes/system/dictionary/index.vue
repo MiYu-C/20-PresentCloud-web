@@ -115,7 +115,7 @@
     <el-dialog
       title="确认删除"
       :visible.sync="deleteVisible"
-      width="30%"
+      width="400px"
       :show-close="false"
       :destroy-on-close="true"
     >
@@ -128,7 +128,7 @@
       </span>
     </el-dialog>
     <el-dialog
-      title="编辑字典"
+      :title="dialogTitle"
       :visible.sync="visible"
       width="660px"
       :show-close="false"
@@ -230,10 +230,12 @@ import crudDicts from '@/web/api/dicts'
 import { Notification } from 'element-ui'
 
 export default {
+  name: 'Dictionary',
   data() {
     return {
       total: 0,
       name: '',
+      dialogTitle: '',
       pagesizes: [5, 10, 15, 20],
       pagesize: 5,
       currentPage: 1,
@@ -279,10 +281,8 @@ export default {
       const sort = 'id,desc'
       const blurry = this.name
       crudDicts.getDicts(page, size, sort, blurry).then(response => {
-        // console.log(response)
         this.tableData = response.content
         this.total = response.totalElements
-        // console.log('search', this.tableData, this.total)
         if ((this.currentPage - 1) * this.pagesize >= this.total && this.currentPage > 1) {
           this.currentPage -= 1
           this.fetchData()
@@ -296,7 +296,6 @@ export default {
       } else {
         this.tableLoading = true
         this.currentPage = 1
-        // console.log('search', this.name.length, this.currentPage)
         this.fetchData()
       }
     },
@@ -310,7 +309,6 @@ export default {
       this.fetchData()
     },
     tableCurrentChange(val) {
-      console.log(`第 ${val.id} 条`)
       this.row = val
       this.labelLoading = true
       crudDict.get(val.name).then(response => {
@@ -319,35 +317,28 @@ export default {
       })
     },
     handleSizeChange(val) {
-      console.log(`每页 ${val} 条`)
-      console.log(this.pagesize)
       this.pagesize = val
       this.fetchData()
     },
     handleCurrentChange(val) {
-      console.log(`当前页: ${val}`)
-      console.log(this.currentPage)
       this.currentPage = val
       this.row = JSON.parse(JSON.stringify(this.defaultForm))
       this.fetchData()
     },
     handleAdd() {
-      console.log('defaultForm', this.defaultForm)
+      this.dialogTitle = '新增字典'
       this.form = JSON.parse(JSON.stringify(this.defaultForm))
       this.formlableData = []
-      console.log('form', this.form)
       this.visible = true
     },
     handleLabelAdd() {
-      console.log('defaultlabelForm', this.defaultlabelForm)
+      this.dialogTitle = '新增字典详情'
       this.labelForm = JSON.parse(JSON.stringify(this.defaultlabelForm))
       this.labelForm.dict.id = this.form.id
-      console.log('labelForm', this.labelForm)
       this.visibleLabel = true
     },
     handleEdit(index, row) {
       this.dialogTitle = '编辑字典'
-      console.log(index, row)
       this.form = JSON.parse(JSON.stringify(row))
       this.formLoading = true
       crudDict.get(this.form.name).then(response => {
@@ -358,18 +349,15 @@ export default {
     },
     handleLabelEdit(index, row) {
       this.dialogTitle = '编辑字典详情'
-      console.log(index, row)
       this.labelForm = JSON.parse(JSON.stringify(row))
       this.visibleLabel = true
     },
     handleDelete(index, row) {
-      console.log(index, row)
       this.form = JSON.parse(JSON.stringify(row))
       this.ids = [this.form.id]
       this.deleteVisible = true
     },
     handleLabelDelete(index, row) {
-      console.log(index, row)
       this.labelForm = JSON.parse(JSON.stringify(row))
       this.formLoading = true
       crudDict.del(this.labelForm.id).then(response => {
@@ -385,8 +373,6 @@ export default {
     update() {
       this.$refs['form'].validate((valid) => {
         if (valid) {
-          // console.log('验证成功!')
-          // console.log('form', this.form)
           this.listLoading = true
           if (this.form.id === null) {
             crudDicts.add(this.form).then(response => {
@@ -441,7 +427,6 @@ export default {
     deleteData() {
       crudDicts.del(this.ids).then(response => {
         this.ids = []
-        console.log('delete', response)
         this.deleteVisible = false
         this.form = JSON.parse(JSON.stringify(this.defaultForm))
         this.row = JSON.parse(JSON.stringify(this.defaultForm))
@@ -456,7 +441,6 @@ export default {
       if (this.form.id !== null) {
         this.labelLoading = true
         crudDict.get(this.form.name).then(response => {
-          console.log('closeForm', this.lableData)
           this.lableData = response.content
           this.labelLoading = false
           this.visible = false
@@ -472,13 +456,11 @@ export default {
       this.form = JSON.parse(JSON.stringify(this.defaultForm))
     },
     handleSelectionChange(val) {
-      console.log('val', val)
       const ids = []
       val.forEach(data => {
         ids.push(data.id)
       })
       this.ids = ids
-      console.log('多选', this.ids)
     },
     notifiSuccess(title) {
       Notification.success({

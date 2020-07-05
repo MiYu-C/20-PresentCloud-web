@@ -45,7 +45,12 @@
               min-width="140px"
               label="归属院校"
               align="center"
-            />
+            >
+              <template slot-scope="scope">
+                {{ scope.row.school }}
+                {{ scope.row.college.name }}
+              </template>
+            </el-table-column>
             <el-table-column label="操作" width="170">
               <template slot-scope="scope">
                 <el-button
@@ -91,6 +96,7 @@
                 v-model="form.college.id"
                 :options="colleges"
                 :load-options="loadColleges"
+                :disable-branch-nodes="true"
                 style="width: 370px"
                 placeholder="选择院校"
               />
@@ -103,9 +109,9 @@
         </span>
       </el-dialog>
       <el-dialog
-        :title="dialogTitle"
+        title="删除选中课程"
         :visible.sync="deleteVisible"
-        width="30%"
+        width="400px"
         :show-close="false"
         :destroy-on-close="true"
       >
@@ -130,6 +136,7 @@ import { LOAD_CHILDREN_OPTIONS } from '@riophae/vue-treeselect'
 import { Notification } from 'element-ui'
 
 export default {
+  name: 'Subject',
   components: { Treeselect },
   data() {
     return {
@@ -154,11 +161,12 @@ export default {
         enabled: 'true',
         joinPermission: 'true',
         studentCount: '0',
-        teacherName: null,
+        teacherName: 'default',
+        userName: '123',
         college: { id: null },
-        userName: null,
         signCount: '0',
-        semester: null
+        semester: '2019-2020-1',
+        signHistory: []
       },
       form: null,
       row: null,
@@ -180,14 +188,8 @@ export default {
     fetchData() {
       this.ids = []
       this.listLoading = true
-      const page = 0
-      const size = 999
-      const sort = 'id,desc'
-      const blurry = this.name
-      let params = null
-      params = { page, size, sort, blurry }
-      crudClass.get(params).then(response => {
-        const content = response.content
+      crudClass.getPart().then(response => {
+        const content = response
         const res = new Map()
         this.tableData = content.filter((arr) => {
           let value = [arr.courseName, arr.college.id]
@@ -209,39 +211,36 @@ export default {
       } else {
         this.listLoading = true
         this.currentPage = 1
-        console.log('search', this.name.length, this.currentPage)
         this.fetchData()
       }
     },
     update() {
       this.$refs['form'].validate((valid) => {
         if (valid) {
-          console.log('form', this.form)
           this.form.className = this.form.courseName
           this.listLoading = true
           if (this.form.id === null) {
             crudClass.add(this.form).then(response => {
-              console.log('afterAdd', response)
               this.notifiSuccess('新增成功')
+              this.closeForm()
+              this.fetchData()
             }).catch(() => {
               this.notifiError('新增失败')
             })
           } else {
             crudClass.edit(this.form).then(response => {
-              console.log('update', response)
               this.notifiSuccess('编辑成功')
+              this.closeForm()
+              this.fetchData()
             }).catch(() => {
               this.notifiError('编辑失败')
             })
           }
-          this.closeForm()
-          this.fetchData()
         }
       })
     },
     deleteData() {
       crudClass.del(this.ids).then(response => {
-        console.log('delete', response)
         this.row = JSON.parse(JSON.stringify(this.defaultForm))
         this.$refs.table.setCurrentRow()
         this.notifiSuccess('删除成功')
@@ -266,14 +265,10 @@ export default {
       this.fetchData()
     },
     handleSizeChange(val) {
-      console.log(`每页 ${val} 条`)
-      console.log(this.pagesize)
       this.pagesize = val
       this.fetchData()
     },
     handleCurrentChange(val) {
-      console.log(`当前页: ${val}`)
-      console.log(this.currentPage)
       this.currentPage = val
       this.fetchData()
     },
@@ -284,14 +279,12 @@ export default {
       this.visible = true
     },
     handleEdit(index, row) {
-      this.dialogTitle = '编辑信息'
-      console.log(index, row)
+      this.dialogTitle = '编辑课程'
       this.form = JSON.parse(JSON.stringify(row))
       this.getSupDepts(this.form.college.id)
-      setTimeout(this.visible = true, 300)
+      this.visible = true
     },
     handleDelete(index, row) {
-      console.log(index, row)
       this.form = JSON.parse(JSON.stringify(row))
       this.ids = [this.form.id]
       this.deleteVisible = true
@@ -339,13 +332,11 @@ export default {
       }
     },
     handleSelectionChange(val) {
-      console.log('val', val)
       const ids = []
       val.forEach(data => {
         ids.push(data.id)
       })
       this.ids = ids
-      console.log('多选', this.ids)
     },
     notifiSuccess(title) {
       Notification.success({

@@ -103,10 +103,10 @@
       </el-col>
     </el-row>
     <el-dialog
-      titel="编辑学习行为"
+      :titel="dialogTitle"
       :visible.sync="visible1"
       width="400px"
-      :show-close="false"
+      :show-close="true"
       :destroy-on-close="true"
     >
       <el-col>
@@ -125,7 +125,7 @@
       </span>
     </el-dialog>
     <el-dialog
-      titel="编辑出勤设置"
+      :titel="dialogTitle"
       :visible.sync="visible2"
       width="400px"
       :show-close="false"
@@ -155,8 +155,10 @@ import { mapGetters } from 'vuex'
 import { Notification } from 'element-ui'
 
 export default {
+  name: 'Study',
   data() {
     return {
+      dialogTitle: '',
       defaultForm: {
         id: null,
         sysVal: {
@@ -223,7 +225,6 @@ export default {
           this.currentPage -= 1
           this.fetchData()
         }
-        console.log('search', this.tableData, this.total)
         this.tableLoading = false
       })
       crudPresent.getList(this.name1).then(response => {
@@ -231,18 +232,18 @@ export default {
       })
     },
     handlesearch() {
-      console.log('search', this.name.length, this.currentPage)
       this.fetchData()
     },
     handlesearch1() {
-      console.log('search', this.name1.length)
       this.fetchData()
     },
     handleadd() {
+      this.dialogTitle = '添加学习行为'
       this.form = JSON.parse(JSON.stringify(this.defaultForm))
       this.visible1 = true
     },
     handleadd1() {
+      this.dialogTitle = '添加出勤等级'
       this.preform = {
         id: 0,
         name: '',
@@ -256,32 +257,28 @@ export default {
     },
     handleSizeChange(val) {
       this.tableLoading = true
-      console.log(`每页 ${val} 条`)
-      console.log(this.pagesize)
       this.pagesize = val
       this.fetchData()
     },
     tableCurrentChange(val) {
-      console.log(`第 ${val.id} 条`)
       this.row = val.id
     },
     tableCurrentChange1(val) {
-      console.log(`第 ${val.id} 条`)
       this.row = val.id
     },
     handleCurrentChange(val) {
       this.tableLoading = true
-      console.log(`当前页: ${val}`)
-      console.log(this.currentPage)
       this.currentPage = val
       this.fetchData()
     },
     handleEdit(index, row, visible) {
       if (visible === 1) {
+        this.dialogTitle = '编辑学习行为'
         this.form = JSON.parse(JSON.stringify(row))
         this.visible1 = true
       }
       if (visible === 2) {
+        this.dialogTitle = '编辑出勤等级'
         this.visible2 = true
         this.preform = JSON.parse(JSON.stringify(row))
       }
@@ -290,7 +287,6 @@ export default {
       if (visible === 2) {
         row = JSON.parse(JSON.stringify(row))
         crudPresent.deleteItem(row).then(response => {
-          console.log('delete', response.data)
           this.fetchData()
         })
       }
@@ -299,10 +295,8 @@ export default {
       if (visible === 1) {
         this.$refs['form'].validate((valid) => {
           if (valid) {
-            console.log('form', this.form)
             if (this.form.id !== null) {
               crudStudy.edit(this.form).then(response => {
-                console.log('update', response.data)
                 this.closeForm()
                 this.fetchData()
               })
@@ -313,18 +307,14 @@ export default {
       if (visible === 2) {
         this.$refs['preform'].validate((valid) => {
           if (valid) {
-            console.log('preform', this.preform)
             if (this.preform.id === 0) {
               crudPresent.addItem(this.preform).then(response => {
-                console.log('add', response.data)
                 this.newItem = response.data
-                console.log('newItem1', response.data)
                 this.closeForm()
                 this.fetchData()
               })
             } else {
               crudPresent.updateList(this.preform).then(response => {
-                console.log('update', response.data)
                 this.closeForm()
                 this.fetchData()
               })

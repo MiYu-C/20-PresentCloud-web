@@ -132,30 +132,24 @@ export default {
       getList(this.currentPage, this.pagesize, this.order, this.name).then(response => {
         this.tableData = response.data.items
         this.total = response.data.total
-        console.log('search', this.tableData, this.total)
         this.listLoading = false
       })
     },
     search() {
-      console.log('search', this.name.length, this.currentPage)
       this.fetchData()
     },
     closeForm() {
       this.visible = false
     },
     update() {
-      console.log('form', this.form)
       this.listLoading = true
       updateList(this.form).then(response => {
-        console.log('update', response.data)
       })
       this.form.id = this.total + 1
       addItem(this.form).then(response => {
-        console.log('add', response.data)
       })
       // this.index = this.form.index
       // delete this.form.index
-      // console.log(this.form.index)
       // this.$set(this.tableData, this.index, this.form)
       this.closeForm()
       this.fetchData()
@@ -165,15 +159,11 @@ export default {
       // index = this.tableData.findIndex(item => item.id === row.id)
       this.form = JSON.parse(JSON.stringify(row))
       // this.$set(this.form, 'index', index)
-      // console.log('A', this.tableData[index].name)
     },
     handleDelete(index, row) {
-      console.log(index, row)
       row = JSON.parse(JSON.stringify(row))
       deleteItem(row).then(response => {
-        console.log('delete', response.data)
       })
-      console.log('delete', row.id, this.currentPage)
       this.fetchData()
     },
     getMsg(data) {
@@ -185,7 +175,6 @@ export default {
       this.currentRow = val
     },
     sortChange(column) {
-      console.log(column)
       this.order = column.order
       this.fetchData()
     }

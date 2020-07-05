@@ -85,7 +85,7 @@
         </el-row>
       </div>
       <el-dialog
-        title="编辑信息"
+        :title="dialogTitle"
         :visible.sync="visible"
         width="650px"
         :show-close="false"
@@ -149,7 +149,7 @@
       <el-dialog
         title="确认删除"
         :visible.sync="deleteVisible"
-        width="30%"
+        width="400px"
         :show-close="false"
         :destroy-on-close="true"
       >
@@ -182,9 +182,8 @@ export default {
   data() {
     return {
       name: '',
+      dialogTitle: '',
       valueConsistsOf: 'ALL',
-      // valueConsistsOf: 'BRANCH_PRIORITY',
-      // valueConsistsOf: 'ALL_WITH_INDETERMINATE',
       visible: false,
       deleteVisible: false,
       save: false,
@@ -237,7 +236,6 @@ export default {
       crudRoles.getList(params).then(response => {
         this.tableData = response.content
         this.total = response.totalElements
-        console.log('tableData', this.tableData)
         if ((this.currentPage - 1) * this.pagesize >= this.total && this.currentPage > 1) {
           this.currentPage -= 1
           this.fetchData()
@@ -246,27 +244,22 @@ export default {
       })
     },
     handleSizeChange(val) {
-      console.log(`每页 ${val} 条`)
-      console.log(this.pagesize)
       this.pagesize = val
     },
     handleCurrentChange(val) {
-      console.log(`当前页: ${val}`)
-      console.log(this.currentPage)
       this.currentPage = val
     },
     tableCurrentChange(val) {
-      console.log(val)
     },
     handleAdd() {
-      console.log('defaultForm', this.defaultForm)
+      this.dialogTitle = '新增角色'
       this.form = JSON.parse(JSON.stringify(this.defaultForm))
       this.roleMenus = []
       this.getMenus()
-      console.log('form', this.form)
       this.visible = true
     },
     handleEdit(index, row) {
+      this.dialogTitle = '编辑角色'
       this.form = JSON.parse(JSON.stringify(row))
       this.roleMenus = []
       if (this.form.dataScope === '自定义') {
@@ -286,8 +279,6 @@ export default {
         })
         this.roleMenus = menus
       }
-      console.log('roleMenus:', this.roleMenus)
-      console.log('depts:', this.form.depts)
       const depts = []
       this.form.depts.forEach(function(dept) {
         depts.push(dept.id)
@@ -296,7 +287,6 @@ export default {
       this.visible = true
     },
     handleDelete(index, row) {
-      console.log(index, row)
       this.form = JSON.parse(JSON.stringify(row))
       this.ids = [this.form.id]
       this.deleteVisible = true
@@ -304,7 +294,6 @@ export default {
     handlesearch() {
       this.listLoading = true
       this.fetchData()
-      console.log('search')
     },
     update() {
       this.$refs['form'].validate((valid) => {
@@ -352,7 +341,6 @@ export default {
     },
     deleteData() {
       crudRoles.del(this.ids).then(response => {
-        console.log('delete', response)
         this.row = JSON.parse(JSON.stringify(this.defaultForm))
         this.$refs.table.setCurrentRow()
         this.notifiSuccess('删除成功')
@@ -369,12 +357,9 @@ export default {
       this.form = JSON.parse(JSON.stringify(this.defaultForm))
     },
     setTreeData(source, id) {
-      console.log('source', source)
       const cloneData = JSON.parse(JSON.stringify(source)) // 对源数据深度克隆
-      console.log('cloneData', cloneData)
       return cloneData.filter(father => { // 循环所有项，并添加children属性
         const branchArr = cloneData.filter(child => Number(father.id) === Number(child.fatherId)) // 返回每一项的子级数组
-        // console.log('branchArr', branchArr)
         branchArr.length > 0 ? father.children = branchArr : father.children = [] // 给父级添加一个children属性，并赋值
         return father.fatherId === id // 返回第一层
       })
@@ -398,9 +383,7 @@ export default {
     // 树形控件过滤
     filterNode(value, data) {
       if (!value) return true
-      // console.log('data', data.id, value)
       return value.indexOf(data.id) !== -1
-      // console.log('data', data.id)
     },
     getDepts() {
       getDepts({ enabled: true }).then(res => {
@@ -419,13 +402,11 @@ export default {
       })
       getDeptSuperior(ids).then(res => {
         const date = res.content
-        console.log('getDeptSuperior', date)
         this.buildDepts(date)
         this.depts = date
       })
     },
     buildDepts(depts) {
-      console.log('buildDepts', depts)
       depts.forEach(data => {
         if (data.children) {
           this.buildDepts(data.children)
@@ -467,13 +448,11 @@ export default {
       })
       getMenuSuperior(ids).then(res => {
         const date = res
-        console.log('getMenuSuperior', date)
         this.buildMenus(date)
         this.menus = date
       })
     },
     buildMenus(menus) {
-      console.log('buildMenus', menus)
       menus.forEach(data => {
         if (data.children) {
           this.buildMenus(data.children)
@@ -499,19 +478,16 @@ export default {
       }
     },
     changeScope() {
-      console.log(this.form.dataScope)
       if (this.form.dataScope === '自定义') {
         this.getDepts()
       }
     },
     handleSelectionChange(val) {
-      console.log('val', val)
       const ids = []
       val.forEach(data => {
         ids.push(data.id)
       })
       this.ids = ids
-      console.log('多选', this.ids)
     },
     saveMenu() {
       this.menuLoading = true
@@ -520,11 +496,11 @@ export default {
         const menu = { id: id }
         role.menus.push(menu)
       })
-      console.log(role)
       this.$refs.table.setCurrentRow()
       crudRoles.editMenu(role).then(() => {
-      }).catch(err => {
-        console.log(err.response.data.message)
+        this.notifiSuccess('编辑菜单成功')
+      }).catch(() => {
+        this.notifiError('编辑菜单失败')
       })
     },
     notifiSuccess(title) {

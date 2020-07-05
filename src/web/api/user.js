@@ -31,11 +31,19 @@ export function logout() {
   })
 }
 
-export function changePassword(form) {
+// export function changePassword(form) {
+//   return request({
+//     url: '/present-cloud/user/changePassword',
+//     method: 'post',
+//     params: { form }
+//   })
+// }
+
+export function changePassword(data) {
   return request({
-    url: '/present-cloud/user/changePassword',
+    url: 'api/users/resetPass',
     method: 'post',
-    params: { form }
+    data
   })
 }
 

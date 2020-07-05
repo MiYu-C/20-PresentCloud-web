@@ -90,10 +90,9 @@ export default {
               window.clearInterval(_this.timer)
             }
           }, 1000)
-        }).catch(err => {
+        }).catch(() => {
           this.resetForm()
           this.codeLoading = false
-          console.log(err.response.data.message)
         })
       }
     },
@@ -110,9 +109,8 @@ export default {
               duration: 1500
             })
             store.dispatch('GetInfo').then(() => {})
-          }).catch(err => {
+          }).catch(() => {
             this.loading = false
-            console.log(err.response.data.message)
           })
         } else {
           return false
