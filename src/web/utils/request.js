@@ -107,7 +107,7 @@ service.interceptors.response.use(
         const errorMsg = error.response.data.message
         if (errorMsg !== undefined) {
           Notification.error({
-            title: errorMsg.length < 20 ? errorMsg : '未知异常',
+            title: errorMsg.length < 20 ? errorMsg : '未知异常,请刷新',
             duration: 5000
           })
         }
