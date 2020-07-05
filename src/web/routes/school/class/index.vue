@@ -46,17 +46,6 @@
       </el-table>
       <!--分页组件-->
       <pagination />
-      <el-dialog title="选课学生信息" :visible.sync="studentDialog" append-to-body width="80%">
-        <el-table :data="studentData">
-          <el-table-column prop="name" label="姓名" align="center" />
-          <el-table-column prop="studentNumber" label="学号" align="center" />
-          <el-table-column prop="sex" label="性别" align="center" />
-          <el-table-column :show-overflow-tooltip="true" width="180" prop="college.name" label="院校" align="center" />
-          <el-table-column prop="email" label="邮箱" min-width="130px" align="center" />
-          <el-table-column prop="phone" label="手机号码" min-width="130px" align="center" />
-          <el-table-column prop="experience" label="课程经验" min-width="130px" align="center" />
-        </el-table>
-      </el-dialog>
     </div>
   </div>
 </template>

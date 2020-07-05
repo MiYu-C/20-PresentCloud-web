@@ -1,17 +1,17 @@
 import request from '@/web/utils/request'
 
-export function getStudents(id) {
-  return request({
-    url: 'api/course/student?id=' + id,
-    method: 'get'
-  })
-}
-
 export function get(params) {
   return request({
     url: 'api/course',
     method: 'get',
     params
+  })
+}
+
+export function getPart() {
+  return request({
+    url: 'api/course/partInfo',
+    method: 'get'
   })
 }
 
@@ -39,4 +39,4 @@ export function edit(data) {
   })
 }
 
-export default { get, add, edit, del }
+export default { get, getPart, add, edit, del }

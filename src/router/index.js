@@ -77,7 +77,7 @@ export const constantRoutes = [
       },
       {
         path: 'system',
-        redirect: '/system/dictionary',
+        redirect: '/example/system/dictionary',
         name: '静态系统管理',
         component: () => import('@/web/routes/system/index'),
         meta: { title: '系统管理', icon: 'monitor' },
@@ -98,7 +98,7 @@ export const constantRoutes = [
       },
       {
         path: 'school',
-        redirect: '/school/schoolList',
+        redirect: '/example/school/schoolList',
         name: '静态学校管理',
         component: () => import('@/web/routes/school/index'),
         meta: { title: '学校管理', icon: 'education' },

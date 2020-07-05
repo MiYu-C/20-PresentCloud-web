@@ -152,6 +152,7 @@
 import crudStudy from '@/web/api/study'
 import crudPresent from '@/web/api/present'
 import { mapGetters } from 'vuex'
+import { Notification } from 'element-ui'
 
 export default {
   data() {
@@ -331,6 +332,18 @@ export default {
           }
         })
       }
+    },
+    notifiSuccess(title) {
+      Notification.success({
+        title: title,
+        duration: 4000
+      })
+    },
+    notifiError(title) {
+      Notification.error({
+        title: title,
+        duration: 4000
+      })
     }
   }
 }

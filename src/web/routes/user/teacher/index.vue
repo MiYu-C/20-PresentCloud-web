@@ -4,10 +4,10 @@
       <el-col :span="18">
         <el-card class="box-card">
           <el-row>
-            <span>姓名：</span>
+            <span>姓名或帐号：</span>
             <el-input
               v-model="name"
-              placeholder="请输入姓名"
+              placeholder="请输入姓名或帐号"
               style="width: 200px;"
             />
             <el-button type="primary" style="margin-left: 10px" @click="search">查询</el-button>
@@ -23,7 +23,6 @@
               :data="tableData"
               style="width: 100%"
               row-key="id"
-              :tree-props="{children: 'children', hasChildren: 'hasChildren'}"
               :row-class-name="tableRowClassName"
               @selection-change="handleSelectionChange"
             >
@@ -42,7 +41,7 @@
               />
               <el-table-column
                 prop="type"
-                label="身份"
+                label="角色"
               >
                 <template slot-scope="scope">
                   <span>{{ scope.row.type.toString() === '1' ? '员工' : '教师' }}</span>
@@ -211,6 +210,7 @@ import { getAll, getLevel } from '@/web/api/role'
 import Treeselect from '@riophae/vue-treeselect'
 import '@riophae/vue-treeselect/dist/vue-treeselect.css'
 import { LOAD_CHILDREN_OPTIONS } from '@riophae/vue-treeselect'
+import { Notification } from 'element-ui'
 
 export default {
   components: { Treeselect },
@@ -332,15 +332,19 @@ export default {
           this.listLoading = true
           if (this.form.id === null) {
             crudUser.add(this.form).then(response => {
-              // console.log('add', response)
+              this.notifiSuccess('新增成功')
               this.closeForm()
               this.fetchData()
+            }).catch(() => {
+              this.notifiError('新增失败')
             })
           } else {
             crudUser.edit(this.form).then(response => {
-              // console.log('update', response)
+              this.notifiSuccess('编辑成功')
               this.closeForm()
               this.fetchData()
+            }).catch(() => {
+              this.notifiError('编辑失败')
             })
           }
         }
@@ -348,8 +352,10 @@ export default {
     },
     deleteData() {
       crudUser.del(this.ids).then(response => {
-        // console.log('delete', response)
+        this.notifiSuccess('删除成功')
         this.fetchData()
+      }).catch(() => {
+        this.notifiError('删除失败')
       })
       this.closeForm()
     },
@@ -527,6 +533,18 @@ export default {
         this.deptId = data.id
       }
       this.fetchData()
+    },
+    notifiSuccess(title) {
+      Notification.success({
+        title: title,
+        duration: 4000
+      })
+    },
+    notifiError(title) {
+      Notification.error({
+        title: title,
+        duration: 4000
+      })
     }
   }
 }

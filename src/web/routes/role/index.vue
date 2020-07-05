@@ -172,6 +172,7 @@ import { getMenus, getMenuSuperior } from '@/web/api/menu'
 import Treeselect from '@riophae/vue-treeselect'
 import '@riophae/vue-treeselect/dist/vue-treeselect.css'
 import { LOAD_CHILDREN_OPTIONS } from '@riophae/vue-treeselect'
+import { Notification } from 'element-ui'
 
 export default {
   name: 'Role',
@@ -313,8 +314,6 @@ export default {
             type: 'warning'
           })
         } else if (valid) {
-          console.log('编辑成功!')
-          console.log('form', this.form)
           this.listLoading = true
           if (this.form.dataScope === '自定义') {
             const depts = []
@@ -328,22 +327,22 @@ export default {
           }
           if (this.form.id === null) {
             crudRoles.add(this.form).then(response => {
-              console.log('add', response)
+              this.notifiSuccess('新增成功')
               this.closeForm()
               this.fetchData()
-            }).catch(error => {
-              console.log('err', error)
+            }).catch(() => {
+              this.notifiError('新增失败')
               this.closeForm()
               this.fetchData()
             })
           } else {
             crudRoles.edit(this.form).then(response => {
-              console.log('update', response)
+              this.notifiSuccess('编辑成功')
               this.saveMenu()
               this.closeForm()
               this.fetchData()
-            }).catch(error => {
-              console.log('err', error)
+            }).catch(() => {
+              this.notifiError('编辑失败')
               this.closeForm()
               this.fetchData()
             })
@@ -356,7 +355,10 @@ export default {
         console.log('delete', response)
         this.row = JSON.parse(JSON.stringify(this.defaultForm))
         this.$refs.table.setCurrentRow()
+        this.notifiSuccess('删除成功')
         this.fetchData()
+      }).catch(() => {
+        this.notifiError('删除失败')
       })
       this.closeForm()
     },
@@ -523,6 +525,18 @@ export default {
       crudRoles.editMenu(role).then(() => {
       }).catch(err => {
         console.log(err.response.data.message)
+      })
+    },
+    notifiSuccess(title) {
+      Notification.success({
+        title: title,
+        duration: 4000
+      })
+    },
+    notifiError(title) {
+      Notification.error({
+        title: title,
+        duration: 4000
       })
     }
   }

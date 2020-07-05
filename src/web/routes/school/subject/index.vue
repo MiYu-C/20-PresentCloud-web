@@ -1,153 +1,140 @@
 <template>
-  <el-card class="box-card">
-    <div>
-      <el-row>
-        <span>课程名：</span>
-        <el-input
-          v-model="name"
-          placeholder="请输入课程"
-          style="width: 200px;"
-        />
-        <el-button type="primary" style="margin-left: 10px" @click="search">查询</el-button>
-        <el-button @click="resetData">重置</el-button>
-      </el-row>
-      <el-row>
-        <el-button type="primary" size="small" icon="el-icon-plus" @click="handleAdd">添加</el-button>
-      </el-row>
-    </div>
-    <div>
-      <el-table
-        v-loading="listLoading"
-        :data="tableData"
-        style="width: 100%"
-        row-key="id"
-        border
-        :tree-props="{children: 'children', hasChildren: 'hasChildren'}"
+  <div class="app-container">
+    <el-card class="box-card">
+      <div>
+        <el-row>
+          <span>课程名：</span>
+          <el-input
+            v-model="name"
+            placeholder="请输入课程"
+            style="width: 200px;"
+          />
+          <el-button type="primary" style="margin-left: 10px" @click="search">查询</el-button>
+          <el-button @click="resetData">重置</el-button>
+        </el-row>
+        <el-row>
+          <el-button type="primary" size="small" icon="el-icon-plus" @click="handleAdd">添加</el-button>
+          <el-button :disabled="ids.length === 0" type="danger" size="small" @click="deleteVisible = true">删除</el-button>
+        </el-row>
+      </div>
+      <div>
+        <el-row>
+          <el-table
+            ref="table"
+            v-loading="listLoading"
+            :data="tableData"
+            style="width: 100%"
+            row-key="id"
+            @selection-change="handleSelectionChange"
+          >
+            <el-table-column
+              type="selection"
+              width="55"
+            />
+            <el-table-column
+              prop="id"
+              label="课程编号"
+            />
+            <el-table-column
+              prop="courseName"
+              label="课程名"
+              align="center"
+            />
+            <el-table-column
+              prop="college.name"
+              min-width="140px"
+              label="归属院校"
+              align="center"
+            />
+            <el-table-column label="操作" width="170">
+              <template slot-scope="scope">
+                <el-button
+                  size="mini"
+                  @click="handleEdit(scope.$index, scope.row)"
+                >编辑</el-button>
+                <el-button
+                  size="mini"
+                  type="danger"
+                  @click="handleDelete(scope.$index, scope.row)"
+                >删除</el-button>
+              </template>
+            </el-table-column>
+          </el-table>
+        </el-row>
+        <el-row>
+          <el-pagination
+            background
+            :current-page="currentPage"
+            :page-sizes="pagesizes"
+            :page-size="pagesize"
+            layout="total, sizes, prev, pager, next, jumper"
+            :total="total"
+            @size-change="handleSizeChange"
+            @current-change="handleCurrentChange"
+          />
+        </el-row>
+      </div>
+      <el-dialog
+        :title="dialogTitle"
+        :visible.sync="visible"
+        width="500px"
+        :show-close="false"
+        :destroy-on-close="true"
       >
-        <el-table-column
-          type="selection"
-          width="55"
-        />
-        <el-table-column
-          prop="name"
-          label="课程名"
-        />
-        <el-table-column
-          prop="school"
-          label="学校"
-        />
-        <el-table-column
-          prop="department"
-          label="院系"
-        />
-        <el-table-column
-          prop="studySchedule"
-          label="课程安排"
-        />
-        <el-table-column label="操作" width="150">
-          <template slot-scope="scope">
-            <el-button
-              size="mini"
-              @click="handleEdit(scope.$index, scope.row)"
-            >编辑</el-button>
-            <el-button
-              size="mini"
-              type="danger"
-              @click="handleDelete(scope.$index, scope.row)"
-            >删除</el-button>
-          </template>
-        </el-table-column>
-      </el-table>
-      <el-row>
-        <el-pagination
-          background
-          :current-page="currentPage"
-          :page-sizes="pagesizes"
-          :page-size="pagesize"
-          layout="total, sizes, prev, pager, next, jumper"
-          :total="total"
-          @size-change="handleSizeChange"
-          @current-change="handleCurrentChange"
-        />
-      </el-row>
-    </div>
-    <el-dialog
-      :title="dialogTitle"
-      :visible.sync="visible"
-      width="50%"
-      :show-close="false"
-      :destroy-on-close="true"
-    >
-      <el-col :span="22">
-        <el-form ref="form" :model="form" :rules="rules" label-position="right" label-width="80px">
-          <el-form-item label="课程名" prop="name">
-            <el-input v-model="form.name" placeholder="请输入课程名" clearable />
-          </el-form-item>
-          <el-form-item label="学校">
-            <el-select v-model="job[0]" filterable placeholder="请选择学校">
-              <el-option
-                v-for="item in schoolList"
-                :key="item.id"
-                :label="item.name"
-                :value="item.name"
+        <el-col :span="22">
+          <el-form ref="form" :model="form" :rules="rules" label-position="right" label-width="80px">
+            <el-form-item label="课程名" prop="courseName">
+              <el-input v-model="form.courseName" style="width: 370px;" />
+            </el-form-item>
+            <el-form-item label="院校">
+              <treeselect
+                v-model="form.college.id"
+                :options="colleges"
+                :load-options="loadColleges"
+                style="width: 370px"
+                placeholder="选择院校"
               />
-            </el-select>
-          </el-form-item>
-          <el-form-item label="院系">
-            <el-select v-model="job[1]" :disabled="disabled" placeholder="请选择院系">
-              <el-option
-                v-for="item in departmentList"
-                :key="item.id"
-                :label="item.name"
-                :value="item.name"
-              />
-            </el-select>
-          </el-form-item>
-          <el-form-item label="课程安排">
-            <el-input v-model="form.studySchedule" placeholder="请输入课程安排" clearable />
-          </el-form-item>
-        </el-form>
-      </el-col>
-      <span slot="footer" class="dialog-footer">
-        <el-button type="primary" @click="update">确 定</el-button>
-        <el-button @click="closeForm">取 消</el-button>
-      </span>
-    </el-dialog>
-    <el-dialog
-      title="确认删除"
-      :visible.sync="deleteVisible"
-      width="30%"
-      :show-close="false"
-      :destroy-on-close="true"
-    >
-      <el-col :span="22">
-        <span>确认删除选中项？</span>
-      </el-col>
-      <span slot="footer" class="dialog-footer">
-        <el-button type="primary" @click="deleteData">确 定</el-button>
-        <el-button @click="closeForm">取 消</el-button>
-      </span>
-    </el-dialog>
-  </el-card>
+            </el-form-item>
+          </el-form>
+        </el-col>
+        <span slot="footer" class="dialog-footer">
+          <el-button type="primary" @click="update">确 定</el-button>
+          <el-button @click="closeForm">取 消</el-button>
+        </span>
+      </el-dialog>
+      <el-dialog
+        :title="dialogTitle"
+        :visible.sync="deleteVisible"
+        width="30%"
+        :show-close="false"
+        :destroy-on-close="true"
+      >
+        <el-col :span="22">
+          <span>确认删除选中项？</span>
+        </el-col>
+        <span slot="footer" class="dialog-footer">
+          <el-button type="primary" @click="deleteData">确 定</el-button>
+          <el-button @click="closeForm">取 消</el-button>
+        </span>
+      </el-dialog>
+    </el-card>
+  </div>
 </template>
 <script>
 // eslint-disable-next-line no-unused-vars
-import { getList, updateList, addItem, deleteItem, isExist } from '@/web/api/subject'
-import { getList as getJobList } from '@/web/api/school'
+import crudClass from '@/web/api/class'
+import { getDepts, getDeptSuperior } from '@/web/api/dept'
+import Treeselect from '@riophae/vue-treeselect'
+import '@riophae/vue-treeselect/dist/vue-treeselect.css'
+import { LOAD_CHILDREN_OPTIONS } from '@riophae/vue-treeselect'
+import { Notification } from 'element-ui'
+
 export default {
+  components: { Treeselect },
   data() {
-    const nameValidate = (rule, value, callback) => {
-      isExist(this.form.id, this.form.name, this.form.school, this.form.department).then(response => {
-        const exist = response.data
-        console.log('exist', exist)
-        if (exist) {
-          callback('课程' + value + '已存在')
-        } else {
-          callback()
-        }
-      })
-    }
     return {
+      addLoading: false,
+      editLoading: false,
       dialogTitle: '',
       visible: false,
       disabled: true,
@@ -160,52 +147,28 @@ export default {
       listLoading: true,
       tableData: [],
       defaultForm: {
-        id: 0,
-        name: '',
-        school: '',
-        department: '',
-        studySchedule: ''
+        id: null,
+        className: null,
+        courseName: null,
+        courseCode: null,
+        enabled: 'true',
+        joinPermission: 'true',
+        studentCount: '0',
+        teacherName: null,
+        college: { id: null },
+        userName: null,
+        signCount: '0',
+        semester: null
       },
       form: null,
       row: null,
       rules: {
         name: [
-          { required: true, message: '请输入', trigger: 'blur' },
-          { validator: nameValidate, trigger: 'blur' }
+          { required: true, message: '请输入', trigger: 'blur' }
         ]
       },
-      job: ['', ''],
-      schoolList: [],
-      departmentList: [],
-      index: 0,
-      fatherId: 0
-    }
-  },
-  watch: {
-    form(n, o) {
-      this.disabled = true
-      console.log('school', n.school)
-      this.job = [n.school, n.department]
-    },
-    job(n, o) {
-      this.disabled = true
-      if (this.schoolList.length > 0) {
-        this.index = this.schoolList.findIndex(item => item.name === n[0])
-        if (this.index > -1) {
-          this.disabled = false
-          console.log('disabled', this.disabled)
-          this.fatherId = this.schoolList[this.index].id
-          console.log('fatherId', this.fatherId)
-          getJobList(-1, -1, 2, '', this.fatherId).then(response => {
-            this.departmentList = response.data.items
-            console.log('departmentList', this.departmentList)
-            console.log('department', n[1])
-            if (this.departmentList.findIndex(item => item.name === n[1]) === -1) {
-              n[1] = this.departmentList[0]
-            }
-          })
-        }
-      }
+      colleges: [],
+      ids: []
     }
   },
   created() {
@@ -215,20 +178,29 @@ export default {
   },
   methods: {
     fetchData() {
+      this.ids = []
       this.listLoading = true
-      getList(this.currentPage, this.pagesize, this.name).then(response => {
-        this.tableData = response.data.items
-        this.total = response.data.total
-        console.log('search', this.tableData, this.total)
+      const page = 0
+      const size = 999
+      const sort = 'id,desc'
+      const blurry = this.name
+      let params = null
+      params = { page, size, sort, blurry }
+      crudClass.get(params).then(response => {
+        const content = response.content
+        const res = new Map()
+        this.tableData = content.filter((arr) => {
+          let value = [arr.courseName, arr.college.id]
+          value = value.toString()
+          return !res.has(value) && res.set(value, 1)
+        })
+        this.total = this.tableData.length
         if ((this.currentPage - 1) * this.pagesize >= this.total && this.currentPage > 1) {
           this.currentPage -= 1
           this.fetchData()
         }
+        this.tableData = this.tableData.slice((this.currentPage - 1) * this.pagesize, this.currentPage * this.pagesize)
         this.listLoading = false
-      })
-      getJobList(-1, -1, 1, '', 1).then(response => {
-        this.schoolList = response.data.items
-        console.log('schoolList', this.schoolList)
       })
     },
     search() {
@@ -244,20 +216,22 @@ export default {
     update() {
       this.$refs['form'].validate((valid) => {
         if (valid) {
-          console.log('编辑成功!')
           console.log('form', this.form)
+          this.form.className = this.form.courseName
           this.listLoading = true
-          this.form.school = this.job[0]
-          this.form.department = this.job[1]
-          if (this.form.id === 0) {
-            addItem(this.form).then(response => {
-              console.log('add', response.data)
-              this.newItem = response.data
-              console.log('afterAdd', response.data)
+          if (this.form.id === null) {
+            crudClass.add(this.form).then(response => {
+              console.log('afterAdd', response)
+              this.notifiSuccess('新增成功')
+            }).catch(() => {
+              this.notifiError('新增失败')
             })
           } else {
-            updateList(this.form).then(response => {
-              console.log('update', response.data)
+            crudClass.edit(this.form).then(response => {
+              console.log('update', response)
+              this.notifiSuccess('编辑成功')
+            }).catch(() => {
+              this.notifiError('编辑失败')
             })
           }
           this.closeForm()
@@ -266,17 +240,24 @@ export default {
       })
     },
     deleteData() {
-      deleteItem(this.form).then(response => {
-        console.log('delete', response.data)
-        this.total = response.data
+      crudClass.del(this.ids).then(response => {
+        console.log('delete', response)
+        this.row = JSON.parse(JSON.stringify(this.defaultForm))
+        this.$refs.table.setCurrentRow()
+        this.notifiSuccess('删除成功')
+        this.fetchData()
+      }).catch(() => {
+        this.notifiError('删除失败')
       })
+      this.closeForm()
       this.closeForm()
       this.fetchData()
     },
     closeForm() {
+      this.form = JSON.parse(JSON.stringify(this.defaultForm))
+      this.ids = []
       this.visible = false
       this.deleteVisible = false
-      this.form = JSON.parse(JSON.stringify(this.defaultForm))
     },
     resetData() {
       this.listLoading = true
@@ -297,32 +278,96 @@ export default {
       this.fetchData()
     },
     handleAdd() {
-      console.log('defaultForm', this.defaultForm)
       this.dialogTitle = '添加课程'
       this.form = JSON.parse(JSON.stringify(this.defaultForm))
-      console.log('form', this.form)
+      this.getDepts()
       this.visible = true
     },
     handleEdit(index, row) {
       this.dialogTitle = '编辑信息'
       console.log(index, row)
       this.form = JSON.parse(JSON.stringify(row))
-      this.visible = true
+      this.getSupDepts(this.form.college.id)
+      setTimeout(this.visible = true, 300)
     },
     handleDelete(index, row) {
       console.log(index, row)
       this.form = JSON.parse(JSON.stringify(row))
+      this.ids = [this.form.id]
       this.deleteVisible = true
+    },
+    getDepts() {
+      getDepts({ enabled: true }).then(res => {
+        this.colleges = res.content.map(function(obj) {
+          if (obj.hasChildren) {
+            obj.children = null
+          }
+          return obj
+        })
+      })
+    },
+    getSupDepts(deptId) {
+      getDeptSuperior(deptId).then(res => {
+        const date = res.content
+        this.buildColleges(date)
+        this.colleges = date
+      })
+    },
+    buildColleges(depts) {
+      depts.forEach(data => {
+        if (data.children) {
+          this.buildColleges(data.children)
+        }
+        if (data.hasChildren && !data.children) {
+          data.children = null
+        }
+      })
+    },
+    loadColleges({ action, parentNode, callback }) {
+      if (action === LOAD_CHILDREN_OPTIONS) {
+        getDepts({ enabled: true, pid: parentNode.id }).then(res => {
+          parentNode.children = res.content.map(function(obj) {
+            if (obj.hasChildren) {
+              obj.children = null
+            }
+            return obj
+          })
+          setTimeout(() => {
+            callback()
+          }, 200)
+        })
+      }
+    },
+    handleSelectionChange(val) {
+      console.log('val', val)
+      const ids = []
+      val.forEach(data => {
+        ids.push(data.id)
+      })
+      this.ids = ids
+      console.log('多选', this.ids)
+    },
+    notifiSuccess(title) {
+      Notification.success({
+        title: title,
+        duration: 4000
+      })
+    },
+    notifiError(title) {
+      Notification.error({
+        title: title,
+        duration: 4000
+      })
     }
   }
 }
 </script>
 
 <style lang="scss" scoped>
-.box-card {
-    margin: 15px;
-    width: 95%;
-}
+// .box-card {
+//     margin: 15px;
+//     width: 95%;
+// }
 .el-row {
     // margin-top: 10px;
     margin-bottom: 10px;

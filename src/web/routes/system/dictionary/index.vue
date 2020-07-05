@@ -227,6 +227,7 @@
 
 import crudDict from '@/web/api/dictionary'
 import crudDicts from '@/web/api/dicts'
+import { Notification } from 'element-ui'
 
 export default {
   data() {
@@ -375,24 +376,33 @@ export default {
         crudDict.get(this.form.name).then(response => {
           this.formlableData = response.content
           this.formLoading = false
+          this.notifiSuccess('删除成功')
         })
+      }).catch(() => {
+        this.notifiError('删除失败')
       })
     },
     update() {
       this.$refs['form'].validate((valid) => {
         if (valid) {
-          console.log('验证成功!')
-          console.log('form', this.form)
+          // console.log('验证成功!')
+          // console.log('form', this.form)
           this.listLoading = true
           if (this.form.id === null) {
             crudDicts.add(this.form).then(response => {
+              this.notifiSuccess('新增成功')
               this.closeForm()
               this.fetchData()
+            }).catch(() => {
+              this.notifiError('新增失败')
             })
           } else {
             crudDicts.edit(this.form).then(response => {
+              this.notifiSuccess('编辑成功')
               this.closeForm()
               this.fetchData()
+            }).catch(() => {
+              this.notifiError('编辑失败')
             })
           }
         }
@@ -407,7 +417,10 @@ export default {
               crudDict.get(this.form.name).then(response => {
                 this.formlableData = response.content
                 this.formLoading = false
+                this.notifiSuccess('新增成功')
               })
+            }).catch(() => {
+              this.notifiError('新增失败')
             })
           } else {
             crudDict.edit(this.labelForm).then(response => {
@@ -415,7 +428,10 @@ export default {
               crudDict.get(this.form.name).then(response => {
                 this.formlableData = response.content
                 this.formLoading = false
+                this.notifiSuccess('编辑成功')
               })
+            }).catch(() => {
+              this.notifiError('编辑失败')
             })
           }
           this.visibleLabel = false
@@ -429,8 +445,12 @@ export default {
         this.deleteVisible = false
         this.form = JSON.parse(JSON.stringify(this.defaultForm))
         this.row = JSON.parse(JSON.stringify(this.defaultForm))
+        this.notifiSuccess('删除成功')
         this.fetchData()
+      }).catch(() => {
+        this.notifiError('删除失败')
       })
+      this.closeForm()
     },
     closeForm() {
       if (this.form.id !== null) {
@@ -459,6 +479,18 @@ export default {
       })
       this.ids = ids
       console.log('多选', this.ids)
+    },
+    notifiSuccess(title) {
+      Notification.success({
+        title: title,
+        duration: 4000
+      })
+    },
+    notifiError(title) {
+      Notification.error({
+        title: title,
+        duration: 4000
+      })
     }
   }
 }
