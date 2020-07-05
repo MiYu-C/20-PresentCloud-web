@@ -7,38 +7,8 @@
       </div>
 
       <el-tabs v-model="activeName">
-        <!-- <el-tab-pane label="手机号码登录" name="phone">
-          <el-form-item prop="phone">
-            <el-input
-              ref="phone"
-              v-model="loginForm.phone"
-              placeholder="手机号码"
-              name="phone"
-              type="text"
-              tabindex="1"
-              auto-complete="on"
-              prefix-icon="el-icon-mobile-phone"
-            />
-          </el-form-item>
-          <el-form-item prop="code">
-            <el-input
-              ref="code"
-              v-model="loginForm.code"
-              placeholder="验证码"
-              name="code"
-              tabindex="2"
-              auto-complete="on"
-              prefix-icon="el-icon-key"
-            >
-              <el-button slot="append" :disabled="resend" @click="sendCode">{{ codeStatus }}</el-button>
-            </el-input>
-          </el-form-item>
-        </el-tab-pane> -->
         <el-tab-pane label="帐号密码登录" name="username">
           <el-form-item prop="username">
-            <!-- <span class="svg-container">
-              <svg-icon icon-class="user" />
-            </span> -->
             <el-input
               ref="username"
               v-model="loginForm.username"
@@ -52,9 +22,6 @@
           </el-form-item>
 
           <el-form-item prop="password">
-            <!-- <span class="svg-container">
-              <svg-icon icon-class="password" />
-            </span> -->
             <el-input
               :key="passwordType"
               ref="password"
@@ -106,7 +73,7 @@
       <el-col :span="22">
         <el-form ref="ruleForm" :model="ruleForm" :rules="rules" label-position="right">
           <el-form-item label="邮箱" :label-width="formLabelWidth" prop="email">
-            <el-input v-model="ruleForm.email" placeholder="请输入邮箱" clearable >
+            <el-input v-model="ruleForm.email" placeholder="请输入邮箱" clearable>
               <el-button slot="append" :disabled="resend" @click="sendCode">{{ codeStatus }}</el-button>
             </el-input>
           </el-form-item>
